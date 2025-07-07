@@ -427,7 +427,7 @@
         let portfolioChart;
         let isRealDataLoaded = false;
 
-        const BACKEND_URL = window.location.origin; 
+        const BACKEND_URL = "https://838de3bd-02e7-4ba3-8bf0-63ab0412b36f-00-39zqf2mohnweu.pike.replit.dev"; 
 
         // Mock data สำหรับกรณีที่ดึงข้อมูลจริงไม่ได้ (ใช้สำหรับแสดงผลเบื้องต้นและ Fallback)
         const mockTokenDataFallback = [
@@ -499,7 +499,7 @@
         }
 
         /**
-         * ฟังก์ชันสำหรับโหลดข้อมูล Portfolio จาก Backend Server (Vercel Function) ของเรา
+         * ฟังก์ชันสำหรับโหลดข้อมูล Portfolio จาก Backend Server (Replit Backend) ของเรา
          */
         async function loadPortfolioData() {
             // แสดง Spinner และซ่อนส่วน Dashboard อื่นๆ
@@ -510,9 +510,9 @@
             document.getElementById('defiPositions').style.display = 'none';
 
             try {
-                // เรียก API จาก Backend (Vercel Function) ของเราเพื่อดึง Token Balances
+                // เรียก API จาก Backend (Replit) ของเราเพื่อดึง Token Balances
                 // เราจะส่ง wallet address ของผู้ใช้ไปให้ Backend
-                const response = await fetch(`${BACKEND_URL}/api/wallet-data?address=${userAccount}`);
+                const response = await fetch(`${BACKEND_URL}/api/wallet_data?address=${userAccount}`);
                 if (!response.ok) {
                     // ถ้า Backend ตอบกลับมาด้วย Error
                     const errorData = await response.json();
@@ -567,7 +567,7 @@
             tbody.innerHTML = ''; // เคลียร์ข้อมูลเก่า
 
             if (currentTokenData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ccc;">ไม่มี Token Holdings ใน Wallet นี้</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ccc;">ไม่มีข้อมูล Token Holdings (โปรดเชื่อมต่อ Wallet และรอโหลด)</td></tr>`;
                 return;
             }
 
@@ -789,7 +789,7 @@
                 console.error('Error fetching DeFi positions from backend:', error);
                 defiContentDiv.innerHTML = `
                     <div class="position-item"><h3>💰 Lending Positions</h3><p class="mock-data">Aave: $0.00 supplied, $0.00 borrowed (เกิดข้อผิดพลาดในการดึงข้อมูล, แสดงข้อมูลจำลอง)</p></div>
-                    <div class="position-item"><h3>🔄 Liquidity Pools</h3><p class="mock-data">Uniswap V3: No active positions (เกิดข้อผิดพลาดในการดึงข้อมูล, แสดงข้อมูลจำลอง)</p></div>
+                    <div class="position-item"><h3>🔄 Liquidity Pools</h3><p class="mock-data">Uniswap V3: No active positions (ข้อมูลจำลอง)</p></div>
                     <div class="position-item">
                         <h3>🎯 Yield Farming</h3>
                         <p class="mock-data">Claimable Rewards: $0.00 (เกิดข้อผิดพลาดในการดึงข้อมูล, แสดงข้อมูลจำลอง)</p>
