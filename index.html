@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal DeFi Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/web3/1.8.0/web3.min.js"></script>
+    <style>
+        /* CSS ทั่วไป */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+            color: #ffffff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* ส่วนหัว Dashboard */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* ส่วนเชื่อมต่อ Wallet */
+        .wallet-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .connect-btn {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .connect-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .wallet-info {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .wallet-address {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 10px;
+            border-radius: 8px;
+            font-size: 14px;
+            color: #00d4ff;
+            word-wrap: break-word; /* เพื่อให้ Address ไม่ล้นกล่อง */
+        }
+
+        /* ส่วนแสดง Dashboard หลัก */
+        .dashboard {
+            display: none; /* เริ่มต้นซ่อนไว้ */
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .portfolio-overview {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .portfolio-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+
+        .change-positive {
+            color: #00ff88;
+        }
+
+        .change-negative {
+            color: #ff4757;
+        }
+
+        /* สีสำหรับข้อมูลจริง/จำลอง */
+        .real-data {
+            color: #00d4ff;
+        }
+
+        .mock-data {
+            color: #ff8c42;
+        }
+
+        .data-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+            vertical-align: middle;
+        }
+
+        .indicator-real {
+            background-color: #00d4ff;
+            box-shadow: 0 0 6px #00d4ff;
+        }
+
+        .indicator-mock {
+            background-color: #ff8c42;
+            box-shadow: 0 0 6px #ff8c42;
+        }
+
+        .legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ส่วนแสดง Token Holdings */
+        .tokens-section {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tokens-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .tokens-table th,
+        .tokens-table td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tokens-table th {
+            background: rgba(255, 255, 255, 0.05);
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .token-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        /* ส่วนกราฟ */
+        .chart-container {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            height: 400px;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+
+        /* ส่วนแสดงสถิติย่อ */
+        .stats-grid {
+            display: none; /* เริ่มต้นซ่อนไว้ */
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+
+        .stat-label {
+            color: #aaa;
+            margin-top: 5px;
+        }
+
+        /* ส่วน Loading */
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #00d4ff;
+        }
+
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top: 3px solid #00d4ff;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+
+            .tokens-table {
+                font-size: 14px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+        }
+
+        /* Network Badge */
+        .network-badge {
+            background: linear-gradient(45deg, #8247e5, #3d52a0);
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+
+        /* ส่วน DeFi Positions */
+        .defi-positions {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .position-item {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 4px solid #00d4ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Personal DeFi Dashboard</h1>
+            <p>ติดตาม Portfolio ของคุณบน Polygon Network</p>
+            <div class="legend">
+                <div class="legend-item">
+                    <div class="data-indicator indicator-real"></div>
+                    <span class="real-data">ข้อมูลจริงจาก Blockchain</span>
+                </div>
+                <div class="legend-item">
+                    <div class="data-indicator indicator-mock"></div>
+                    <span class="mock-data">ข้อมูลจำลองสำหรับ Demo</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="wallet-section">
+            <h2>🔗 เชื่อมต่อ Wallet</h2>
+            <button class="connect-btn" id="connectWalletBtn">
+                Connect MetaMask
+            </button>
+            <div class="wallet-info" id="walletInfo">
+                <p><strong>Connected Address:</strong></p>
+                <div class="wallet-address real-data" id="walletAddress"></div>
+                <p><strong>Network:</strong> <span class="real-data">Polygon Mainnet</span> <span class="network-badge">MATIC</span></p>
+            </div>
+        </div>
+
+        <div class="loading" id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>กำลังโหลดข้อมูล Portfolio...</p>
+        </div>
+
+        <div class="dashboard" id="dashboard">
+            <div class="portfolio-overview">
+                <h2>💰 Portfolio Overview</h2>
+                <div class="portfolio-value" id="portfolioValue">$0.00 <span class="data-source-indicator real-data-label"></span></div>
+                <div class="change" id="portfolioChange"></div>
+                <div style="margin-top: 15px;">
+                    <div><strong>Total Tokens:</strong> <span id="totalTokens">0</span> <span class="data-source-indicator real-data-label"></span></div>
+                    <div><strong>Last Updated:</strong> <span class="real-data" id="lastUpdate"></span></div>
+                </div>
+            </div>
+
+            <div class="chart-container">
+                <h2>📈 Portfolio Chart</h2>
+                <div class="chart-wrapper">
+                    <canvas id="portfolioChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="tokens-section" id="tokensSection" style="display: none;">
+            <h2>🪙 Token Holdings</h2>
+            <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;">
+                <span class="data-indicator indicator-real"></span>
+                <span class="real-data">ข้อมูลจะถูกดึงจาก Polygon Network (ผ่าน Backend)</span>
+            </p>
+            <table class="tokens-table">
+                <thead>
+                    <tr>
+                        <th>Token</th>
+                        <th>Balance</th>
+                        <th>Price</th>
+                        <th>Value</th>
+                        <th>24h Change</th>
+                    </tr>
+                </thead>
+                <tbody id="tokensTableBody">
+                    <tr><td colspan="5" style="text-align: center; color: #ccc;">ไม่มีข้อมูล Token Holdings (โปรดเชื่อมต่อ Wallet และรอโหลด)</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="stats-grid" id="statsGrid" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-value" id="stablecoinsValue">$0.00 <span class="data-source-indicator real-data-label"></span></div>
+                <div class="stat-label">Stablecoins</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="altcoinsValue">$0.00 <span class="data-source-indicator real-data-label"></span></div>
+                <div class="stat-label">Altcoins</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="ethDerivativesValue">$0.00 <span class="data-source-indicator real-data-label"></span></div>
+                <div class="stat-label">MATIC & Derivatives</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="numTokens">0 <span class="data-source-indicator real-data-label"></span></div>
+                <div class="stat-label">Total Tokens</div>
+            </div>
+        </div>
+
+        <div class="defi-positions" id="defiPositions" style="display: none;">
+            <h2>🏦 DeFi Positions</h2>
+            <p style="font-size: 14px; color: #aaa; margin-bottom: 15px;">
+                <span class="data-indicator indicator-real"></span>
+                <span class="real-data">ข้อมูลจะถูกดึงจาก API (ผ่าน Backend)</span>
+            </p>
+            <div id="defiPositionsContent">
+                <div class="position-item">
+                    <h3>💰 Lending Positions</h3>
+                    <p class="real-data">กำลังโหลดข้อมูล Lending...</p>
+                </div>
+                <div class="position-item">
+                    <h3>🔄 Liquidity Pools</h3>
+                    <p class="real-data">กำลังโหลดข้อมูล Liquidity Pools...</p>
+                </div>
+                <div class="position-item">
+                    <h3>🎯 Yield Farming</h3>
+                    <p class="real-data">กำลังโหลดข้อมูล Yield Farming...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let web3;
+        let userAccount;
+        let portfolioChart;
+        let isRealDataLoaded = false;
+
+        // URL ของ Backend Server ของเรา (ใน Vercel Functions)
+        // **สำคัญ:** ใน Vercel เมื่อคุณ Deploy โค้ดนี้ URL นี้จะชี้ไปที่ Serverless Function ที่อยู่ในโปรเจกต์เดียวกัน
+        const BACKEND_URL = window.location.origin; 
+        
+        // Mock data สำหรับกรณีที่ดึงข้อมูลจริงไม่ได้ (ใช้สำหรับแสดงผลเบื้องต้นและ Fallback)
+        const mockTokenDataFallback = [
+            { symbol: 'USDC', name: 'USD Coin', balance: '1.87814', price: 1.00, value: 1.87, change24h: -0.00, icon: 'https://cryptologos.cc/logos/usd-coin-usdc-logo.png' },
+            { symbol: 'POL', name: 'Polygon', balance: '9.46293', price: 0.185, value: 1.75, change24h: 1.90, icon: 'https://cryptologos.cc/logos/polygon-matic-logo.png' },
+            { symbol: 'WETH', name: 'Wrapped Ethereum', balance: '0.00024', price: 2583.33, value: 0.62, change24h: 2.66, icon: 'https://cryptologos.cc/logos/ethereum-eth-logo.png' }
+        ];
+
+        let currentTokenData = []; // ตัวแปรนี้จะเก็บข้อมูล Token ที่จะแสดงผล (จริงหรือจำลอง)
+
+        /**
+         * ฟังก์ชันสำหรับเชื่อมต่อ MetaMask Wallet
+         */
+        async function connectWallet() {
+            // ตรวจสอบว่า MetaMask Extension ติดตั้งอยู่หรือไม่
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    // ขออนุญาตเชื่อมต่อกับบัญชี MetaMask
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    userAccount = accounts[0]; // กำหนดบัญชีที่เชื่อมต่อ
+
+                    // Initialise Web3.js ด้วย Provider ของ MetaMask
+                    web3 = new Web3(window.ethereum);
+
+                    // ตรวจสอบ Chain ID ปัจจุบันว่าเป็น Polygon Mainnet (Chain ID: 137)
+                    const chainId = await web3.eth.getChainId();
+                    if (Number(chainId) !== 137) { // ตรวจสอบให้แน่ใจว่า chainId เป็นตัวเลขก่อนเปรียบเทียบ
+                        alert('กรุณาเปลี่ยนเป็น Polygon Mainnet (Chain ID: 137) เพื่อดูข้อมูล Portfolio ของคุณ');
+                        try {
+                            // ลองส่งคำขอให้ MetaMask เปลี่ยน Network ไปที่ Polygon Mainnet
+                            await window.ethereum.request({
+                                method: 'wallet_switchEthereumChain',
+                                params: [{ chainId: web3.utils.toHex(137) }], // Chain ID 137 ในรูปแบบ Hex
+                            });
+                            // ถ้าเปลี่ยนสำเร็จ MetaMask จะส่ง Event 'chainChanged' และจะทำการ reload หน้า
+                        } catch (switchError) {
+                            console.error("Error switching network:", switchError);
+                            // แจ้งเตือนผู้ใช้ถ้าเปลี่ยน Network ไม่สำเร็จ หรือผู้ใช้ปฏิเสธ
+                            if (switchError.code === 4902) {
+                                alert('ไม่พบ Polygon Mainnet ใน MetaMask ของคุณ กรุณาเพิ่ม Network นี้ด้วยตนเอง หรือลองเชื่อมต่ออีกครั้ง');
+                            } else if (switchError.code === 4001) {
+                                alert('การเปลี่ยน Network ถูกปฏิเสธโดยผู้ใช้');
+                            }
+                            return; // หยุดการทำงานถ้า Network ไม่ถูกต้องหรือเปลี่ยนไม่ได้
+                        }
+                    }
+
+                    // อัปเดต UI เมื่อเชื่อมต่อสำเร็จ
+                    document.getElementById('walletAddress').textContent = userAccount;
+                    document.getElementById('walletInfo').style.display = 'block';
+                    document.getElementById('connectWalletBtn').textContent = 'Connected ✅'; // เปลี่ยนข้อความปุ่ม
+                    document.getElementById('connectWalletBtn').disabled = true; // ปิดการใช้งานปุ่ม
+
+                    // โหลดข้อมูล Portfolio จาก Blockchain (ผ่าน Backend Proxy)
+                    await loadPortfolioData();
+
+                } catch (error) {
+                    // จัดการข้อผิดพลาดในการเชื่อมต่อ MetaMask
+                    console.error('Error connecting to MetaMask:', error);
+                    if (error.code === 4001) { // User rejected request
+                        alert('การเชื่อมต่อ MetaMask ถูกปฏิเสธโดยผู้ใช้');
+                    } else {
+                        alert('เกิดข้อผิดพลาดในการเชื่อมต่อ MetaMask: ' + error.message);
+                    }
+                }
+            }
+
+            /**
+             * ฟังก์ชันสำหรับโหลดข้อมูล Portfolio จาก Backend Server (Vercel Function) ของเรา
+             */
+            async function loadPortfolioData() {
+                // แสดง Spinner และซ่อนส่วน Dashboard อื่นๆ
+                document.getElementById('loading').style.display = 'block';
+                document.getElementById('dashboard').style.display = 'none';
+                document.getElementById('tokensSection').style.display = 'none';
+                document.getElementById('statsGrid').style.display = 'none';
+                document.getElementById('defiPositions').style.display = 'none';
+
+                try {
+                    // เรียก API จาก Backend (Vercel Function) ของเราเพื่อดึง Token Balances
+                    // เราจะส่ง wallet address ของผู้ใช้ไปให้ Backend
+                    const response = await fetch(`${BACKEND_URL}/api/wallet-data?address=${userAccount}`);
+                    if (!response.ok) {
+                        // ถ้า Backend ตอบกลับมาด้วย Error
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+                    
+                    currentTokenData = data.tokens; // กำหนดให้ currentTokenData เป็นข้อมูลจริงที่ได้จาก Backend
+
+                    isRealDataLoaded = true; // ตั้งค่า Flag ว่าโหลดข้อมูลจริงสำเร็จ
+                    populateTokensTable(); // อัปเดตตาราง Token
+                    updatePortfolioOverview(); // อัปเดตภาพรวม Portfolio
+                    createPortfolioChart(); // สร้าง/อัปเดตกราฟ
+                    updateStatsGrid(); // อัปเดตสถิติย่อ
+                    fetchDeFiPositions(); // ดึงข้อมูล DeFi Positions (ซึ่งจะเรียก Backend Proxy อีกที)
+
+                } catch (error) {
+                    console.error('Error fetching real data from backend:', error);
+                    alert('เกิดข้อผิดพลาดในการดึงข้อมูล Portfolio จริงจาก Backend อาจเป็นเพราะ Backend ยังไม่ทำงาน, Alchemy API Key ไม่ถูกต้อง, หรือมีปัญหาการเชื่อมต่อ จะแสดงข้อมูลจำลองแทน');
+                    
+                    // หากดึงข้อมูลจริงล้มเหลว ให้กลับไปใช้ข้อมูลจำลอง
+                    currentTokenData = mockTokenDataFallback;
+                    isRealDataLoaded = false; // ตั้งค่า Flag เป็น false
+                    populateTokensTable();
+                    updatePortfolioOverview();
+                    createPortfolioChart();
+                    updateStatsGrid();
+                    // แสดงข้อความข้อมูลจำลองในส่วน DeFi Positions
+                    document.getElementById('defiPositionsContent').innerHTML = `
+                        <div class="position-item"><h3>💰 Lending Positions</h3><p class="mock-data">Aave: $0.00 supplied, $0.00 borrowed (ข้อมูลจำลอง)</p></div>
+                        <div class="position-item"><h3>🔄 Liquidity Pools</h3><p class="mock-data">Uniswap V3: No active positions (ข้อมูลจำลอง)</p></div>
+                        <div class="position-item"><h3>🎯 Yield Farming</h3><p class="mock-data">Claimable Rewards: $0.00 (ข้อมูลจำลอง)</p></div>
+                    `;
+                } finally {
+                    // แสดงส่วน Dashboard ทั้งหมดไม่ว่าจะโหลดข้อมูลจริงหรือจำลอง
+                    document.getElementById('dashboard').style.display = 'grid';
+                    document.getElementById('tokensSection').style.display = 'block';
+                    document.getElementById('statsGrid').style.display = 'grid';
+                    document.getElementById('defiPositions').style.display = 'block';
+                    document.getElementById('loading').style.display = 'none';
+
+                    // อัปเดตเวลาล่าสุด
+                    document.getElementById('lastUpdate').textContent = new Date().toLocaleString('th-TH');
+                }
+            }
+
+            /**
+             * ฟังก์ชันสำหรับสร้างและอัปเดตตาราง Token Holdings
+             */
+            function populateTokensTable() {
+                const tbody = document.getElementById('tokensTableBody');
+                tbody.innerHTML = ''; // เคลียร์ข้อมูลเก่า
+
+                if (currentTokenData.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #ccc;">ไม่มี Token Holdings ใน Wallet นี้</td></tr>`;
+                    return;
+                }
+
+                currentTokenData.forEach(token => {
+                    const row = document.createElement('tr');
+                    const changeClass = token.change24h >= 0 ? 'change-positive' : 'change-negative';
+                    const changeSign = token.change24h >= 0 ? '+' : '';
+                    const dataSourceClass = isRealDataLoaded ? 'real-data' : 'mock-data';
+
+                    row.innerHTML = `
+                        <td>
+                            <img src="${token.icon}" alt="${token.symbol}" class="token-icon" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2224%22 height=%2224%22><circle cx=%2212%22 cy=%2212%22 r=%2210%22 fill=%22%23ff8c42%22/></svg>'">
+                            <span class="${dataSourceClass}">${token.symbol}</span>
+                        </td>
+                        <td class="${dataSourceClass}">${parseFloat(token.balance).toFixed(5)}</td>
+                        <td class="${dataSourceClass}">${token.price ? '$' + token.price.toFixed(2) : 'N/A'}</td>
+                        <td class="${dataSourceClass}">${token.value ? '$' + token.value.toFixed(2) : 'N/A'}</td>
+                        <td class="${changeClass} ${dataSourceClass}">${changeSign}${token.change24h.toFixed(2)}%</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+            }
+
+            /**
+             * ฟังก์ชันสำหรับอัปเดตภาพรวม Portfolio
+             */
+            function updatePortfolioOverview() {
+                const totalValue = currentTokenData.reduce((sum, token) => sum + token.value, 0);
+                document.getElementById('portfolioValue').textContent = `$${totalValue.toFixed(2)}`;
+                document.getElementById('portfolioValue').className = `portfolio-value ${isRealDataLoaded ? 'real-data' : 'mock-data'}`;
+
+                const totalTokens = currentTokenData.length;
+                document.getElementById('totalTokens').textContent = totalTokens;
+                document.getElementById('totalTokens').className = isRealDataLoaded ? 'real-data' : 'mock-data';
+
+                // การคำนวณ 24h Change แบบง่ายๆ (ควรใช้ข้อมูลราคาจริงในอดีตสำหรับความแม่นยำ)
+                let totalChangeValue = 0;
+                let initialValue = 0; // มูลค่ารวมเมื่อ 24 ชม. ที่แล้ว (ประมาณการ)
+                currentTokenData.forEach(token => {
+                    totalChangeValue += token.value * (token.change24h / 100);
+                    initialValue += token.value / (1 + (token.change24h / 100)); 
+                });
+
+                const overallChangePercent = initialValue !== 0 ? (totalChangeValue / initialValue) * 100 : 0;
+                const overallChangeClass = overallChangePercent >= 0 ? 'change-positive' : 'change-negative';
+                const overallChangeSign = overallChangePercent >= 0 ? '+' : '';
+
+                document.getElementById('portfolioChange').innerHTML = `
+                    <span class="${overallChangeClass} ${isRealDataLoaded ? 'real-data' : 'mock-data'}">
+                        ${overallChangeSign}${(totalChangeValue).toFixed(2)} (${overallChangePercent.toFixed(2)}%)
+                    </span>
+                `;
+            }
+
+            /**
+             * ฟังก์ชันสำหรับสร้างและอัปเดตกราฟ Portfolio
+             */
+            function createPortfolioChart() {
+                const ctx = document.getElementById('portfolioChart').getContext('2d');
+
+                if (portfolioChart) {
+                    portfolioChart.destroy(); // ทำลายกราฟเก่าก่อนสร้างใหม่
+                }
+
+                const labels = [];
+                const data = [];
+                
+                // สำหรับกราฟจริง ควรดึงข้อมูลราคาย้อนหลังจาก API (เช่น CoinGecko หรือ Moralis Historical Prices)
+                // สำหรับตอนนี้ ใช้การจำลองข้อมูลราคาในอดีต โดยอิงจากมูลค่าปัจจุบัน
+                const baseValue = currentTokenData.reduce((sum, token) => sum + token.value, 0);
+
+                for (let i = 6; i >= 0; i--) { // สำหรับ 7 วันย้อนหลัง
+                    const date = new Date();
+                    date.setDate(date.getDate() - i);
+                    labels.push(date.toLocaleDateString('th-TH', { month: 'short', day: 'numeric' }));
+                    const randomChange = (Math.random() - 0.5) * (baseValue * 0.05); // +/- 5% ของมูลค่าฐาน
+                    const value = Math.max(0, baseValue + randomChange); // ให้ค่าเป็นบวกเสมอ
+                    data.push(value.toFixed(2));
+                }
+
+                portfolioChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Portfolio Value (USD)',
+                            data: data,
+                            borderColor: '#00d4ff',
+                            backgroundColor: 'rgba(0, 212, 255, 0.1)',
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            intersect: false,
+                            mode: 'index',
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: false,
+                                ticks: {
+                                    color: '#ffffff'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            },
+                            x: {
+                                ticks: {
+                                    color: '#ffffff'
+                                },
+                                grid: {
+                                    color: 'rgba(255, 255, 255, 0.1)'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#ffffff'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            /**
+             * ฟังก์ชันสำหรับอัปเดตส่วนสถิติย่อ (Stablecoins, Altcoins, etc.)
+             */
+            function updateStatsGrid() {
+                let stablecoins = 0;
+                let altcoins = 0;
+                let maticDerivatives = 0; 
+
+                currentTokenData.forEach(token => {
+                    const value = token.value || 0; // ตรวจสอบให้แน่ใจว่า value มีค่า
+                    if (token.symbol === 'USDC' || token.symbol === 'USDT' || token.symbol === 'DAI') {
+                        stablecoins += value;
+                    } else if (token.symbol === 'MATIC' || token.symbol === 'WMATIC') {
+                        maticDerivatives += value;
+                    } else {
+                        altcoins += value;
+                    }
+                });
+
+                document.getElementById('stablecoinsValue').textContent = `$${stablecoins.toFixed(2)}`;
+                document.getElementById('stablecoinsValue').className = `stat-value ${isRealDataLoaded ? 'real-data' : 'mock-data'}`;
+                
+                document.getElementById('altcoinsValue').textContent = `$${altcoins.toFixed(2)}`;
+                document.getElementById('altcoinsValue').className = `stat-value ${isRealDataLoaded ? 'real-data' : 'mock-data'}`;
+
+                document.getElementById('ethDerivativesValue').textContent = `$${maticDerivatives.toFixed(2)}`;
+                document.getElementById('ethDerivativesValue').className = `stat-value ${isRealDataLoaded ? 'real-data' : 'mock-data'}`;
+
+                document.getElementById('numTokens').textContent = currentTokenData.length;
+                document.getElementById('numTokens').className = `stat-value ${isRealDataLoaded ? 'real-data' : 'mock-data'}`;
+            }
+
+            /**
+             * ฟังก์ชันสำหรับดึงข้อมูล DeFi Positions จาก Backend Server ของเรา
+             * *** โปรดทราบ: การดึงข้อมูล DeFi Positions อาจต้องการบริการเสริมของ Alchemy (เช่น Portfolio API) หรือต้องใช้ Third-party API อื่นๆ ***
+             */
+            async function fetchDeFiPositions() {
+                const defiContentDiv = document.getElementById('defiPositionsContent');
+                defiContentDiv.innerHTML = `<div class="loading"><div class="spinner"></div><p>กำลังดึงข้อมูล DeFi Positions...</p></div>`;
+
+                try {
+                    // เรียก API จาก Backend (Vercel Function) เพื่อดึง DeFi Positions
+                    // เราจะส่ง wallet address ของผู้ใช้ไปให้ Backend
+                    const response = await fetch(`${BACKEND_URL}/api/defi-positions?address=${userAccount}`);
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                    }
+                    const data = await response.json();
+
+                    let lendingHtml = '<h3>💰 Lending Positions</h3>';
+                    let lpHtml = '<h3>🔄 Liquidity Pools</h3>';
+                    let farmingHtml = '<h3>🎯 Yield Farming</h3>';
+                    
+                    if (data.positions && data.positions.length > 0) {
+                        data.positions.forEach(position => {
+                            const protocolName = position.protocolName || 'Unknown Protocol';
+                            const positionType = position.type || 'N/A';
+                            const totalUsd = position.total_usd_value ? `$${position.total_usd_value.toFixed(2)}` : 'N/A';
+
+                            if (positionType === 'lending') {
+                                lendingHtml += `<p class="real-data">${protocolName}: ${totalUsd} supplied</p>`;
+                            } else if (positionType === 'lp') {
+                                lpHtml += `<p class="real-data">${protocolName}: ${totalUsd} in LP</p>`;
+                            } else if (positionType === 'staking') {
+                                farmingHtml += `<p class="real-data">${protocolName}: ${totalUsd} staked</p>`;
+                            } else {
+                                farmingHtml += `<p class="real-data">${protocolName}: ${totalUsd} (${positionType})</p>`;
+                            }
+                        });
+                    } else {
+                        lendingHtml += '<p class="real-data">ไม่มีข้อมูล Lending Positions</p>';
+                        lpHtml += '<p class="real-data">ไม่มีข้อมูล Liquidity Pools</p>';
+                        farmingHtml += '<p class="real-data">ไม่มีข้อมูล Yield Farming</p>';
+                    }
+
+                    defiContentDiv.innerHTML = `
+                        <div class="position-item">${lendingHtml}</div>
+                        <div class="position-item">${lpHtml}</div>
+                        <div class="position-item">
+                            ${farmingHtml}
+                            <p style="font-size: 12px; color: #888; margin-top: 10px;">
+                                (หมายเหตุ: การดึงข้อมูล DeFi Positions ต้องการ Alchemy Portfolio API หรือ API อื่น)
+                            </p>
+                        </div>
+                    `;
+                } catch (error) {
+                    console.error('Error fetching DeFi positions from backend:', error);
+                    defiContentDiv.innerHTML = `
+                        <div class="position-item"><h3>💰 Lending Positions</h3><p class="mock-data">Aave: $0.00 supplied, $0.00 borrowed (เกิดข้อผิดพลาดในการดึงข้อมูล, แสดงข้อมูลจำลอง)</p></div>
+                        <div class="position-item"><h3>🔄 Liquidity Pools</h3><p class="mock-data">Uniswap V3: No active positions (เกิดข้อผิดพลาดในการดึงข้อมูล, แสดงข้อมูลจำลอง)</p></div>
+                        <div class="position-item">
+                            <h3>🎯 Yield Farming</h3>
+                            <p class="mock-data">Claimable Rewards: $0.00 (เกิดข้อผิดพลาดในการดึงข้อมูล, แสดงข้อมูลจำลอง)</p>
+                            <p style="font-size: 12px; color: #888; margin-top: 10px;">
+                                (หมายเหตุ: การดึงข้อมูล DeFi Positions อาจต้องการบริการเสริม หรือ API อื่น)
+                            </p>
+                        </div>
+                    `;
+                }
+            }
+
+            /**
+             * ฟังก์ชันสำหรับอัปเดตราคาจำลอง (ใช้เมื่อโหลดข้อมูลจริงไม่ได้)
+             */
+            function updateMockPrices() {
+                mockTokenDataFallback.forEach(token => { // ใช้ mockTokenDataFallback โดยตรง
+                    const priceChange = (Math.random() - 0.5) * 0.02; 
+                    token.price = token.price * (1 + priceChange);
+                    token.value = parseFloat(token.balance) * token.price;
+                    token.change24h = (Math.random() - 0.5) * 10; 
+                });
+                currentTokenData = mockTokenDataFallback; // อัปเดต currentTokenData ด้วยข้อมูลจำลอง
+                populateTokensTable();
+                updatePortfolioOverview();
+                createPortfolioChart(); 
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleString('th-TH');
+            }
+
+            // ตั้งเวลาสำหรับอัปเดตข้อมูล (ทุก 30 วินาที)
+            setInterval(() => {
+                if (userAccount) { // ถ้าเชื่อมต่อ Wallet แล้ว พยายามโหลดข้อมูลใหม่ (จริง)
+                    loadPortfolioData();
+                } else {
+                    updateMockPrices(); // ถ้ายังไม่ได้เชื่อมต่อ Wallet ให้หมุนเวียน Mock Data ไปเรื่อยๆ
+                }
+            }, 30000); 
+
+            // ตรวจจับการเปลี่ยนบัญชีใน MetaMask
+            if (typeof window.ethereum !== 'undefined') {
+                window.ethereum.on('accountsChanged', function (accounts) {
+                    if (accounts.length === 0) {
+                        location.reload(); // ถ้ายกเลิกการเชื่อมต่อ ให้ Reload หน้า
+                    } else {
+                        userAccount = accounts[0];
+                        document.getElementById('walletAddress').textContent = userAccount;
+                        loadPortfolioData(); // โหลดข้อมูลใหม่สำหรับบัญชีใหม่
+                    }
+                });
+
+                // ตรวจจับการเปลี่ยน Network ใน MetaMask
+                window.ethereum.on('chainChanged', function (chainId) {
+                    if (Number(chainId) === 137) {
+                        location.reload(); // ถ้าเปลี่ยนมาเป็น Polygon Mainnet ให้ Reload หน้า
+                    } else {
+                        alert('คุณเปลี่ยนไป Network อื่นแล้ว กรุณาเปลี่ยนกลับมาที่ Polygon Mainnet เพื่อดู Portfolio ของคุณ');
+                    }
+                });
+            }
+
+            // เริ่มต้นการทำงานเมื่อหน้าเว็บโหลดเสร็จสมบูรณ์
+            window.addEventListener('load', async function() {
+                // คำเตือนเกี่ยวกับ API Key ของ Alchemy (Frontend ไม่รู้ Key ตรงๆ แต่ไว้เตือนว่าต้องใส่ใน Backend)
+                // ข้อความเตือนนี้จะปรากฏใน Console และ Alert ของเบราว์เซอร์
+                const alchemyApiKeyPlaceholder = "YOUR_ALCHEMY_API_KEY_GOES_HERE_IN_VERCEL_FUNCTION"; 
+                if (alchemyApiKeyPlaceholder === "YOUR_ALCHEMY_API_KEY_GOES_HERE_IN_VERCEL_FUNCTION") {
+                    console.warn("*** คำเตือน: กรุณาใส่ Alchemy API Key ของคุณใน Environment Variables ของ Vercel Function (BACKEND PROXY) เพื่อดึงข้อมูลจริงจาก Blockchain ***");
+                    alert("กรุณาใส่ Alchemy API Key ของคุณใน Environment Variables ของ Vercel Functions (ที่เราจะสร้างในขั้นตอนต่อไป) เพื่อให้ Dashboard ทำงานกับข้อมูลจริงได้! ตอนนี้จะแสดงข้อมูลจำลองไปก่อน");
+                }
+
+                // เพิ่ม Event Listener สำหรับปุ่ม Connect MetaMask
+                const connectButton = document.getElementById('connectWalletBtn');
+                if (connectButton) {
+                    connectButton.addEventListener('click', connectWallet);
+                }
+
+                // ตรวจสอบสถานะการเชื่อมต่อ MetaMask เมื่อโหลดหน้า
+                if (typeof window.ethereum !== 'undefined') {
+                    try {
+                        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                        if (accounts.length > 0) { // ถ้ามีบัญชีที่เชื่อมต่ออยู่แล้ว
+                            userAccount = accounts[0];
+                            web3 = new Web3(window.ethereum);
+                            document.getElementById('walletAddress').textContent = userAccount;
+                            document.getElementById('walletInfo').style.display = 'block';
+                            document.getElementById('connectWalletBtn').textContent = 'Connected ✅';
+                            document.getElementById('connectWalletBtn').disabled = true;
+                            
+                            const chainId = await web3.eth.getChainId();
+                            if (Number(chainId) === 137) { // ถ้าอยู่บน Polygon Mainnet
+                                await loadPortfolioData(); // โหลดข้อมูลจริง (ผ่าน Backend Proxy)
+                            } else {
+                                // ถ้าเชื่อมต่ออยู่แล้วแต่ไม่ได้อยู่บน Polygon ให้แสดงข้อมูลจำลอง
+                                alert('เชื่อมต่อ MetaMask แล้ว แต่ไม่ได้อยู่บน Polygon Mainnet กรุณาเปลี่ยน Network ใน MetaMask เพื่อดูข้อมูล Portfolio ของคุณ');
+                                currentTokenData = mockTokenDataFallback;
+                                isRealDataLoaded = false;
+                                populateTokensTable();
+                                updatePortfolioOverview();
+                                createPortfolioChart();
+                                updateStatsGrid();
+                                document.getElementById('defiPositionsContent').innerHTML = `
+                                    <div class="position-item"><h3>💰 Lending Positions</h3><p class="mock-data">Aave: $0.00 supplied, $0.00 borrowed (ข้อมูลจำลอง)</p></div>
+                                    <div class="position-item"><h3>🔄 Liquidity Pools</h3><p class="mock-data">Uniswap V3: No active positions (ข้อมูลจำลอง)</p></div>
+                                    <div class="position-item"><h3>🎯 Yield Farming</h3><p class="mock-data">Claimable Rewards: $0.00 (ข้อมูลจำลอง)</p></div>
+                                `;
+                                document.getElementById('dashboard').style.display = 'grid';
+                                document.getElementById('tokensSection').style.display = 'block';
+                                document.getElementById('statsGrid').style.display = 'grid';
+                                document.getElementById('defiPositions').style.display = 'block';
+                                document.getElementById('loading').style.display = 'none';
+                                document.getElementById('lastUpdate').textContent = new Date().toLocaleString('th-TH');
+                            }
+                        } else {
+                            // ถ้ายังไม่ได้เชื่อมต่อ MetaMask ให้แสดงข้อมูลจำลองเบื้องต้น
+                            currentTokenData = mockTokenDataFallback;
+                            isRealDataLoaded = false;
+                            populateTokensTable();
+                            updatePortfolioOverview();
+                            createPortfolioChart();
+                            updateStatsGrid();
+                            document.getElementById('defiPositionsContent').innerHTML = `
+                                <div class="position-item"><h3>💰 Lending Positions</h3><p class="mock-data">Aave: $0.00 supplied, $0.00 borrowed (ข้อมูลจำลอง)</p></div>
+                                <div class="position-item"><h3>🔄 Liquidity Pools</h3><p class="mock-data">Uniswap V3: No active positions (ข้อมูลจำลอง)</p></div>
+                                <div class="position-item"><h3>🎯 Yield Farming</h3><p class="mock-data">Claimable Rewards: $0.00 (ข้อมูลจำลอง)</p></div>
+                            `;
+                            document.getElementById('dashboard').style.display = 'grid';
+                            document.getElementById('tokensSection').style.display = 'block';
+                            document.getElementById('statsGrid').style.display = 'grid';
+                            document.getElementById('defiPositions').style.display = 'block';
+                            document.getElementById('loading').style.display = 'none';
+                            document.getElementById('lastUpdate').textContent = new Date().toLocaleString('th-TH');
+                        }
+                    } catch (err) {
+                        console.error("Error checking MetaMask connection on load:", err);
+                        alert("ไม่สามารถตรวจสอบสถานะ MetaMask ได้: " + err.message);
+                    }
+                } else {
+                    // ถ้า MetaMask ไม่ได้ติดตั้ง ให้แสดงข้อมูลจำลองเบื้องต้น
+                    currentTokenData = mockTokenDataFallback;
+                    isRealDataLoaded = false;
+                    populateTokensTable();
+                    updatePortfolioOverview();
+                    createPortfolioChart();
+                    updateStatsGrid();
+                    document.getElementById('defiPositionsContent').innerHTML = `
+                        <div class="position-item"><h3>💰 Lending Positions</h3><p class="mock-data">Aave: $0.00 supplied, $0.00 borrowed (ข้อมูลจำลอง)</p></div>
+                        <div class="position-item"><h3>🔄 Liquidity Pools</h3><p class="mock-data">Uniswap V3: No active positions (ข้อมูลจำลอง)</p></div>
+                        <div class="position-item"><h3>🎯 Yield Farming</h3><p class="mock-data">Claimable Rewards: $0.00 (ข้อมูลจำลอง)</p></div>
+                    `;
+                    document.getElementById('dashboard').style.display = 'grid';
+                    document.getElementById('tokensSection').style.display = 'block';
+                    document.getElementById('statsGrid').style.display = 'grid';
+                    document.getElementById('defiPositions').style.display = 'block';
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('lastUpdate').textContent = new Date().toLocaleString('th-TH');
+                }
+            });
+        </script>
+    </body>
+    </html>
