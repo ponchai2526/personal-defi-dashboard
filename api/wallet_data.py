@@ -30,9 +30,16 @@ def get_matic_balance(wallet_address):
         response.raise_for_status() # ตรวจสอบว่า HTTP request สำเร็จหรือไม่
 
         result = response.json()
-        balance_wei = int(result["result"], 16) # Balance ที่ได้มาเป็น Wei (Hex) ต้องแปลงเป็นเลขฐาน 10
-        balance_matic = balance_wei / (10**18) # 1 Ether = 10^18 Wei (MATIC ก็ใช้หน่วยนี้)
-        return balance_matic
+        if "result" in result:
+            balance_wei = int(result["result"], 16) # Balance ที่ได้มาเป็น Wei (Hex) ต้องแปลงเป็นเลขฐาน 10
+            balance_matic = balance_wei / (10**18) # 1 Ether = 10^18 Wei (MATIC ก็ใช้หน่วยนี้)
+            return balance_matic
+        elif "error" in result:
+            print(f"Alchemy API Error: {result['error']['message']}")
+            return None
+        else:
+            print(f"Unexpected Alchemy response: {result}")
+            return None
     except requests.exceptions.RequestException as e:
         print(f"Error fetching MATIC balance: {e}")
         return None
@@ -50,17 +57,14 @@ def handler(request):
     if not ALCHEMY_API_KEY:
         return json.dumps({"error": "ALCHEMY_API_KEY not set in environment variables."}), 500
 
-    # Vercel functions รับ request เป็น dictionary หรือ object
-    # แต่เราจะทำให้มันคล้ายกับ BaseHTTPRequestHandler.do_GET เพื่อความเข้ากันได้
-
     # ดึง Wallet Address จาก Query Parameters ของ URL (เช่น ?address=0x...)
     query_params = {}
     try:
-        # ถ้าเป็น Vercel Function ที่ถูกเรียกจาก URL ตรงๆ
+        # ถ้าเป็น Vercel Function ที่ถูกเรียกจาก URL ตรงๆ (Production)
         url_parts = urlparse(request.url)
         query_params = parse_qs(url_parts.query)
     except AttributeError:
-        # ถ้า request มาจาก Vercel's internal testing (เป็น dict/object)
+        # ถ้า request มาจาก Vercel's internal testing หรือ local development
         if 'query' in request and request['query']:
             query_params = request['query']
 
