@@ -261,6 +261,17 @@
                     🆕 New Features
                 </button>
             </div>
+            <div style="margin-bottom: 10px;">
+                <button class="test-button" onclick="copyResults()" style="background: #17a2b8;">
+                    📋 Copy Results
+                </button>
+                <button class="test-button" onclick="clearResults()" style="background: #dc3545;">
+                    🗑️ Clear Results
+                </button>
+                <button class="test-button" onclick="runAllTests()" style="background: #fd7e14;">
+                    🚀 Run All Tests
+                </button>
+            </div>
             <div class="result-area" id="testResults">
                 <div>📝 Test Results จะแสดงที่นี่...</div>
             </div>
@@ -402,6 +413,59 @@
                 </div>
             `;
             resultsArea.scrollTop = resultsArea.scrollHeight;
+        }
+
+        // ===============================
+        // Utility Functions
+        // ===============================
+        function copyResults() {
+            const resultsArea = document.getElementById('testResults');
+            const textContent = resultsArea.innerText;
+            
+            // Create a temporary textarea
+            const textarea = document.createElement('textarea');
+            textarea.value = textContent;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            // Show feedback
+            const timestamp = new Date().toLocaleTimeString();
+            resultsArea.innerHTML += `
+                <div style="color: #28a745; margin-bottom: 5px; font-weight: bold;">
+                    [${timestamp}] 📋 Results copied to clipboard! ✅
+                </div>
+            `;
+            resultsArea.scrollTop = resultsArea.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('testResults').innerHTML = '<div>📝 Test Results จะแสดงที่นี่...</div>';
+            logTest('🗑️ Results cleared');
+        }
+
+        function runAllTests() {
+            logTest('🚀 Running all tests...');
+            logTest('📊 Starting comprehensive test suite...');
+            
+            // Always run health check first
+            testBackendHealth();
+            
+            // Run wallet-dependent tests if connected
+            if (currentAccount && currentChainId) {
+                setTimeout(() => testNativeBalance(), 2000);
+                setTimeout(() => testAIAnalysis(), 4000);
+                setTimeout(() => testNewFeatures(), 6000);
+            } else {
+                logTest('⚠️ Wallet not connected. Some tests will be skipped.', 'error');
+                setTimeout(() => testNewFeatures(), 2000);
+            }
+            
+            setTimeout(() => {
+                logTest('🎉 All tests completed!', 'success');
+                logTest('📋 You can now copy the results using the Copy Results button', 'success');
+            }, 8000);
         }
 
         async function testBackendHealth() {
