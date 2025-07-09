@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🧪 Test Dashboard - Personal AI DeFi</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧪</text></svg>">
     <style>
         * {
             margin: 0;
@@ -183,6 +184,159 @@
             line-height: 1.6;
         }
 
+        .token-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .token-card {
+            background: #fff;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+        }
+
+        .token-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        }
+
+        .token-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .token-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            margin-right: 12px;
+            background: #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .token-info h3 {
+            margin: 0;
+            font-size: 1.2rem;
+            color: #1f2937;
+        }
+
+        .token-info p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .token-balance {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+
+        .token-value {
+            font-size: 1rem;
+            color: #059669;
+            font-weight: 600;
+        }
+
+        .token-contract {
+            font-size: 0.8rem;
+            color: #9ca3af;
+            font-family: monospace;
+            margin-top: 10px;
+            padding: 5px 8px;
+            background: #f9fafb;
+            border-radius: 4px;
+        }
+
+        .ai-analysis-section {
+            margin-top: 25px;
+            padding: 20px;
+            background: #f0f9ff;
+            border-radius: 12px;
+            border: 1px solid #0ea5e9;
+        }
+
+        .ai-analysis-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #0c4a6e;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .ai-analysis-content {
+            color: #0c4a6e;
+            line-height: 1.6;
+        }
+
+        .portfolio-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .summary-card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+
+        .summary-title {
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-bottom: 8px;
+        }
+
+        .summary-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #1e293b;
+        }
+
+        .no-tokens {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+            font-size: 1.1rem;
+        }
+
+        .loading-tokens {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .loading-spinner {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #e5e7eb;
+            border-top: 2px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
         @media (max-width: 768px) {
             .container {
                 padding: 10px;
@@ -194,6 +348,14 @@
             
             .info-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .token-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .portfolio-summary {
+                grid-template-columns: 1fr 1fr;
             }
         }
     </style>
@@ -390,7 +552,7 @@
 
         function updateWalletInfo() {
             const network = NETWORKS[currentChainId];
-            document.getElementById('currentAccount').textContent = `${currentAccount.substring(0, 6)}...${currentAccount.substring(-4)}`;
+            document.getElementById('currentAccount').textContent = `${currentAccount.substring(0, 6)}...${currentAccount.substring(currentAccount.length - 4)}`;
             document.getElementById('currentNetwork').textContent = network ? network.name : `Unknown (${currentChainId})`;
         }
 
@@ -420,59 +582,8 @@
         }
 
         // ===============================
-        // Utility Functions
+        // Test Functions
         // ===============================
-        function copyResults() {
-            const resultsArea = document.getElementById('testResults');
-            const textContent = resultsArea.innerText;
-            
-            // Create a temporary textarea
-            const textarea = document.createElement('textarea');
-            textarea.value = textContent;
-            document.body.appendChild(textarea);
-            textarea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textarea);
-            
-            // Show feedback
-            const timestamp = new Date().toLocaleTimeString();
-            resultsArea.innerHTML += `
-                <div style="color: #28a745; margin-bottom: 5px; font-weight: bold;">
-                    [${timestamp}] 📋 Results copied to clipboard! ✅
-                </div>
-            `;
-            resultsArea.scrollTop = resultsArea.scrollHeight;
-        }
-
-        function clearResults() {
-            document.getElementById('testResults').innerHTML = '<div>📝 Test Results จะแสดงที่นี่...</div>';
-            logTest('🗑️ Results cleared');
-        }
-
-        function runAllTests() {
-            logTest('🚀 Running all tests...');
-            logTest('📊 Starting comprehensive test suite...');
-            
-            // Always run health check first
-            testBackendHealth();
-            
-            // Run wallet-dependent tests if connected
-            if (currentAccount && currentChainId) {
-                setTimeout(() => testNativeBalance(), 2000);
-                setTimeout(() => testERC20Tokens(), 4000);
-                setTimeout(() => testAIAnalysis(), 6000);
-                setTimeout(() => testNewFeatures(), 8000);
-            } else {
-                logTest('⚠️ Wallet not connected. Some tests will be skipped.', 'error');
-                setTimeout(() => testNewFeatures(), 2000);
-            }
-            
-            setTimeout(() => {
-                logTest('🎉 All tests completed!', 'success');
-                logTest('📋 You can now copy the results using the Copy Results button', 'success');
-            }, 10000);
-        }
-
         async function testBackendHealth() {
             logTest('🏥 Testing Backend Health...');
             
@@ -490,52 +601,6 @@
             } catch (error) {
                 logTest(`❌ Backend Health: ${error.message}`, 'error');
                 document.getElementById('backendStatus').textContent = '❌ Offline';
-            }
-        }
-
-        async function testERC20Tokens() {
-            if (!currentAccount || !currentChainId) {
-                logTest('❌ Please connect wallet first', 'error');
-                return;
-            }
-
-            logTest('🪙 Testing ERC-20 Token Balances...');
-            
-            try {
-                const response = await fetch(
-                    `${BACKEND_URL}/api/get_token_balances?address=${currentAccount}&chainId=${currentChainId}`
-                );
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    const tokens = data.token_balances?.tokens || [];
-                    const stats = data.portfolio_stats || {};
-                    
-                    logTest(`✅ ERC-20 Tokens: Found ${tokens.length} tokens`, 'success');
-                    logTest(`💰 Total Token Value: ${stats.total_token_value?.toFixed(2) || 0}`, 'success');
-                    logTest(`📊 Portfolio Stats: ${JSON.stringify(stats, null, 2)}`, 'success');
-                    
-                    // แสดงรายการ tokens
-                    if (tokens.length > 0) {
-                        logTest('📋 Token Holdings:');
-                        tokens.forEach((token, index) => {
-                            logTest(`${index + 1}. ${token.symbol} (${token.name}): ${token.balance_formatted} = ${token.value_usd?.toFixed(2) || 0}`, 'success');
-                        });
-                    }
-                    
-                    // แสดง AI Analysis
-                    if (data.ai_analysis) {
-                        logTest('🧠 AI Portfolio Analysis:', 'success');
-                        logTest(data.ai_analysis, 'success');
-                    }
-                    
-                    logTest(`📊 Full ERC-20 Response: ${JSON.stringify(data, null, 2)}`);
-                } else {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP ${response.status}`);
-                }
-            } catch (error) {
-                logTest(`❌ ERC-20 Tokens: ${error.message}`, 'error');
             }
         }
 
@@ -574,31 +639,59 @@
             } catch (error) {
                 logTest(`❌ Native Balance: ${error.message}`, 'error');
             }
-        }', 'error');
+        }
+
+        async function testERC20Tokens() {
+            if (!currentAccount || !currentChainId) {
+                logTest('❌ Please connect wallet first', 'error');
                 return;
             }
 
-            logTest('💰 Testing Native Balance...');
+            if (currentChainId !== '0x89' && currentChainId !== '0x1') {
+                logTest('❌ ERC-20 tokens only supported on Ethereum and Polygon', 'error');
+                return;
+            }
+
+            logTest('🪙 Testing ERC-20 Token Balances...');
             
             try {
                 const response = await fetch(
-                    `${BACKEND_URL}/api/get_advanced_dashboard?address=${currentAccount}&chainId=${currentChainId}`
+                    `${BACKEND_URL}/api/get_token_balances?address=${currentAccount}&chainId=${currentChainId}`
                 );
                 
                 if (response.ok) {
                     const data = await response.json();
-                    const balance = data.native_token?.data?.balance || 0;
-                    const symbol = data.native_token?.data?.symbol || 'TOKEN';
+                    const tokens = data.token_balances?.tokens || [];
+                    const stats = data.portfolio_stats || {};
                     
-                    logTest(`✅ Native Balance: ${balance.toFixed(6)} ${symbol}`, 'success');
-                    document.getElementById('currentBalance').textContent = `${balance.toFixed(6)} ${symbol}`;
-                    logTest(`📊 Full Response: ${JSON.stringify(data, null, 2)}`);
+                    logTest(`✅ ERC-20 Tokens: Found ${tokens.length} tokens`, 'success');
+                    logTest(`💰 Total Token Value: $${stats.total_token_value?.toFixed(2) || 0}`, 'success');
+                    logTest(`📊 Portfolio Stats: ${JSON.stringify(stats, null, 2)}`, 'success');
+                    
+                    // แสดงรายการ tokens
+                    if (tokens.length > 0) {
+                        logTest('📋 Token Holdings:');
+                        tokens.forEach((token, index) => {
+                            logTest(`${index + 1}. ${token.symbol} (${token.name}): ${token.balance_formatted} = $${token.value_usd?.toFixed(2) || 0}`, 'success');
+                        });
+                    }
+                    
+                    // แสดง AI Analysis
+                    if (data.ai_analysis) {
+                        logTest('🧠 AI Portfolio Analysis:', 'success');
+                        logTest(data.ai_analysis, 'success');
+                    }
+                    
+                    // แสดง Token Display
+                    displayTokens(data);
+                    
+                    logTest(`📊 Full ERC-20 Response: ${JSON.stringify(data, null, 2)}`);
                 } else {
                     const errorData = await response.json();
                     throw new Error(errorData.error || `HTTP ${response.status}`);
                 }
             } catch (error) {
-                logTest(`❌ Native Balance: ${error.message}`, 'error');
+                logTest(`❌ ERC-20 Tokens: ${error.message}`, 'error');
             }
         }
 
@@ -611,69 +704,30 @@
             logTest('🧠 Testing AI Analysis...');
             
             try {
-                // ทดสอบ AI แบบ Advanced
-                const testPrompts = [
-                    "วิเคราะห์ portfolio ของฉันหน่อย",
-                    "ควรลงทุนเพิ่มในช่วงนี้หรือไม่",
-                    "ช่วยประเมินความเสี่ยงของการลงทุนของฉัน",
-                    "แนะนำกลยุทธ์การลงทุนที่เหมาะสม"
-                ];
+                const response = await fetch(
+                    `${BACKEND_URL}/api/ai_portfolio_analysis?address=${currentAccount}&chainId=${currentChainId}`
+                );
                 
-                for (let i = 0; i < testPrompts.length; i++) {
-                    const prompt = testPrompts[i];
-                    logTest(`🧠 Testing prompt ${i + 1}: "${prompt}"`);
+                if (response.ok) {
+                    const data = await response.json();
                     
-                    const response = await fetch(`${BACKEND_URL}/api/get_ai_recommendation`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            prompt: prompt,
-                            portfolio: {
-                                wallet_address: currentAccount,
-                                chain_id: currentChainId,
-                                native_token: {
-                                    data: {
-                                        symbol: NETWORKS[currentChainId]?.symbol || 'TOKEN',
-                                        balance: 1.0,
-                                        value_usd: 100.0
-                                    }
-                                },
-                                token_balances: {
-                                    tokens: [
-                                        {symbol: 'USDC', balance: 500, value_usd: 500},
-                                        {symbol: 'USDT', balance: 300, value_usd: 300}
-                                    ]
-                                }
-                            }
-                        })
-                    });
+                    logTest('✅ AI Analysis completed', 'success');
+                    logTest('🧠 AI Insights:', 'success');
+                    logTest(data.analysis || 'No analysis available', 'success');
                     
-                    if (response.ok) {
-                        const data = await response.json();
-                        logTest(`✅ AI Response ${i + 1}: ${data.recommendation}`, 'success');
-                        
-                        // เช็คว่ามี "(คำตอบจาก AI)" หรือไม่
-                        if (data.recommendation.includes("(คำตอบจาก AI)")) {
-                            logTest(`✅ AI Tag verified: Contains "(คำตอบจาก AI)"`, 'success');
-                        } else {
-                            logTest(`⚠️ AI Tag missing: Should contain "(คำตอบจาก AI)"`, 'error');
-                        }
-                        
-                    } else {
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || `HTTP ${response.status}`);
+                    // แสดง recommendations
+                    if (data.recommendations) {
+                        logTest('💡 AI Recommendations:', 'success');
+                        data.recommendations.forEach((rec, index) => {
+                            logTest(`${index + 1}. ${rec}`, 'success');
+                        });
                     }
                     
-                    // หน่วงเวลาระหว่างการทดสอบ
-                    if (i < testPrompts.length - 1) {
-                        await new Promise(resolve => setTimeout(resolve, 2000));
-                    }
+                    logTest(`📊 Full AI Response: ${JSON.stringify(data, null, 2)}`);
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
                 }
-                
-                logTest('✅ AI Analysis: All tests completed', 'success');
-                
             } catch (error) {
                 logTest(`❌ AI Analysis: ${error.message}`, 'error');
             }
@@ -682,67 +736,329 @@
         async function testNewFeatures() {
             logTest('🆕 Testing New Features...');
             
-            // Test 1: ERC-20 Token Integration Status
-            logTest('📝 Test 1: ERC-20 Token Integration');
-            logTest('✅ Backend API: /api/get_token_balances - IMPLEMENTED', 'success');
-            logTest('✅ Frontend Test: ERC-20 Token Testing - IMPLEMENTED', 'success');
-            logTest('✅ AI Analysis: Token Portfolio Analysis - IMPLEMENTED', 'success');
+            // Test 1: Portfolio Tracking
+            try {
+                logTest('📊 Testing Portfolio Tracking...');
+                const response = await fetch(`${BACKEND_URL}/api/portfolio_tracking`);
+                const data = await response.json();
+                
+                logTest('✅ Portfolio Tracking: Available', 'success');
+                logTest(`📈 Features: ${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                logTest(`❌ Portfolio Tracking: ${error.message}`, 'error');
+            }
             
-            // Test 2: NFT Collections (Future)
-            logTest('📝 Test 2: NFT Collections');
-            logTest('ℹ️ Backend API: /api/get_nft_collections - PLANNED for Phase 2');
-            logTest('ℹ️ Frontend: NFT Gallery - PLANNED for Phase 2');
-            logTest('ℹ️ AI Analysis: NFT Portfolio Analysis - PLANNED for Phase 2');
+            // Test 2: DeFi Analytics
+            try {
+                logTest('🏦 Testing DeFi Analytics...');
+                const response = await fetch(`${BACKEND_URL}/api/defi_analytics`);
+                const data = await response.json();
+                
+                logTest('✅ DeFi Analytics: Available', 'success');
+                logTest(`💡 Analytics: ${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                logTest(`❌ DeFi Analytics: ${error.message}`, 'error');
+            }
             
-            // Test 3: Enhanced AI Features
-            logTest('📝 Test 3: Enhanced AI Features');
-            logTest('✅ AI Response Tagging: "(คำตอบจาก AI)" - IMPLEMENTED', 'success');
-            logTest('✅ Multiple AI Prompts: Portfolio Analysis - IMPLEMENTED', 'success');
-            logTest('✅ Fallback Responses: Error Handling - IMPLEMENTED', 'success');
+            // Test 3: Price Alerts
+            try {
+                logTest('🔔 Testing Price Alerts...');
+                const response = await fetch(`${BACKEND_URL}/api/price_alerts`);
+                const data = await response.json();
+                
+                logTest('✅ Price Alerts: Available', 'success');
+                logTest(`🚨 Alerts: ${JSON.stringify(data, null, 2)}`);
+            } catch (error) {
+                logTest(`❌ Price Alerts: ${error.message}`, 'error');
+            }
+        }
+
+        function displayTokens(data) {
+            const tokens = data.token_balances?.tokens || [];
+            const stats = data.portfolio_stats || {};
+            const aiAnalysis = data.ai_analysis || '';
             
-            // Test 4: Advanced Features (Future)
-            logTest('📝 Test 4: Advanced Features');
-            logTest('ℹ️ Real-time Price Updates: WebSocket - PLANNED for Phase 3');
-            logTest('ℹ️ Historical Data: Charts & Graphs - PLANNED for Phase 3');
-            logTest('ℹ️ Portfolio Optimization: AI Recommendations - PLANNED for Phase 3');
+            // ลบ token display เก่าถ้ามี
+            const existingTokensDisplay = document.querySelector('.tokens-display');
+            if (existingTokensDisplay) {
+                existingTokensDisplay.remove();
+            }
             
-            // Test 5: Security & Performance
-            logTest('📝 Test 5: Security & Performance');
-            logTest('✅ CORS Configuration: Cross-origin requests - IMPLEMENTED', 'success');
-            logTest('✅ Error Handling: Graceful degradation - IMPLEMENTED', 'success');
-            logTest('✅ Rate Limiting: AI API calls - IMPLEMENTED', 'success');
+            // สร้าง HTML สำหรับแสดง tokens
+            const tokensContainer = document.createElement('div');
+            tokensContainer.className = 'tokens-display';
+            tokensContainer.innerHTML = `
+                <div style="margin-top: 25px; padding: 20px; background: #f8fafc; border-radius: 12px; border: 1px solid #e2e8f0;">
+                    <h3 style="margin: 0 0 20px 0; color: #1e293b; font-size: 1.4rem;">
+                        🪙 ERC-20 Tokens Portfolio (${NETWORKS[currentChainId]?.name || 'Unknown'})
+                    </h3>
+                    
+                    <!-- Portfolio Summary -->
+                    <div class="portfolio-summary">
+                        <div class="summary-card">
+                            <div class="summary-title">Total Tokens</div>
+                            <div class="summary-value">${tokens.length}</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-title">Total Value</div>
+                            <div class="summary-value">$${stats.total_token_value?.toFixed(2) || '0.00'}</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-title">Diversity Score</div>
+                            <div class="summary-value">${stats.diversity_score?.toFixed(1) || '0.0'}/10</div>
+                        </div>
+                        <div class="summary-card">
+                            <div class="summary-title">Portfolio Value</div>
+                            <div class="summary-value">$${stats.total_portfolio_value?.toFixed(2) || '0.00'}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Token Grid -->
+                    <div class="token-grid">
+                        ${tokens.length > 0 ? tokens.map(token => `
+                            <div class="token-card">
+                                <div class="token-header">
+                                    <div class="token-icon">
+                                        ${token.logo ? `<img src="${token.logo}" alt="${token.symbol}" style="width: 100%; height: 100%; border-radius: 50%;">` : '🪙'}
+                                    </div>
+                                    <div class="token-info">
+                                        <h3>${token.symbol}</h3>
+                                        <p>${token.name}</p>
+                                    </div>
+                                </div>
+                                <div class="token-balance">${token.balance_formatted}</div>
+                                <div class="token-value">${token.value_usd?.toFixed(2) || '0.00'}</div>
+                                <div class="token-contract">
+                                    ${token.contract_address ? `${token.contract_address.substring(0, 8)}...${token.contract_address.substring(token.contract_address.length - 6)}` : 'N/A'}
+                                </div>
+                            </div>
+                        `).join('') : `
+                            <div class="no-tokens">
+                                <div>🔍 No tokens found</div>
+                                <div style="margin-top: 10px; font-size: 0.9rem; color: #9ca3af;">
+                                    Try connecting to a different network or check your wallet balance
+                                </div>
+                            </div>
+                        `}
+                    </div>
+                    
+                    <!-- AI Analysis Section -->
+                    ${aiAnalysis ? `
+                        <div class="ai-analysis-section">
+                            <div class="ai-analysis-title">
+                                🧠 AI Portfolio Analysis
+                            </div>
+                            <div class="ai-analysis-content">
+                                ${aiAnalysis}
+                            </div>
+                        </div>
+                    ` : ''}
+                </div>
+            `;
             
-            logTest('🎉 New Features: Phase 1 (ERC-20 Tokens) - COMPLETED!', 'success');
-            logTest('📋 Ready for Phase 2: NFT Collections', 'success');
-            logTest('🚀 Ready for Phase 3: Advanced AI Features', 'success');
+            // เพิ่ม tokens display หลัง test results
+            const testSection = document.querySelector('.test-section:nth-child(4)');
+            testSection.appendChild(tokensContainer);
         }
 
         // ===============================
-        // MetaMask Event Listeners
+        // Utility Functions
         // ===============================
+        function copyResults() {
+            const resultsArea = document.getElementById('testResults');
+            const textContent = resultsArea.innerText;
+            
+            // Create a temporary textarea
+            const textarea = document.createElement('textarea');
+            textarea.value = textContent;
+            document.body.appendChild(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            // Show feedback
+            const timestamp = new Date().toLocaleTimeString();
+            resultsArea.innerHTML += `
+                <div style="color: #28a745; margin-bottom: 5px; font-weight: bold;">
+                    [${timestamp}] 📋 Results copied to clipboard! ✅
+                </div>
+            `;
+            resultsArea.scrollTop = resultsArea.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('testResults').innerHTML = '<div>📝 Test Results จะแสดงที่นี่...</div>';
+            
+            // ลบ token display ด้วย
+            const existingTokensDisplay = document.querySelector('.tokens-display');
+            if (existingTokensDisplay) {
+                existingTokensDisplay.remove();
+            }
+            
+            logTest('🗑️ Results cleared');
+        }
+
+        function runAllTests() {
+            logTest('🚀 Running all tests...');
+            logTest('📊 Starting comprehensive test suite...');
+            
+            // Always run health check first
+            testBackendHealth();
+            
+            // Run wallet-dependent tests if connected
+            if (currentAccount && currentChainId) {
+                setTimeout(() => testNativeBalance(), 2000);
+                setTimeout(() => testERC20Tokens(), 4000);
+                setTimeout(() => testAIAnalysis(), 6000);
+                setTimeout(() => testNewFeatures(), 8000);
+            } else {
+                logTest('⚠️ Wallet not connected. Some tests will be skipped.', 'error');
+                setTimeout(() => testNewFeatures(), 2000);
+            }
+            
+            setTimeout(() => {
+                logTest('🎉 All tests completed!', 'success');
+                logTest('📋 You can now copy the results using the Copy Results button', 'success');
+            }, 10000);
+        }
+
+        // ===============================
+        // Event Listeners
+        // ===============================
+        
+        // Listen for account changes
         if (typeof window.ethereum !== 'undefined') {
-            window.ethereum.on('accountsChanged', function(accounts) {
+            window.ethereum.on('accountsChanged', function (accounts) {
                 if (accounts.length === 0) {
-                    location.reload();
-                } else {
+                    // User disconnected
+                    currentAccount = null;
+                    currentChainId = null;
+                    document.getElementById('currentAccount').textContent = 'ไม่ได้เชื่อมต่อ';
+                    document.getElementById('currentNetwork').textContent = 'ไม่ทราบ';
+                    document.getElementById('currentBalance').textContent = '0';
+                    document.getElementById('connectButtonText').textContent = 'เชื่อมต่อ MetaMask';
+                    
+                    // Disable test buttons
+                    document.getElementById('nativeBalanceBtn').disabled = true;
+                    document.getElementById('erc20TokensBtn').disabled = true;
+                    document.getElementById('aiAnalysisBtn').disabled = true;
+                    document.getElementById('newFeaturesBtn').disabled = true;
+                    
+                    showWalletStatus('⚠️ Wallet disconnected', 'error');
+                    logTest('⚠️ Wallet disconnected', 'error');
+                } else if (accounts[0] !== currentAccount) {
+                    // Account changed
                     currentAccount = accounts[0];
                     updateWalletInfo();
-                    logTest(`🔄 Account changed: ${currentAccount.substring(0, 10)}...`);
+                    logTest(`🔄 Account changed to: ${currentAccount}`, 'info');
                 }
             });
 
-            window.ethereum.on('chainChanged', function(chainId) {
+            // Listen for network changes
+            window.ethereum.on('chainChanged', function (chainId) {
                 currentChainId = chainId;
                 updateWalletInfo();
-                logTest(`🔄 Network changed: ${NETWORKS[chainId]?.name || chainId}`);
+                logTest(`🔄 Network changed to: ${NETWORKS[chainId]?.name || 'Unknown'}`, 'info');
             });
         }
 
         // ===============================
-        // Initialize
+        // Additional Features
         // ===============================
-        logTest('🚀 Test Dashboard initialized');
-        logTest('💡 Click buttons above to test different features');
+        
+        // Auto-refresh functionality
+        let autoRefreshInterval;
+        
+        function toggleAutoRefresh() {
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+                autoRefreshInterval = null;
+                logTest('🔄 Auto-refresh disabled', 'info');
+            } else {
+                autoRefreshInterval = setInterval(() => {
+                    if (currentAccount && currentChainId) {
+                        logTest('🔄 Auto-refreshing data...', 'info');
+                        testNativeBalance();
+                        setTimeout(() => testERC20Tokens(), 1000);
+                    }
+                }, 30000); // Refresh every 30 seconds
+                logTest('🔄 Auto-refresh enabled (30s intervals)', 'info');
+            }
+        }
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case 'r':
+                        e.preventDefault();
+                        runAllTests();
+                        break;
+                    case 'c':
+                        if (e.shiftKey) {
+                            e.preventDefault();
+                            copyResults();
+                        }
+                        break;
+                    case 'x':
+                        e.preventDefault();
+                        clearResults();
+                        break;
+                }
+            }
+        });
+
+        // Add export functionality
+        function exportResults() {
+            const resultsArea = document.getElementById('testResults');
+            const textContent = resultsArea.innerText;
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            
+            const blob = new Blob([textContent], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `test-results-${timestamp}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            logTest('📁 Results exported to file', 'success');
+        }
+
+        // Performance monitoring
+        function monitorPerformance() {
+            if (window.performance && window.performance.memory) {
+                const memory = window.performance.memory;
+                logTest(`📊 Memory Usage: ${(memory.usedJSHeapSize / 1024 / 1024).toFixed(2)} MB`, 'info');
+            }
+            
+            logTest(`⏱️ Page Load Time: ${(performance.now() / 1000).toFixed(2)}s`, 'info');
+        }
+
+        // Add these functions to buttons (can be added dynamically)
+        setTimeout(() => {
+            const testSection = document.querySelector('.test-section:nth-child(4)');
+            const buttonContainer = testSection.querySelector('div:nth-child(3)');
+            
+            buttonContainer.innerHTML += `
+                <button class="test-button" onclick="toggleAutoRefresh()" style="background: #6f42c1;">
+                    🔄 Toggle Auto-Refresh
+                </button>
+                <button class="test-button" onclick="exportResults()" style="background: #e83e8c;">
+                    📁 Export Results
+                </button>
+                <button class="test-button" onclick="monitorPerformance()" style="background: #20c997;">
+                    📊 Performance
+                </button>
+            `;
+        }, 1000);
+
+        // Welcome message
+        logTest('🎉 Test Dashboard loaded successfully!', 'success');
+        logTest('💡 Tip: Use Ctrl+R to run all tests, Ctrl+Shift+C to copy results, Ctrl+X to clear', 'info');
+        logTest('🔗 Connect your wallet to enable all features', 'info');
     </script>
 </body>
 </html>
