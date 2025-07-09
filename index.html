@@ -72,8 +72,7 @@
         .ai-analysis p { margin: 0; line-height: 1.6; }
         .ai-title { font-weight: 700; color: #58a6ff; display: block; margin-bottom: 5px; }
         
-        /* ✨ CSS สำหรับป้ายกำกับสไตล์/ประเภท ✨ */
-       .ai-style-badge {
+        .ai-style-badge {
             display: inline-block;
             padding: 3px 10px;
             background-color: #30363d;
@@ -215,9 +214,14 @@
             }
         }
 
-        // --- ✨ Rendering Functions (เวอร์ชันอัปเกรดสมบูรณ์) ---
+        // --- ✨ Rendering Functions (เวอร์ชันแก้ไขสมบูรณ์) ---
         function renderMatic(maticData) {
             if (maticData && maticData.data && maticData.data.symbol) {
+                // ✨ อัปเดต: รองรับ analysis ที่เป็น object
+                const analysisHtml = (maticData.analysis && typeof maticData.analysis === 'object')
+                    ? `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${maticData.analysis.summary || 'N/A'}</p></div>`
+                    : `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${maticData.analysis || 'N/A'}</p></div>`;
+
                 maticSection.innerHTML = `
                     <ul class="token-list">
                         <li class="token-item">
@@ -226,7 +230,7 @@
                             <div class="token-balance"><span>${maticData.data.balance}</span></div>
                         </li>
                     </ul>
-                    <div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${maticData.analysis}</p></div>
+                    ${analysisHtml}
                 `;
             } else { renderError(maticSection, 'ไม่สามารถดึงข้อมูล MATIC ได้'); }
         }
@@ -246,7 +250,6 @@
                     });
                     html += '</ul>';
                     
-                    // ส่วนแสดงผล AI ที่อัปเกรดแล้วสำหรับ ERC-20
                     if (erc20Data.analysis && typeof erc20Data.analysis === 'object') {
                          html += `
                             <div class="ai-analysis">
@@ -258,7 +261,6 @@
                             </div>
                          `;
                     } else {
-                        // Fallback กรณี analysis ไม่ใช่ object
                         html += `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${erc20Data.analysis}</p></div>`;
                     }
 
@@ -285,7 +287,6 @@
                      });
                      html += '</div>';
 
-                    // ส่วนแสดงผล AI ที่อัปเกรดแล้วสำหรับ NFTs
                     if (nftData.analysis && typeof nftData.analysis === 'object') {
                          html += `
                             <div class="ai-analysis">
@@ -297,7 +298,6 @@
                             </div>
                          `;
                     } else {
-                        // Fallback กรณี analysis ไม่ใช่ object
                         html += `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${nftData.analysis}</p></div>`;
                     }
 
