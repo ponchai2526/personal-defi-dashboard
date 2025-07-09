@@ -975,35 +975,56 @@
             try {
                 showAllLoading();
                 
-                console.log(`Loading data for ${currentAccount} on ${currentChainId}`);
+                console.log(`🔄 Loading data for ${currentAccount?.substring(0,10)}... on ${currentChainId}`);
+                console.log(`🌐 Network: ${NETWORK_CONFIG[currentChainId]?.name || 'Unknown'}`);
                 
                 const response = await fetch(
                     `${BACKEND_URL}/api/get_advanced_dashboard?address=${currentAccount}&chainId=${currentChainId}`
                 );
                 
+                console.log(`📡 Response status: ${response.status}`);
+                
                 if (!response.ok) {
-                    const errorText = await response.text();
-                    throw new Error(`HTTP ${response.status}: ${errorText}`);
+                    const errorData = await response.json().catch(() => ({}));
+                    console.error('❌ Response error:', errorData);
+                    
+                    let errorMessage = `HTTP ${response.status}`;
+                    if (errorData.error) {
+                        errorMessage = errorData.error;
+                    } else if (errorData.details) {
+                        errorMessage = errorData.details;
+                    }
+                    
+                    throw new Error(errorMessage);
                 }
                 
                 const data = await response.json();
                 portfolioData = data;
                 
+                console.log('✅ Data loaded successfully:', {
+                    chain: data.wallet_info?.chain,
+                    token: data.native_token?.data?.symbol,
+                    balance: data.native_token?.data?.balance
+                });
+                
                 renderPortfolioSection(data);
                 renderMarketSection(data);
                 renderAIInsights(data);
                 
-                console.log('Dashboard data loaded successfully');
+                console.log('🎉 Dashboard rendered successfully');
                 
             } catch (error) {
-                console.error('เกิดข้อผิดพลาดในการโหลดข้อมูล:', error);
+                console.error('💥 เกิดข้อผิดพลาดในการโหลดข้อมูล:', error);
                 
                 // แสดง error message ที่เฉพาะเจาะจง
                 let errorMessage = error.message;
-                if (error.message.includes('Unsupported chainId')) {
-                    errorMessage = `เครือข่าย ${currentChainId} ยังไม่รองรับ กรุณาเปลี่ยนเครือข่าย`;
-                } else if (error.message.includes('Failed to fetch')) {
-                    errorMessage = 'ไม่สามารถเชื่อมต่อ backend ได้ กรุณาตรวจสอบการเชื่อมต่อ';
+                
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage = `ไม่สามารถเชื่อมต่อ backend ได้\nกรุณาตรวจสอบ:\n• การเชื่อมต่ออินเทอร์เน็ต\n• สถานะ backend server`;
+                } else if (error.message.includes('เครือข่าย') && error.message.includes('ยังไม่รองรับ')) {
+                    errorMessage = `${error.message}\nกรุณาเปลี่ยนเป็นเครือข่ายที่รองรับ`;
+                } else if (error.message.includes('ไม่สามารถดึงข้อมูล')) {
+                    errorMessage = `${error.message}\nอาจเป็นเพราะ:\n• RPC endpoint ไม่พร้อมใช้งาน\n• เครือข่ายล่าช้า\n• ปัญหาชั่วคราว`;
                 }
                 
                 showAllErrors(errorMessage);
@@ -1212,7 +1233,16 @@
             const errorHTML = `
                 <div class="error-state">
                     <div class="error-icon">⚠️</div>
-                    <div>เกิดข้อผิดพลาด: ${message}</div>
+                    <div style="white-space: pre-line; line-height: 1.6;">${message}</div>
+                    <button onclick="location.reload()" style="
+                        margin-top: 15px;
+                        padding: 8px 16px;
+                        background: var(--accent-primary);
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        cursor: pointer;
+                    ">รีเฟรชหน้า</button>
                 </div>
             `;
             
