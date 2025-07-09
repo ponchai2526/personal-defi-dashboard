@@ -3,1198 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🤖 AI Wallet Dashboard - Advanced Analytics</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+    <title>Personal AI Dashboard</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💡</text></svg>">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
-        
-        /* ================== BASE STYLES ================== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap');
         body {
             font-family: 'Sarabun', sans-serif;
-            background: linear-gradient(135deg, #0d1117 0%, #161b22 100%);
+            background-color: #0d1117;
             color: #c9d1d9;
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            margin: 0;
             padding: 20px;
-            position: relative;
         }
-        
-        /* ================== HEADER STYLES ================== */
-        .header {
-            text-align: center;
-            padding: 30px 0;
-            position: relative;
-            background: rgba(22, 27, 34, 0.8);
-            border-radius: 15px;
-            margin-bottom: 30px;
-            border: 1px solid #30363d;
-            backdrop-filter: blur(10px);
+        .container { width: 100%; max-width: 900px; margin: auto; }
+        .header { text-align: center; padding: 20px 0; }
+        .header h1 { margin: 0; font-size: 28px; }
+        .wallet-info {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px; background-color: #161b22; border: 1px solid #30363d;
+            border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap;
         }
-        
-        .header h1 {
-            font-size: clamp(24px, 5vw, 36px);
-            background: linear-gradient(135deg, #58a6ff, #39d353);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 10px;
-            font-weight: 700;
+        .wallet-details { display: flex; align-items: center; gap: 10px; }
+        #walletAddress { font-family: monospace; }
+        #networkName {
+            background-color: #30363d; padding: 4px 8px; border-radius: 6px;
+            font-size: 12px; font-weight: 700; border: 1px solid #4d545e;
         }
-        
-        .header .subtitle {
-            color: #8b949e;
-            font-size: 16px;
-            margin-bottom: 20px;
+        #connectButton {
+            background-color: #238636; color: white; border: none; padding: 10px 18px;
+            border-radius: 6px; cursor: pointer; font-weight: 700;
+            transition: background-color 0.2s; margin-top: 10px; width: 100%;
         }
-        
-        /* ================== SYSTEM STATUS ================== */
-        .system-status {
+        @media (min-width: 600px) { #connectButton { width: auto; margin-top: 0; } }
+        .section { background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
+        .section-header { padding: 15px 20px; background-color: #1c2128; border-bottom: 1px solid #30363d; }
+        .section-header h2 { margin: 0; font-size: 20px; }
+        .section-content { padding: 20px; }
+        .loading-state, .error-state, .empty-state { text-align: center; color: #8b949e; padding: 40px 20px; }
+        .loader { border: 4px solid #30363d; border-top: 4px solid #58a6ff; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .token-list { list-style-type: none; padding: 0; margin: 0; }
+        .token-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #21262d; }
+        .token-item:last-child { border-bottom: none; }
+        .token-icon { width: 36px; height: 36px; margin-right: 15px; border-radius: 50%; background-color: #0d1117;}
+        .token-info { flex-grow: 1; }
+        .token-symbol { font-weight: 700; }
+        .token-name { font-size: 12px; color: #8b949e; }
+        .token-balance { text-align: right; font-weight: 700; font-size: 1.1em; }
+        .nft-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; }
+        .nft-card { background-color: #0d1117; border-radius: 8px; overflow: hidden; border: 1px solid #30363d; text-align: center; transition: transform 0.2s; }
+        .nft-card:hover { transform: translateY(-5px); }
+        .nft-image { width: 100%; height: 120px; object-fit: cover; background-color: #21262d;}
+        .nft-name { padding: 8px; font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        .ai-analysis { margin-top: 20px; padding: 15px; background-color: rgba(35, 134, 54, 0.1); border-left: 3px solid #238636; border-radius: 0 6px 6px 0; }
+        .ai-analysis p { margin: 0; line-height: 1.6; }
+        .ai-title { font-weight: 700; color: #58a6ff; display: block; margin-bottom: 5px; }
+        .ai-style-badge {
+            display: inline-block; padding: 3px 10px; background-color: #30363d;
+            border: 1px solid #4d545e; border-radius: 12px; font-size: 12px;
+            font-weight: 700; margin-left: 8px; vertical-align: middle;
+        }
+        /* ✨ CSS ใหม่สำหรับแผงสถานะระบบ ✨ */
+        .status-panel {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-        
-        .status-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 15px;
-            background: rgba(13, 17, 23, 0.8);
-            border-radius: 20px;
-            border: 1px solid #30363d;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-        
-        .status-online { background: #39d353; }
-        .status-warning { background: #f1c40f; }
-        .status-error { background: #da3633; }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        /* ================== WALLET CONNECTION ================== */
-        .wallet-connection {
-            background: linear-gradient(135deg, rgba(22, 27, 34, 0.9), rgba(30, 35, 42, 0.9));
-            border: 1px solid #30363d;
-            border-radius: 15px;
-            padding: 25px;
-            margin-bottom: 30px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .wallet-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        
-        .wallet-details {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            flex-wrap: wrap;
-        }
-        
-        .network-badge {
-            background: linear-gradient(135deg, #30363d, #4d545e);
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 700;
-            border: 1px solid #4d545e;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .wallet-address {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            background: rgba(13, 17, 23, 0.8);
-            padding: 10px 15px;
-            border-radius: 8px;
-            border: 1px solid #21262d;
-            color: #58a6ff;
-        }
-        
-        .connect-btn {
-            background: linear-gradient(135deg, #238636, #2ea043);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .connect-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(35, 134, 54, 0.3);
-        }
-        
-        .connect-btn:disabled {
-            background: #30363d;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        /* ================== SECTIONS ================== */
-        .section {
-            background: linear-gradient(135deg, rgba(22, 27, 34, 0.9), rgba(30, 35, 42, 0.9));
-            border: 1px solid #30363d;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            overflow: hidden;
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-        
-        .section:hover {
-            border-color: #4d545e;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-        
-        .section-header {
-            padding: 20px 25px;
-            background: linear-gradient(135deg, rgba(28, 33, 40, 0.9), rgba(35, 40, 47, 0.9));
-            border-bottom: 1px solid #30363d;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .section-header h2 {
-            font-size: 20px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .section-content {
-            padding: 25px;
-        }
-        
-        /* ================== LOADING STATES ================== */
-        .loading-state, .error-state, .empty-state {
-            text-align: center;
-            padding: 50px 20px;
-            color: #8b949e;
-        }
-        
-        .loader {
-            width: 40px;
-            height: 40px;
-            border: 4px solid #30363d;
-            border-top: 4px solid #58a6ff;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .loading-text {
-            font-size: 16px;
-            margin-top: 15px;
-        }
-        
-        .progress-bar {
-            width: 200px;
-            height: 4px;
-            background: #30363d;
-            border-radius: 2px;
-            margin: 15px auto;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #58a6ff, #39d353);
-            width: 0%;
-            animation: progress 3s ease-in-out infinite;
-        }
-        
-        @keyframes progress {
-            0%, 100% { width: 0%; }
-            50% { width: 100%; }
-        }
-        
-        /* ================== TOKEN LIST ================== */
-        .token-list {
-            list-style: none;
-        }
-        
-        .token-item {
-            display: flex;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #21262d;
-            transition: all 0.3s ease;
-        }
-        
-        .token-item:last-child {
-            border-bottom: none;
-        }
-        
-        .token-item:hover {
-            background: rgba(88, 166, 255, 0.05);
-            border-radius: 8px;
-            padding-left: 15px;
-            padding-right: 15px;
-            margin: 0 -15px;
-        }
-        
-        .token-icon {
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            margin-right: 20px;
-            background: #0d1117;
-            border: 2px solid #30363d;
-            transition: all 0.3s ease;
-        }
-        
-        .token-item:hover .token-icon {
-            border-color: #58a6ff;
-            transform: scale(1.1);
-        }
-        
-        .token-info {
-            flex: 1;
-        }
-        
-        .token-symbol {
-            font-weight: 700;
-            font-size: 16px;
-            color: #f0f6fc;
-        }
-        
-        .token-name {
-            font-size: 14px;
-            color: #8b949e;
-            margin-top: 2px;
-        }
-        
-        .token-balance {
-            text-align: right;
-            font-weight: 700;
-            font-size: 18px;
-            color: #39d353;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        
-        /* ================== NFT GRID ================== */
-        .nft-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             gap: 20px;
-        }
-        
-        .nft-card {
-            background: linear-gradient(135deg, rgba(13, 17, 23, 0.9), rgba(21, 26, 33, 0.9));
-            border-radius: 12px;
-            overflow: hidden;
-            border: 1px solid #30363d;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .nft-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            border-color: #58a6ff;
-            box-shadow: 0 15px 35px rgba(88, 166, 255, 0.2);
-        }
-        
-        .nft-image {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            background: linear-gradient(135deg, #21262d, #30363d);
-            transition: all 0.3s ease;
-        }
-        
-        .nft-card:hover .nft-image {
-            transform: scale(1.05);
-        }
-        
-        .nft-info {
-            padding: 15px;
-        }
-        
-        .nft-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: #f0f6fc;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-bottom: 5px;
-        }
-        
-        .nft-collection {
+            padding: 10px;
+            margin-top: 20px;
             font-size: 12px;
             color: #8b949e;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
-        
-        /* ================== AI ANALYSIS ================== */
-        .ai-analysis {
-            margin-top: 25px;
-            padding: 20px;
-            background: linear-gradient(135deg, rgba(35, 134, 54, 0.1), rgba(57, 211, 83, 0.05));
-            border-left: 4px solid #39d353;
-            border-radius: 0 10px 10px 0;
-            position: relative;
-            overflow: hidden;
+        .status-item { display: flex; align-items: center; gap: 6px; }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #4d545e; /* สีเทา (กำลังตรวจสอบ) */
+            transition: background-color 0.3s;
         }
-        
-        .ai-analysis::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg, transparent 30%, rgba(57, 211, 83, 0.05) 50%, transparent 70%);
-            animation: shimmer 3s ease-in-out infinite;
-        }
-        
-        @keyframes shimmer {
-            0%, 100% { transform: translateX(-100%); }
-            50% { transform: translateX(100%); }
-        }
-        
-        .ai-title {
-            font-weight: 700;
-            color: #58a6ff;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 12px;
-            font-size: 16px;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .ai-content {
-            position: relative;
-            z-index: 1;
-        }
-        
-        .ai-summary {
-            line-height: 1.7;
-            margin: 12px 0;
-            color: #e6edf3;
-        }
-        
-        .ai-badges {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-top: 15px;
-        }
-        
-        .ai-badge {
-            padding: 6px 12px;
-            background: linear-gradient(135deg, #30363d, #4d545e);
-            border: 1px solid #4d545e;
-            border-radius: 15px;
-            font-size: 12px;
-            font-weight: 600;
-            color: #f0f6fc;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        
-        .risk-low { border-color: #39d353; color: #39d353; }
-        .risk-medium { border-color: #f1c40f; color: #f1c40f; }
-        .risk-high { border-color: #da3633; color: #da3633; }
-        
-        /* ================== DATA FLOW INDICATOR ================== */
-        .data-flow {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: rgba(22, 27, 34, 0.95);
-            border: 1px solid #30363d;
-            border-radius: 10px;
-            padding: 15px;
-            font-size: 12px;
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            max-width: 250px;
-        }
-        
-        .flow-step {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin: 5px 0;
-            padding: 5px 8px;
-            border-radius: 5px;
-            transition: all 0.3s ease;
-        }
-        
-        .flow-step.active {
-            background: rgba(88, 166, 255, 0.1);
-            border-left: 3px solid #58a6ff;
-        }
-        
-        .flow-step.success {
-            background: rgba(57, 211, 83, 0.1);
-            border-left: 3px solid #39d353;
-        }
-        
-        .flow-step.error {
-            background: rgba(218, 54, 51, 0.1);
-            border-left: 3px solid #da3633;
-        }
-        
-        /* ================== RESPONSIVE DESIGN ================== */
-        @media (max-width: 768px) {
-            .container {
-                padding: 15px;
-            }
-            
-            .wallet-info {
-                flex-direction: column;
-                align-items: stretch;
-            }
-            
-            .connect-btn {
-                width: 100%;
-                margin-top: 15px;
-            }
-            
-            .nft-grid {
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-                gap: 15px;
-            }
-            
-            .data-flow {
-                display: none;
-            }
-            
-            .system-status {
-                flex-direction: column;
-                gap: 10px;
-            }
-        }
-        
-        /* ================== ANIMATIONS ================== */
-        .fade-in {
-            animation: fadeIn 0.6s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .slide-in {
-            animation: slideIn 0.8s ease-out;
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
+        .status-ok { background-color: #238636; } /* สีเขียว */
+        .status-error { background-color: #da3633; } /* สีแดง */
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header Section -->
-        <header class="header fade-in">
-            <h1>🤖 AI Wallet Dashboard</h1>
-            <p class="subtitle">Advanced Blockchain Analytics with AI-Powered Insights</p>
-            
-            <!-- System Status Indicators -->
-            <div class="system-status">
-                <div class="status-item">
-                    <div class="status-indicator status-online" id="backendStatus"></div>
-                    <span>Backend</span>
-                </div>
-                <div class="status-item">
-                    <div class="status-indicator status-error" id="alchemyStatus"></div>
-                    <span>Alchemy API</span>
-                </div>
-                <div class="status-item">
-                    <div class="status-indicator status-warning" id="geminiStatus"></div>
-                    <span>Gemini AI</span>
-                </div>
+        <header class="header"><h1>Personal AI Dashboard</h1></header>
+        <div class="wallet-info">
+            <div class="wallet-details">
+                <span id="networkName"></span>
+                <span id="walletAddress">ยังไม่ได้เชื่อมต่อ</span>
             </div>
-        </header>
-
-        <!-- Wallet Connection Section -->
-        <section class="wallet-connection slide-in">
-            <div class="wallet-info">
-                <div class="wallet-details">
-                    <div class="network-badge" id="networkBadge">ยังไม่เชื่อมต่อ</div>
-                    <div class="wallet-address" id="walletAddress">กรุณาเชื่อมต่อ MetaMask</div>
-                </div>
-                <button class="connect-btn" id="connectButton">🔗 เชื่อมต่อ Wallet</button>
-            </div>
-        </section>
-
-        <!-- Data Flow Indicator -->
-        <div class="data-flow" id="dataFlow">
-            <div style="font-weight: 600; margin-bottom: 10px; color: #58a6ff;">📡 Data Flow</div>
-            <div class="flow-step" id="flow1">🌐 Browser → Backend</div>
-            <div class="flow-step" id="flow2">🔗 Backend → Alchemy</div>
-            <div class="flow-step" id="flow3">⛓️ Alchemy → Backend</div>
-            <div class="flow-step" id="flow4">🧠 Backend → Gemini AI</div>
-            <div class="flow-step" id="flow5">🤖 AI → Backend</div>
-            <div class="flow-step" id="flow6">📊 Backend → Browser</div>
+            <button id="connectButton">เชื่อมต่อ Wallet</button>
         </div>
-
-        <!-- Dashboard Content -->
         <div id="dashboardContent">
-            <!-- MATIC Section -->
-            <section class="section fade-in">
-                <div class="section-header">
-                    <h2>⚡ โทเค็นหลัก (MATIC)</h2>
-                    <div id="maticCount" style="font-size: 14px; color: #8b949e;"></div>
-                </div>
-                <div class="section-content" id="maticSection">
-                    <div class="loading-state">
-                        <div class="loader"></div>
-                        <div class="loading-text">รอการเชื่อมต่อ Wallet...</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ERC-20 Tokens Section -->
-            <section class="section fade-in">
-                <div class="section-header">
-                    <h2>🪙 โทเค็น ERC-20</h2>
-                    <div id="tokenCount" style="font-size: 14px; color: #8b949e;"></div>
-                </div>
-                <div class="section-content" id="erc20Section">
-                    <div class="loading-state">
-                        <div class="loader"></div>
-                        <div class="loading-text">รอการเชื่อมต่อ Wallet...</div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- NFTs Section -->
-            <section class="section fade-in">
-                <div class="section-header">
-                    <h2>🎨 NFT Collection</h2>
-                    <div id="nftCount" style="font-size: 14px; color: #8b949e;"></div>
-                </div>
-                <div class="section-content" id="nftSection">
-                    <div class="loading-state">
-                        <div class="loader"></div>
-                        <div class="loading-text">รอการเชื่อมต่อ Wallet...</div>
-                    </div>
-                </div>
-            </section>
+            <!-- ส่วนแสดงผลข้อมูลเหมือนเดิม -->
+            <section class="section"><div class="section-header"><h2>โทเค็นหลัก (Native Token)</h2></div><div class="section-content" id="maticSection"><div class="loading-state">โปรดเชื่อมต่อ Wallet...</div></div></section>
+            <section class="section"><div class="section-header"><h2>โทเค็น (ERC-20)</h2></div><div class="section-content" id="erc20Section"><div class="loading-state">โปรดเชื่อมต่อ Wallet...</div></div></section>
+            <section class="section"><div class="section-header"><h2>NFTs</h2></div><div class="section-content" id="nftSection"><div class="loading-state">โปรดเชื่อมต่อ Wallet...</div></div></section>
+        </div>
+        <!-- ✨ แผงแสดงสถานะระบบ ✨ -->
+        <div class="status-panel" id="systemStatus">
+            <div class="status-item">Backend <span class="status-indicator" id="status-backend"></span></div>
+            <div class="status-item">Alchemy <span class="status-indicator" id="status-alchemy"></span></div>
+            <div class="status-item">Gemini AI <span class="status-indicator" id="status-gemini"></span></div>
         </div>
     </div>
 
     <script>
-        // ================== CONFIGURATION ==================
-        const CONFIG = {
-            BACKEND_URL: "https://your-replit-backend-url.replit.dev", // เปลี่ยนเป็น URL ของ Backend จริง
-            SUPPORTED_NETWORKS: {
-                '0x89': 'Polygon',
-                '0x1': 'Ethereum',
-                '0x38': 'BSC',
-                '0xa4b1': 'Arbitrum'
-            },
-            REFRESH_INTERVAL: 30000, // 30 seconds
-            API_TIMEOUT: 30000 // 30 seconds
-        };
-
-        // ================== GLOBAL STATE ==================
+        // --- ตัวแปรและค่าคงที่ ---
+        const connectButton = document.getElementById('connectButton');
+        const walletAddressSpan = document.getElementById('walletAddress');
+        const networkNameSpan = document.getElementById('networkName');
+        const maticSection = document.getElementById('maticSection');
+        const erc20Section = document.getElementById('erc20Section');
+        const nftSection = document.getElementById('nftSection');
+        const BACKEND_URL = "https://838de3bd-02e7-4ba3-8bf0-63ab0412b36f-00-39zqf2mohnweu.pike.replit.dev";
         let currentAccount = null;
-        let systemStatus = {
-            backend: false,
-            alchemy: false,
-            gemini: false
-        };
-        let isLoading = false;
 
-        // ================== DOM ELEMENTS ==================
-        const elements = {
-            connectButton: document.getElementById('connectButton'),
-            walletAddress: document.getElementById('walletAddress'),
-            networkBadge: document.getElementById('networkBadge'),
-            maticSection: document.getElementById('maticSection'),
-            erc20Section: document.getElementById('erc20Section'),
-            nftSection: document.getElementById('nftSection'),
-            tokenCount: document.getElementById('tokenCount'),
-            nftCount: document.getElementById('nftCount'),
-            maticCount: document.getElementById('maticCount'),
-            backendStatus: document.getElementById('backendStatus'),
-            alchemyStatus: document.getElementById('alchemyStatus'),
-            geminiStatus: document.getElementById('geminiStatus'),
-            dataFlow: document.getElementById('dataFlow')
-        };
+        // --- ✨ ฟังก์ชันใหม่สำหรับตรวจสอบสถานะระบบ ---
+        async function checkSystemStatus() {
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health_check`);
+                if (!response.ok) throw new Error('Health check failed');
+                const status = await response.json();
 
-        // ================== UTILITY FUNCTIONS ==================
-        function updateFlowStep(stepId, status) {
-            const step = document.getElementById(stepId);
-            if (step) {
-                step.className = `flow-step ${status}`;
+                updateStatusIndicator('backend', status.backend);
+                updateStatusIndicator('alchemy', status.alchemy);
+                updateStatusIndicator('gemini', status.gemini);
+
+            } catch (error) {
+                console.error("Could not check system status:", error);
+                updateStatusIndicator('backend', 'error');
+                updateStatusIndicator('alchemy', 'error');
+                updateStatusIndicator('gemini', 'error');
             }
         }
 
-        function showNotification(message, type = 'info') {
-            // Create notification element
-            const notification = document.createElement('div');
-            notification.style.cssText = `
-                position: fixed;
-                top: 20px;
-                left: 50%;
-                transform: translateX(-50%);
-                background: ${type === 'error' ? 'rgba(218, 54, 51, 0.9)' : 'rgba(35, 134, 54, 0.9)'};
-                color: white;
-                padding: 15px 25px;
-                border-radius: 8px;
-                font-weight: 600;
-                z-index: 10000;
-                backdrop-filter: blur(10px);
-                border: 1px solid ${type === 'error' ? '#da3633' : '#238636'};
-            `;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-
-            // Remove after 3 seconds
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-
-        function formatAddress(address) {
-            if (!address) return 'ไม่ได้เชื่อมต่อ';
-            return `${address.substring(0, 8)}...${address.substring(address.length - 6)}`;
-        }
-
-        function renderLoadingState(element, message = "กำลังดึงข้อมูล...") {
-            element.innerHTML = `
-                <div class="loading-state">
-                    <div class="loader"></div>
-                    <div class="loading-text">${message}</div>
-                    <div class="progress-bar"><div class="progress-fill"></div></div>
-                </div>
-            `;
-        }
-
-        function renderErrorState(element, message) {
-            element.innerHTML = `
-                <div class="error-state">
-                    <div style="font-size: 48px; margin-bottom: 15px;">⚠️</div>
-                    <div style="font-weight: 600; margin-bottom: 10px;">เกิดข้อผิดพลาด</div>
-                    <div style="color: #da3633;">${message}</div>
-                </div>
-            `;
-        }
-
-        function renderEmptyState(element, message, icon = "📭") {
-            element.innerHTML = `
-                <div class="empty-state">
-                    <div style="font-size: 48px; margin-bottom: 15px;">${icon}</div>
-                    <div style="font-weight: 600; color: #8b949e;">${message}</div>
-                </div>
-            `;
-        }
-
-        // ================== API FUNCTIONS ==================
-        async function checkSystemHealth() {
-            try {
-                updateFlowStep('flow1', 'active');
-                
-                const response = await fetch(`${CONFIG.BACKEND_URL}/api/health`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    signal: AbortSignal.timeout(CONFIG.API_TIMEOUT)
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    systemStatus = {
-                        backend: true,
-                        alchemy: data.services?.alchemy || false,
-                        gemini: data.services?.gemini || false
-                    };
-                    updateFlowStep('flow1', 'success');
-                    updateSystemStatusUI();
-                    return true;
+        function updateStatusIndicator(service, status) {
+            const indicator = document.getElementById(`status-${service}`);
+            if (indicator) {
+                indicator.classList.remove('status-ok', 'status-error');
+                if (status === 'ok') {
+                    indicator.classList.add('status-ok');
                 } else {
-                    throw new Error(`Health check failed: ${response.status}`);
+                    indicator.classList.add('status-error');
                 }
-            } catch (error) {
-                console.error('Health check failed:', error);
-                updateFlowStep('flow1', 'error');
-                systemStatus.backend = false;
-                updateSystemStatusUI();
-                return false;
             }
         }
-
-        function updateSystemStatusUI() {
-            elements.backendStatus.className = `status-indicator ${systemStatus.backend ? 'status-online' : 'status-error'}`;
-            elements.alchemyStatus.className = `status-indicator ${systemStatus.alchemy ? 'status-online' : 'status-error'}`;
-            elements.geminiStatus.className = `status-indicator ${systemStatus.gemini ? 'status-online' : 'status-warning'}`;
-        }
-
-        async function fetchWalletDashboard(address) {
-            if (!systemStatus.backend) {
-                throw new Error('Backend service not available');
-            }
-
-            try {
-                updateFlowStep('flow2', 'active');
-                
-                const response = await fetch(`${CONFIG.BACKEND_URL}/api/get_full_dashboard?address=${address}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    signal: AbortSignal.timeout(CONFIG.API_TIMEOUT)
-                });
-
-                updateFlowStep('flow2', 'success');
-                updateFlowStep('flow3', 'success');
-                updateFlowStep('flow4', 'success');
-                updateFlowStep('flow5', 'success');
-                updateFlowStep('flow6', 'active');
-
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP ${response.status}`);
-                }
-
-                const data = await response.json();
-                updateFlowStep('flow6', 'success');
-                
-                console.log('Dashboard data received:', data);
-                return data;
-
-            } catch (error) {
-                updateFlowStep('flow6', 'error');
-                throw error;
-            }
-        }
-
-        // ================== RENDERING FUNCTIONS ==================
-        function renderMaticData(maticData) {
-            if (!maticData.data || !maticData.data.symbol) {
-                renderEmptyState(elements.maticSection, "ไม่พบยอดคงเหลือ MATIC", "⚡");
-                elements.maticCount.textContent = "";
-                return;
-            }
-
-            const data = maticData.data;
-            const analysis = maticData.analysis || {};
-            
-            elements.maticCount.textContent = `${data.balance} ${data.symbol}`;
-
-            let html = `
-                <ul class="token-list">
-                    <li class="token-item">
-                        <img src="${data.icon}" 
-                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>'" 
-                             class="token-icon">
-                        <div class="token-info">
-                            <div class="token-symbol">${data.symbol}</div>
-                            <div class="token-name">${data.name}</div>
-                        </div>
-                        <div class="token-balance">${data.balance}</div>
-                    </li>
-                </ul>
-            `;
-
-            // Add AI analysis if available
-            if (analysis.summary) {
-                html += `
-                    <div class="ai-analysis">
-                        <div class="ai-title">
-                            🧠 AI Analysis
-                            <span style="font-size: 12px; opacity: 0.7;">(Gemini AI)</span>
-                        </div>
-                        <div class="ai-content">
-                            <div class="ai-summary">${analysis.summary}</div>
-                            <div class="ai-badges">
-                                ${analysis.status ? `<div class="ai-badge">${analysis.status}</div>` : ''}
-                                ${analysis.recommendation ? `<div class="ai-badge">${analysis.recommendation}</div>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            elements.maticSection.innerHTML = html;
-        }
-
-        function renderErc20Data(erc20Data) {
-            if (!erc20Data.data || erc20Data.data.length === 0) {
-                renderEmptyState(elements.erc20Section, "ไม่พบโทเค็น ERC-20", "🪙");
-                elements.tokenCount.textContent = "0 โทเค็น";
-                return;
-            }
-
-            const tokens = erc20Data.data;
-            const analysis = erc20Data.analysis || {};
-            
-            elements.tokenCount.textContent = `${tokens.length} โทเค็น`;
-
-            let html = '<ul class="token-list">';
-            
-            tokens.forEach(token => {
-                html += `
-                    <li class="token-item">
-                        <img src="${token.icon}" 
-                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪙</text></svg>'" 
-                             class="token-icon">
-                        <div class="token-info">
-                            <div class="token-symbol">${token.symbol}</div>
-                            <div class="token-name">${token.name}</div>
-                        </div>
-                        <div class="token-balance">${token.balance}</div>
-                    </li>
-                `;
-            });
-            
-            html += '</ul>';
-
-            // Add AI analysis
-            if (analysis.summary) {
-                let riskClass = '';
-                if (analysis.risk_level) {
-                    riskClass = `risk-${analysis.risk_level.toLowerCase()}`;
-                }
-
-                html += `
-                    <div class="ai-analysis">
-                        <div class="ai-title">
-                            🧠 AI Portfolio Analysis
-                            <span style="font-size: 12px; opacity: 0.7;">(Gemini AI)</span>
-                        </div>
-                        <div class="ai-content">
-                            <div class="ai-summary">${analysis.summary}</div>
-                            <div class="ai-badges">
-                                ${analysis.style ? `<div class="ai-badge">📊 ${analysis.style}</div>` : ''}
-                                ${analysis.risk_level ? `<div class="ai-badge ${riskClass}">⚡ ${analysis.risk_level} Risk</div>` : ''}
-                                ${analysis.diversity_score ? `<div class="ai-badge">🎯 Diversity: ${analysis.diversity_score}/10</div>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            elements.erc20Section.innerHTML = html;
-        }
-
-        function renderNftData(nftData) {
-            if (!nftData.data || nftData.data.length === 0) {
-                renderEmptyState(elements.nftSection, "ไม่พบ NFT ในคอลเลกชัน", "🎨");
-                elements.nftCount.textContent = "0 NFTs";
-                return;
-            }
-
-            const nfts = nftData.data;
-            const analysis = nftData.analysis || {};
-            
-            elements.nftCount.textContent = `${nfts.length} NFTs`;
-
-            let html = '<div class="nft-grid">';
-            
-            nfts.forEach(nft => {
-                html += `
-                    <div class="nft-card" title="${nft.description || nft.name}">
-                        <img src="${nft.image}" 
-                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>'" 
-                             class="nft-image" 
-                             loading="lazy">
-                        <div class="nft-info">
-                            <div class="nft-name">${nft.name}</div>
-                            <div class="nft-collection">${nft.collection}</div>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            html += '</div>';
-
-            // Add AI analysis
-            if (analysis.highlight) {
-                html += `
-                    <div class="ai-analysis">
-                        <div class="ai-title">
-                            🧠 AI Collection Analysis
-                            <span style="font-size: 12px; opacity: 0.7;">(Gemini AI)</span>
-                        </div>
-                        <div class="ai-content">
-                            <div class="ai-summary">${analysis.highlight}</div>
-                            <div class="ai-badges">
-                                ${analysis.category ? `<div class="ai-badge">🎭 ${analysis.category}</div>` : ''}
-                                ${analysis.collector_type ? `<div class="ai-badge">👤 ${analysis.collector_type}</div>` : ''}
-                                ${analysis.diversity_score ? `<div class="ai-badge">🌈 Diversity: ${analysis.diversity_score}/10</div>` : ''}
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }
-
-            elements.nftSection.innerHTML = html;
-        }
-
-        // ================== WALLET CONNECTION ==================
-        async function connectWallet() {
-            if (!window.ethereum) {
-                showNotification('กรุณาติดตั้ง MetaMask เพื่อใช้งาน', 'error');
-                return;
-            }
-
-            try {
-                elements.connectButton.disabled = true;
-                elements.connectButton.textContent = '🔄 กำลังเชื่อมต่อ...';
-
-                const accounts = await window.ethereum.request({
-                    method: 'eth_requestAccounts'
-                });
-
-                if (accounts.length > 0) {
-                    await handleAccountsChanged(accounts);
-                    showNotification('เชื่อมต่อ Wallet สำเร็จ!', 'success');
-                }
-            } catch (error) {
-                console.error('Connection failed:', error);
-                showNotification('การเชื่อมต่อล้มเหลว: ' + error.message, 'error');
-            } finally {
-                elements.connectButton.disabled = false;
-            }
-        }
-
-        async function handleAccountsChanged(accounts) {
-            if (accounts.length === 0) {
-                // Disconnected
-                currentAccount = null;
-                elements.walletAddress.textContent = 'กรุณาเชื่อมต่อ MetaMask';
-                elements.networkBadge.textContent = 'ยังไม่เชื่อมต่อ';
-                elements.connectButton.textContent = '🔗 เชื่อมต่อ Wallet';
-                resetDashboard();
-                return;
-            }
-
-            if (accounts[0] !== currentAccount) {
-                currentAccount = accounts[0];
-                elements.walletAddress.textContent = formatAddress(currentAccount);
-                elements.connectButton.textContent = '✅ เชื่อมต่อแล้ว';
-
-                // Get network info
-                try {
-                    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-                    const networkName = CONFIG.SUPPORTED_NETWORKS[chainId] || 'Unknown Network';
-                    elements.networkBadge.textContent = networkName;
-
-                    if (chainId !== '0x89') {
-                        showNotification('⚠️ แนะนำให้ใช้ Polygon Network สำหรับประสิทธิภาพที่ดีที่สุด', 'warning');
-                    }
-                } catch (error) {
-                    console.error('Failed to get network:', error);
-                }
-
-                // Load dashboard data
-                await loadDashboardData(currentAccount);
-            }
-        }
-
-        async function loadDashboardData(address) {
-            if (isLoading) return;
-            
-            isLoading = true;
-            
-            try {
-                // Reset flow indicators
-                for (let i = 1; i <= 6; i++) {
-                    updateFlowStep(`flow${i}`, '');
-                }
-
-                // Show loading states
-                renderLoadingState(elements.maticSection, "กำลังดึงข้อมูล MATIC...");
-                renderLoadingState(elements.erc20Section, "กำลังดึงข้อมูลโทเค็น ERC-20...");
-                renderLoadingState(elements.nftSection, "กำลังดึงข้อมูล NFTs...");
-
-                // Check system health first
-                const healthOk = await checkSystemHealth();
-                if (!healthOk) {
-                    throw new Error('System health check failed');
-                }
-
-                // Fetch dashboard data
-                const dashboardData = await fetchWalletDashboard(address);
-
-                // Render all sections
-                renderMaticData(dashboardData.matic);
-                renderErc20Data(dashboardData.erc20);
-                renderNftData(dashboardData.nfts);
-
-                console.log('Dashboard loaded successfully:', dashboardData);
-
-            } catch (error) {
-                console.error('Failed to load dashboard:', error);
-                
-                renderErrorState(elements.maticSection, error.message);
-                renderErrorState(elements.erc20Section, error.message);
-                renderErrorState(elements.nftSection, error.message);
-                
-                showNotification('ไม่สามารถโหลดข้อมูลได้: ' + error.message, 'error');
-                
-                // Reset flow on error
-                for (let i = 1; i <= 6; i++) {
-                    updateFlowStep(`flow${i}`, 'error');
-                }
-            } finally {
-                isLoading = false;
-            }
-        }
-
-        function resetDashboard() {
-            renderLoadingState(elements.maticSection, "รอการเชื่อมต่อ Wallet...");
-            renderLoadingState(elements.erc20Section, "รอการเชื่อมต่อ Wallet...");
-            renderLoadingState(elements.nftSection, "รอการเชื่อมต่อ Wallet...");
-            
-            elements.tokenCount.textContent = "";
-            elements.nftCount.textContent = "";
-            elements.maticCount.textContent = "";
-
-            // Reset flow indicators
-            for (let i = 1; i <= 6; i++) {
-                updateFlowStep(`flow${i}`, '');
-            }
-        }
-
-        // ================== EVENT LISTENERS ==================
-        elements.connectButton.addEventListener('click', connectWallet);
-
-        // MetaMask event listeners
-        if (window.ethereum) {
-            window.ethereum.on('accountsChanged', handleAccountsChanged);
-            window.ethereum.on('chainChanged', (chainId) => {
-                const networkName = CONFIG.SUPPORTED_NETWORKS[chainId] || 'Unknown Network';
-                elements.networkBadge.textContent = networkName;
-                
-                if (currentAccount) {
-                    loadDashboardData(currentAccount);
-                }
-            });
-            window.ethereum.on('disconnect', () => {
-                currentAccount = null;
-                resetDashboard();
-                showNotification('Wallet disconnected', 'warning');
-            });
-        }
-
-        // Auto-refresh dashboard
-        setInterval(() => {
-            if (currentAccount && !isLoading) {
-                console.log('Auto-refreshing dashboard data...');
-                loadDashboardData(currentAccount);
-            }
-        }, CONFIG.REFRESH_INTERVAL);
-
-        // ================== INITIALIZATION ==================
-        async function initializeApp() {
-            console.log('🚀 Initializing AI Wallet Dashboard...');
-            
-            // Check if MetaMask is installed
-            if (!window.ethereum) {
-                showNotification('⚠️ MetaMask ไม่ได้ติดตั้ง กรุณาติดตั้งก่อนใช้งาน', 'warning');
-                elements.connectButton.textContent = '📥 ติดตั้ง MetaMask';
-                elements.connectButton.onclick = () => {
-                    window.open('https://metamask.io/download/', '_blank');
-                };
-                return;
-            }
-
-            // Check system health
-            await checkSystemHealth();
-
-            // Check if already connected
-            try {
-                const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-                if (accounts.length > 0) {
-                    await handleAccountsChanged(accounts);
-                    console.log('✅ Auto-connected to existing wallet session');
-                }
-            } catch (error) {
-                console.error('Failed to check existing connection:', error);
-            }
-
-            console.log('✅ App initialization completed');
-        }
-
-        // ================== STARTUP ==================
-        // Wait for DOM to be fully loaded
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initializeApp);
-        } else {
-            initializeApp();
-        }
-
-        // Add some developer info
-        console.log(`
-        🤖 AI Wallet Dashboard
-        =====================================
-        🔧 Backend: ${CONFIG.BACKEND_URL}
-        📡 Data Flow: Browser → Backend → Alchemy → Gemini AI → Browser
-        🌐 Supported Networks: ${Object.values(CONFIG.SUPPORTED_NETWORKS).join(', ')}
-        🔄 Auto-refresh: ${CONFIG.REFRESH_INTERVAL / 1000}s
-        =====================================
-        `);
+        
+        // --- Event Listeners ---
+        document.addEventListener('DOMContentLoaded', checkSystemStatus); // ตรวจสอบสถานะเมื่อโหลดหน้าเว็บ
+        connectButton.addEventListener('click', async () => { /* ... โค้ดเดิม ... */ });
+        if (typeof window.ethereum !== 'undefined') { /* ... โค้ดเดิม ... */ }
+        
+        // --- ส่วนที่เหลือของ JavaScript เหมือนเดิม ---
+        connectButton.addEventListener('click', async () => { if (typeof window.ethereum !== 'undefined') { try { const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }); handleAccountsChanged(accounts); } catch (error) { console.error("User rejected request:", error); } } else { alert('โปรดติดตั้ง MetaMask!'); } });
+        if (typeof window.ethereum !== 'undefined') { window.ethereum.on('accountsChanged', handleAccountsChanged); window.ethereum.on('chainChanged', (_chainId) => window.location.reload()); }
+        function getNetworkName(chainId) { switch (chainId) { case '0x89': return 'Polygon'; case '0x1': return 'Ethereum'; case '0x38': return 'BNB Chain'; case '0xa4b1': return 'Arbitrum'; default: return 'Unknown'; } }
+        async function handleAccountsChanged(accounts) { if (accounts.length === 0) { currentAccount = null; walletAddressSpan.textContent = 'ยังไม่ได้เชื่อมต่อ'; networkNameSpan.textContent = ''; connectButton.textContent = 'เชื่อมต่อ Wallet'; resetDashboard(); } else if (accounts[0] !== currentAccount) { currentAccount = accounts[0]; const shortAddress = `${currentAccount.substring(0, 6)}...${currentAccount.substring(currentAccount.length - 4)}`; walletAddressSpan.textContent = shortAddress; connectButton.textContent = 'เชื่อมต่อแล้ว'; const chainId = await window.ethereum.request({ method: 'eth_chainId' }); networkNameSpan.textContent = getNetworkName(chainId); fetchFullDashboard(currentAccount); } }
+        function resetDashboard() { maticSection.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>'; erc20Section.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>'; nftSection.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>'; }
+        function renderLoading(sectionElement, text = "กำลังดึงข้อมูลและวิเคราะห์...") { sectionElement.innerHTML = `<div class="loading-state"><div class="loader"></div><p>${text}</p></div>`; }
+        function renderError(sectionElement, message) { sectionElement.innerHTML = `<div class="error-state">เกิดข้อผิดพลาด: ${message}</div>`; }
+        async function fetchFullDashboard(address) { renderLoading(maticSection); renderLoading(erc20Section); renderLoading(nftSection); try { const response = await fetch(`${BACKEND_URL}/api/get_full_dashboard?address=${address}`); if (!response.ok) { throw new Error(`การสื่อสารกับสมองส่วนหลังล้มเหลว (สถานะ: ${response.status})`); } const data = await response.json(); renderMatic(data.matic); renderErc20(data.erc20); renderNfts(data.nfts); } catch (error) { console.error('Could not fetch full dashboard data:', error); renderError(maticSection, error.message); renderError(erc20Section, error.message); renderError(nftSection, error.message); } }
+        function renderMatic(maticData) { if (maticData && maticData.data && maticData.data.symbol) { const analysisHtml = (maticData.analysis && typeof maticData.analysis === 'object') ? `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${maticData.analysis.summary || 'N/A'}</p></div>` : `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${maticData.analysis || 'N/A'}</p></div>`; maticSection.innerHTML = `<ul class="token-list"><li class="token-item"><img src="${maticData.data.icon}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪙</text></svg>'" class="token-icon"><div class="token-info"><span class="token-symbol">${maticData.data.symbol}</span><span class="token-name">${maticData.data.name}</span></div><div class="token-balance"><span>${maticData.data.balance}</span></div></li></ul> ${analysisHtml}`; } else { renderError(maticSection, 'ไม่สามารถดึงข้อมูล MATIC ได้'); } }
+        function renderErc20(erc20Data) { if (erc20Data && erc20Data.data) { if (erc20Data.data.length > 0) { let html = '<ul class="token-list">'; erc20Data.data.forEach(token => { html += `<li class="token-item"><img src="${token.icon}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪙</text></svg>'" class="token-icon"><div class="token-info"><span class="token-symbol">${token.symbol}</span><span class="token-name">${token.name}</span></div><div class="token-balance"><span>${token.balance}</span></div></li>`; }); html += '</ul>'; if (erc20Data.analysis && typeof erc20Data.analysis === 'object') { html += `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI: <span class="ai-style-badge">${erc20Data.analysis.style || 'N/A'}</span></span><p>${erc20Data.analysis.summary || 'ไม่สามารถสรุปได้'}</p></div>`; } else { html += `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${erc20Data.analysis}</p></div>`; } erc20Section.innerHTML = html; } else { erc20Section.innerHTML = '<div class="empty-state">ไม่พบโทเค็น ERC-20</div>'; } } else { renderError(erc20Section, 'ไม่สามารถดึงข้อมูล ERC-20 ได้'); } }
+        function renderNfts(nftData) { if (nftData && nftData.data) { if (nftData.data.length > 0) { let html = '<div class="nft-grid">'; nftData.data.forEach(nft => { html += `<div class="nft-card"><img src="${nft.image}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>'" class="nft-image"><div class="nft-name">${nft.name}</div></div>`; }); html += '</div>'; if (nftData.analysis && typeof nftData.analysis === 'object') { html += `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI: <span class="ai-style-badge">${nftData.analysis.category || 'N/A'}</span></span><p>${nftData.analysis.highlight || 'ไม่สามารถสรุปได้'}</p></div>`; } else { html += `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${nftData.analysis}</p></div>`; } nftSection.innerHTML = html; } else { nftSection.innerHTML = '<div class="empty-state">ไม่พบ NFT</div>'; } } else { renderError(nftSection, 'ไม่สามารถดึงข้อมูล NFT ได้'); } }
     </script>
 </body>
 </html>
