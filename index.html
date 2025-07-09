@@ -8,7 +8,7 @@
     <style>
         /* ... CSS ทั้งหมดเหมือนเดิม ไม่มีการเปลี่ยนแปลง ... */
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap');
-        :root { --dark-bg: #0d1117; --medium-bg: #161b22; --light-bg: #1c2128; --border-color: #30363d; --text-primary: #c9d1d9; --text-secondary: #8b949e; --accent-blue: #58a6ff; --accent-green: #238636; --accent-red: #da3633; }
+        :root { --dark-bg: #0d1117; --medium-bg: #161b22; --light-bg: #1c2128; --border-color: #30363d; --text-primary: #c9d1d9; --text-secondary: #8b949e; --accent-blue: #58a6ff; --accent-green: #238636; --accent-red: #da3633; --accent-orange: #f0883e; }
         body { font-family: 'Sarabun', sans-serif; background-color: var(--dark-bg); color: var(--text-primary); margin: 0; padding: 20px; }
         .container { width: 100%; max-width: 900px; margin: auto; }
         .header { text-align: center; padding: 20px 0; }
@@ -35,8 +35,10 @@
         .token-balance { text-align: right; font-weight: 700; font-size: 1.1em; }
         .ai-analysis-container { margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px; }
         .ai-analysis-item { padding: 15px; background-color: rgba(88, 166, 255, 0.1); border-left: 3px solid var(--accent-blue); border-radius: 0 6px 6px 0; margin-bottom: 10px; }
+        .ai-analysis-item.quota-error { background-color: rgba(240, 136, 62, 0.1); border-left-color: var(--accent-orange); } /* ✨ สีใหม่สำหรับข้อผิดพลาดโควต้า */
         .ai-analysis-item:last-child { margin-bottom: 0; }
         .ai-title { font-weight: 700; color: var(--accent-blue); display: block; margin-bottom: 5px; font-size: 14px; }
+        .quota-error .ai-title { color: var(--accent-orange); } /* ✨ สีใหม่สำหรับข้อผิดพลาดโควต้า */
         .ai-content { margin: 0; line-height: 1.6; }
         .ai-value { font-weight: 700; color: var(--text-primary); font-size: 1.2em; }
         .status-panel { display: flex; justify-content: center; gap: 20px; padding: 10px; margin-top: 20px; font-size: 12px; color: var(--text-secondary); }
@@ -47,7 +49,7 @@
         .debug-log-container { margin-top: 20px; background-color: var(--medium-bg); border: 1px solid var(--border-color); border-radius: 8px; font-family: monospace; font-size: 12px; }
         .debug-log-header { padding: 10px 15px; background-color: var(--light-bg); border-bottom: 1px solid var(--border-color); font-weight: 700; }
         .debug-log-content { padding: 15px; height: 150px; overflow-y: auto; background-color: var(--dark-bg); color: var(--text-secondary); }
-        .log-entry { margin-bottom: 5px; word-break: break-all; } /* เพิ่ม word-break */
+        .log-entry { margin-bottom: 5px; word-break: break-all; }
         .log-success { color: #3fb950; }
         .log-error { color: #f85149; }
         .log-info { color: #a371f7; }
@@ -78,7 +80,7 @@
         function clearDebugLog() { debugLogContent.innerHTML = ''; debugLogContainer.style.display = 'none'; }
         function logDebug(message, type = 'info') { debugLogContainer.style.display = 'block'; const entry = document.createElement('div'); entry.className = `log-entry log-${type}`; entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`; debugLogContent.appendChild(entry); debugLogContent.scrollTop = debugLogContent.scrollHeight; }
 
-        // --- ✨ fetchFullDashboard (เวอร์ชันแก้ไขสมบูรณ์) ---
+        // --- ✨ fetchFullDashboard (เวอร์ชันจัดการ Quota Error) ---
         async function fetchFullDashboard(address) {
             clearDebugLog();
             logDebug('🚀 เริ่มกระบวนการ...');
@@ -92,8 +94,15 @@
                 const data = await response.json();
 
                 // ตรวจสอบว่า Backend ส่งข้อความ Error กลับมาหรือไม่
-                if (data.error) {
-                    // สร้างข้อความ Error ที่ละเอียดขึ้น
+                if (response.status === 429 && data.reason === 'QUOTA_EXCEEDED') {
+                    // จัดการข้อผิดพลาดเรื่องโควต้าโดยเฉพาะ
+                    logDebug(`❌ ${data.details}`, 'error');
+                    renderQuotaError(data);
+                    return; // หยุดการทำงานของฟังก์ชัน
+                }
+
+                if (!response.ok) {
+                    // จัดการข้อผิดพลาดทั่วไปจาก Backend
                     const errorMessage = `Backend ล้มเหลวที่ขั้นตอน: "${data.failed_at}". รายละเอียด: ${data.details}`;
                     throw new Error(errorMessage);
                 }
@@ -107,10 +116,25 @@
 
             } catch (error) {
                 console.error('Could not fetch dashboard data:', error);
-                // แสดงข้อความ Error ที่ละเอียดขึ้นบนหน้าจอ
                 renderError(mainTokenSection, `เกิดข้อผิดพลาด`);
                 logDebug(`❌ ${error.message}`, 'error');
             }
+        }
+        
+        // --- ✨ ฟังก์ชันใหม่สำหรับแสดงผล Quota Error ---
+        function renderQuotaError(errorData) {
+            mainTokenSection.innerHTML = `
+                <div class="ai-analysis-container">
+                    <div class="ai-analysis-item quota-error">
+                        <span class="ai-title">พลังปัญญาถูกใช้งานเต็มพิกัดแล้ว 🔋</span>
+                        <p class="ai-content">
+                            โควต้าการใช้งาน AI สำหรับวันนี้เต็มแล้วครับ 
+                            ระบบจะกลับมาพร้อมใช้งานอีกครั้งในวันพรุ่งนี้
+                            ขออภัยในความไม่สะดวกครับ
+                        </p>
+                    </div>
+                </div>
+            `;
         }
         
         // --- ส่วนที่เหลือของ JavaScript ทั้งหมดเหมือนเดิม ไม่มีการเปลี่ยนแปลง ---
