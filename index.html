@@ -3,178 +3,982 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal AI Dashboard</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💡</text></svg>">
+    <title>AI DeFi Analytics Pro</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🧠</text></svg>">
     <style>
-        /* CSS ทั้งหมดเหมือนเดิม ไม่มีการเปลี่ยนแปลง */
-        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap');
-        body { font-family: 'Sarabun', sans-serif; background-color: #0d1117; color: #c9d1d9; margin: 0; padding: 20px; }
-        .container { width: 100%; max-width: 900px; margin: auto; }
-        .header { text-align: center; padding: 20px 0; }
-        .header h1 { margin: 0; font-size: 28px; }
-        .wallet-info { display: flex; justify-content: space-between; align-items: center; padding: 15px; background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .wallet-details { display: flex; align-items: center; gap: 10px; }
-        #walletAddress { font-family: monospace; }
-        #networkName { background-color: #30363d; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; border: 1px solid #4d545e; }
-        #connectButton { background-color: #238636; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 700; transition: background-color 0.2s; margin-top: 10px; width: 100%; }
-        @media (min-width: 600px) { #connectButton { width: auto; margin-top: 0; } }
-        .section { background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
-        .section-header { padding: 15px 20px; background-color: #1c2128; border-bottom: 1px solid #30363d; }
-        .section-header h2 { margin: 0; font-size: 20px; }
-        .section-content { padding: 20px; }
-        .loading-state, .error-state, .empty-state { text-align: center; color: #8b949e; padding: 40px 20px; }
-        .loader { border: 4px solid #30363d; border-top: 4px solid #58a6ff; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .token-list { list-style-type: none; padding: 0; margin: 0; }
-        .token-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #21262d; }
-        .token-item:last-child { border-bottom: none; }
-        .token-icon { width: 36px; height: 36px; margin-right: 15px; border-radius: 50%; background-color: #0d1117;}
-        .token-info { flex-grow: 1; }
-        .token-symbol { font-weight: 700; }
-        .token-name { font-size: 12px; color: #8b949e; }
-        .token-balance { text-align: right; font-weight: 700; font-size: 1.1em; }
-        .ai-analysis { margin-top: 20px; padding: 15px; background-color: rgba(35, 134, 54, 0.1); border-left: 3px solid #238636; border-radius: 0 6px 6px 0; }
-        .ai-analysis p { margin: 0; line-height: 1.6; }
-        .ai-title { font-weight: 700; color: #58a6ff; display: block; margin-bottom: 5px; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Fira+Code:wght@400;500&display=swap');
+        
+        :root {
+            --primary-bg: #0a0a0a;
+            --secondary-bg: #111111;
+            --card-bg: #1a1a1a;
+            --border-color: #333333;
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --text-muted: #666666;
+            --accent-primary: #00d4ff;
+            --accent-secondary: #ff6b6b;
+            --success-color: #51cf66;
+            --warning-color: #ffd43b;
+            --error-color: #ff6b6b;
+            --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-success: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.3);
+            --shadow-xl: 0 25px 50px rgba(0, 0, 0, 0.4);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--primary-bg);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        /* Header Styles */
+        .header {
+            background: var(--secondary-bg);
+            border-bottom: 1px solid var(--border-color);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+        
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 24px;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .logo::before {
+            content: "🧠";
+            font-size: 32px;
+            -webkit-text-fill-color: initial;
+        }
+        
+        /* Wallet Connection */
+        .wallet-section {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .wallet-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .wallet-info:hover {
+            border-color: var(--accent-primary);
+            transform: translateY(-2px);
+        }
+        
+        .network-badge {
+            background: var(--gradient-primary);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .wallet-address {
+            font-family: 'Fira Code', monospace;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+        
+        .connect-button {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .connect-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .connect-button:active {
+            transform: translateY(0);
+        }
+        
+        /* Main Content */
+        .main-content {
+            padding: 40px 0;
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Card Styles */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--accent-primary);
+        }
+        
+        .card-header {
+            padding: 24px;
+            background: linear-gradient(135deg, var(--card-bg) 0%, rgba(255, 255, 255, 0.05) 100%);
+            border-bottom: 1px solid var(--border-color);
+            position: relative;
+        }
+        
+        .card-header::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+        }
+        
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card-subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+        
+        .card-content {
+            padding: 24px;
+        }
+        
+        /* Token Display */
+        .token-display {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        
+        .token-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--gradient-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .token-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        
+        .token-details {
+            flex: 1;
+        }
+        
+        .token-symbol {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .token-name {
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+        
+        .token-balance {
+            text-align: right;
+        }
+        
+        .balance-amount {
+            font-size: 24px;
+            font-weight: 700;
+            font-family: 'Fira Code', monospace;
+        }
+        
+        .balance-usd {
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 4px;
+        }
+        
+        /* Price Change */
+        .price-change {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .price-change.positive {
+            color: var(--success-color);
+        }
+        
+        .price-change.negative {
+            color: var(--error-color);
+        }
+        
+        .price-change-icon {
+            font-size: 12px;
+        }
+        
+        /* AI Analysis */
+        .ai-analysis {
+            background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+            border: 1px solid rgba(0, 212, 255, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            position: relative;
+        }
+        
+        .ai-analysis::before {
+            content: "🧠";
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            font-size: 20px;
+            opacity: 0.7;
+        }
+        
+        .ai-title {
+            font-weight: 600;
+            color: var(--accent-primary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .ai-content {
+            line-height: 1.8;
+            font-size: 15px;
+            color: var(--text-secondary);
+        }
+        
+        /* AI Insights Grid */
+        .ai-insights-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .insight-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+        
+        .insight-card:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent-primary);
+        }
+        
+        .insight-title {
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--accent-primary);
+        }
+        
+        .insight-content {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* Loading States */
+        .loading-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-muted);
+        }
+        
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-top: 3px solid var(--accent-primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-text {
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+        
+        .loading-subtext {
+            font-size: 14px;
+            color: var(--text-muted);
+        }
+        
+        /* Error States */
+        .error-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--error-color);
+        }
+        
+        .error-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        /* Interactive Elements */
+        .interactive-prompt {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .prompt-input {
+            width: 100%;
+            background: var(--secondary-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .prompt-input:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+        
+        .prompt-button {
+            background: var(--gradient-primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 12px;
+            transition: all 0.3s ease;
+        }
+        
+        .prompt-button:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .prompt-button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+        
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 4px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        /* Animation Classes */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .header-content {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .wallet-section {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .connect-button {
+                width: 100%;
+            }
+            
+            .token-display {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .token-balance {
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header class="header"><h1>Personal AI Dashboard</h1></header>
-        <div class="wallet-info">
-            <div class="wallet-details">
-                 <span id="networkName"></span>
-                 <span id="walletAddress">ยังไม่ได้เชื่อมต่อ</span>
-            </div>
-            <button id="connectButton">เชื่อมต่อ Wallet</button>
-        </div>
-        <div id="dashboardContent">
-            <section class="section">
-                <div class="section-header"><h2>โทเค็นหลัก (Native Token)</h2></div>
-                <div class="section-content" id="nativeTokenSection">
-                    <div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">AI DeFi Analytics Pro</div>
+                <div class="wallet-section">
+                    <div class="wallet-info">
+                        <span class="network-badge" id="networkBadge">ยังไม่เชื่อมต่อ</span>
+                        <span class="wallet-address" id="walletAddress">กรุณาเชื่อมต่อ Wallet</span>
+                    </div>
+                    <button class="connect-button" id="connectButton">
+                        <span id="connectButtonText">เชื่อมต่อ Wallet</span>
+                    </button>
                 </div>
-            </section>
-            <section class="section">
-                <div class="section-header"><h2>โทเค็น (ERC-20)</h2></div>
-                <div class="section-content" id="erc20Section"><div class="loading-state">โปรดเชื่อมต่อ Wallet...</div></div>
-            </section>
-            <section class="section">
-                <div class="section-header"><h2>NFTs</h2></div>
-                <div class="section-content" id="nftSection"><div class="loading-state">โปรดเชื่อมต่อ Wallet...</div></div>
-            </section>
+            </div>
         </div>
-    </div>
+    </header>
+
+    <main class="main-content">
+        <div class="container">
+            <div class="dashboard-grid">
+                <!-- Portfolio Overview -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <span>💰</span>
+                            Portfolio Overview
+                        </h2>
+                        <p class="card-subtitle">ภาพรวมสินทรัพย์และการวิเคราะห์ AI</p>
+                    </div>
+                    <div class="card-content" id="portfolioSection">
+                        <div class="loading-state">
+                            <div class="loader"></div>
+                            <div class="loading-text">โปรดเชื่อมต่อ Wallet</div>
+                            <div class="loading-subtext">เพื่อเริ่มการวิเคราะห์ AI</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Market Intelligence -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">
+                            <span>📊</span>
+                            Market Intelligence
+                        </h2>
+                        <p class="card-subtitle">การวิเคราะห์ตลาดแบบเรียลไทม์</p>
+                    </div>
+                    <div class="card-content" id="marketSection">
+                        <div class="loading-state">
+                            <div class="loader"></div>
+                            <div class="loading-text">รอการเชื่อมต่อ</div>
+                            <div class="loading-subtext">เพื่อวิเคราะห์ sentiment ตลาด</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- AI Insights Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span>🧠</span>
+                        AI-Powered Insights
+                    </h2>
+                    <p class="card-subtitle">การวิเคราะห์เชิงลึกจาก Gemini AI</p>
+                </div>
+                <div class="card-content">
+                    <div class="ai-insights-grid" id="aiInsightsGrid">
+                        <div class="loading-state">
+                            <div class="loader"></div>
+                            <div class="loading-text">กำลังเตรียม AI Analysis</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Interactive AI Assistant -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title">
+                        <span>🤖</span>
+                        AI Assistant
+                    </h2>
+                    <p class="card-subtitle">ถามคำถามและรับคำแนะนำเฉพาะบุคคล</p>
+                </div>
+                <div class="card-content">
+                    <div class="interactive-prompt">
+                        <textarea 
+                            class="prompt-input" 
+                            id="aiPrompt" 
+                            placeholder="เช่น: ควรลงทุนเพิ่มในช่วงนี้หรือไม่? หรือ วิเคราะห์ความเสี่ยงของ portfolio ของฉัน"
+                            disabled
+                        ></textarea>
+                        <button class="prompt-button" id="askAiButton" disabled>
+                            ถาม AI Assistant
+                        </button>
+                    </div>
+                    <div id="aiResponse" class="ai-analysis" style="display: none;">
+                        <div class="ai-title">💡 คำตอบจาก AI</div>
+                        <div class="ai-content" id="aiResponseContent"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <script>
-        const connectButton = document.getElementById('connectButton');
-        const walletAddressSpan = document.getElementById('walletAddress');
-        const networkNameSpan = document.getElementById('networkName');
-        const nativeTokenSection = document.getElementById('nativeTokenSection');
-        const erc20Section = document.getElementById('erc20Section');
-        const nftSection = document.getElementById('nftSection');
-
+        // Configuration
         const BACKEND_URL = "https://838de3bd-02e7-4ba3-8bf0-63ab0412b36f-00-39zqf2mohnweu.pike.replit.dev";
+        
+        // State Management
         let currentAccount = null;
         let currentChainId = null;
-
-        connectButton.addEventListener('click', () => connectWallet());
-
-        async function connectWallet() {
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    handleAccountsChanged(accounts);
-                } catch (error) { console.error("User rejected request:", error); }
-            } else { alert('โปรดติดตั้ง MetaMask!'); }
-        }
-
+        let portfolioData = null;
+        
+        // DOM Elements
+        const connectButton = document.getElementById('connectButton');
+        const connectButtonText = document.getElementById('connectButtonText');
+        const walletAddress = document.getElementById('walletAddress');
+        const networkBadge = document.getElementById('networkBadge');
+        const portfolioSection = document.getElementById('portfolioSection');
+        const marketSection = document.getElementById('marketSection');
+        const aiInsightsGrid = document.getElementById('aiInsightsGrid');
+        const aiPrompt = document.getElementById('aiPrompt');
+        const askAiButton = document.getElementById('askAiButton');
+        const aiResponse = document.getElementById('aiResponse');
+        const aiResponseContent = document.getElementById('aiResponseContent');
+        
+        // Network Configuration
+        const NETWORK_CONFIG = {
+            '0x1': { name: 'Ethereum', color: '#627EEA' },
+            '0x89': { name: 'Polygon', color: '#8247E5' },
+            '0x38': { name: 'BNB Chain', color: '#F3BA2F' },
+            '0xa4b1': { name: 'Arbitrum', color: '#28A0F0' }
+        };
+        
+        // Event Listeners
+        connectButton.addEventListener('click', connectWallet);
+        askAiButton.addEventListener('click', askAI);
+        
+        // MetaMask Integration
         if (typeof window.ethereum !== 'undefined') {
             window.ethereum.on('accountsChanged', handleAccountsChanged);
-            window.ethereum.on('chainChanged', (_chainId) => {
-                console.log("Chain changed, reloading...");
-                window.location.reload();
-            });
+            window.ethereum.on('chainChanged', handleChainChanged);
         }
-
-        function getNetworkName(chainId) {
-            const networks = {
-                '0x89': 'Polygon', '0x1': 'Ethereum',
-                '0x38': 'BNB Chain', '0xa4b1': 'Arbitrum'
-            };
-            return networks[chainId] || 'Unknown Network';
+        
+        // Main Functions
+        async function connectWallet() {
+            if (typeof window.ethereum === 'undefined') {
+                alert('กรุณาติดตั้ง MetaMask เพื่อใช้งานระบบ');
+                return;
+            }
+            
+            try {
+                showButtonLoading();
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+                await handleAccountsChanged(accounts);
+            } catch (error) {
+                console.error('เกิดข้อผิดพลาดในการเชื่อมต่อ:', error);
+                hideButtonLoading();
+                alert('การเชื่อมต่อล้มเหลว กรุณาลองใหม่อีกครั้ง');
+            }
         }
-
+        
         async function handleAccountsChanged(accounts) {
             if (accounts.length === 0) {
-                currentAccount = null;
-                walletAddressSpan.textContent = 'ยังไม่ได้เชื่อมต่อ';
-                networkNameSpan.textContent = '';
-                connectButton.textContent = 'เชื่อมต่อ Wallet';
                 resetDashboard();
-            } else if (accounts[0] !== currentAccount) {
-                currentAccount = accounts[0];
-                const shortAddress = `${currentAccount.substring(0, 6)}...${currentAccount.substring(currentAccount.length - 4)}`;
-                walletAddressSpan.textContent = shortAddress;
-                connectButton.textContent = 'เชื่อมต่อแล้ว';
-                
-                currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
-                networkNameSpan.textContent = getNetworkName(currentChainId);
-                
-                fetchFullDashboard(currentAccount, currentChainId);
+                return;
             }
+            
+            if (accounts[0] !== currentAccount) {
+                currentAccount = accounts[0];
+                currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+                
+                updateWalletDisplay();
+                await loadDashboardData();
+            }
+        }
+        
+        async function handleChainChanged(chainId) {
+            currentChainId = chainId;
+            updateWalletDisplay();
+            await loadDashboardData();
+        }
+        
+        function updateWalletDisplay() {
+            const shortAddress = `${currentAccount.substring(0, 8)}...${currentAccount.substring(currentAccount.length - 6)}`;
+            walletAddress.textContent = shortAddress;
+            
+            const networkInfo = NETWORK_CONFIG[currentChainId];
+            if (networkInfo) {
+                networkBadge.textContent = networkInfo.name;
+                networkBadge.style.backgroundColor = networkInfo.color;
+            }
+            
+            connectButtonText.textContent = 'เชื่อมต่อแล้ว';
+            connectButton.style.background = 'var(--gradient-success)';
+            
+            // Enable AI Assistant
+            aiPrompt.disabled = false;
+            askAiButton.disabled = false;
+        }
+        
+        async function loadDashboardData() {
+            try {
+                showAllLoading();
+                
+                const response = await fetch(
+                    `${BACKEND_URL}/api/get_advanced_dashboard?address=${currentAccount}&chainId=${currentChainId}`
+                );
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                portfolioData = data;
+                
+                renderPortfolioSection(data);
+                renderMarketSection(data);
+                renderAIInsights(data);
+                
+            } catch (error) {
+                console.error('เกิดข้อผิดพลาดในการโหลดข้อมูล:', error);
+                showAllErrors(error.message);
+            }
+        }
+        
+        function renderPortfolioSection(data) {
+            const token = data.native_token.data;
+            const analysis = data.native_token.analysis;
+            
+            const priceChangeClass = token.price_change_24h >= 0 ? 'positive' : 'negative';
+            const priceChangeIcon = token.price_change_24h >= 0 ? '📈' : '📉';
+            
+            portfolioSection.innerHTML = `
+                <div class="token-display fade-in">
+                    <div class="token-icon">
+                        <img src="${token.icon}" alt="${token.symbol}" onerror="this.style.display='none'; this.parentElement.textContent='💰'">
+                    </div>
+                    <div class="token-details">
+                        <div class="token-symbol">${token.symbol}</div>
+                        <div class="token-name">${token.name} • ${token.chain}</div>
+                        <div class="price-change ${priceChangeClass}">
+                            <span class="price-change-icon">${priceChangeIcon}</span>
+                            <span>${token.price_change_24h?.toFixed(2) || 0}% (24h)</span>
+                        </div>
+                    </div>
+                    <div class="token-balance">
+                        <div class="balance-amount">${token.balance_formatted}</div>
+                        <div class="balance-usd">${token.value_formatted || '$0.00'}</div>
+                    </div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value">${token.price_usd?.toFixed(2) || '0.00'}</div>
+                        <div class="stat-label">ราคาปัจจุบัน</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${token.price_change_24h?.toFixed(2) || 0}%</div>
+                        <div class="stat-label">24h Change</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">${(token.market_cap / 1000000000).toFixed(1) || '0'}B</div>
+                        <div class="stat-label">Market Cap</div>
+                    </div>
+                </div>
+                
+                <div class="ai-analysis fade-in">
+                    <div class="ai-title">🧠 AI Portfolio Analysis</div>
+                    <div class="ai-content">${analysis}</div>
+                </div>
+            `;
+        }
+        
+        function renderMarketSection(data) {
+            const marketAnalysis = data.ai_insights.market_sentiment;
+            
+            marketSection.innerHTML = `
+                <div class="ai-analysis fade-in">
+                    <div class="ai-title">📊 Market Sentiment Analysis</div>
+                    <div class="ai-content">${marketAnalysis}</div>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-value pulse">🔥</div>
+                        <div class="stat-label">Market Heat</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">📈</div>
+                        <div class="stat-label">Trend</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">⚡</div>
+                        <div class="stat-label">Volatility</div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function renderAIInsights(data) {
+            const insights = data.ai_insights;
+            
+            aiInsightsGrid.innerHTML = `
+                <div class="insight-card fade-in">
+                    <div class="insight-title">🏥 Portfolio Health</div>
+                    <div class="insight-content">${insights.portfolio_health}</div>
+                </div>
+                
+                <div class="insight-card fade-in">
+                    <div class="insight-title">⚠️ Risk Assessment</div>
+                    <div class="insight-content">${insights.risk_assessment}</div>
+                </div>
+                
+                <div class="insight-card fade-in">
+                    <div class="insight-title">📈 Market Sentiment</div>
+                    <div class="insight-content">${insights.market_sentiment}</div>
+                </div>
+                
+                <div class="insight-card fade-in">
+                    <div class="insight-title">🔍 Transaction Analysis</div>
+                    <div class="insight-content">${insights.transaction_analysis}</div>
+                </div>
+            `;
+        }
+        
+        async function askAI() {
+            const prompt = aiPrompt.value.trim();
+            if (!prompt) {
+                alert('กรุณาใส่คำถามก่อนถาม AI');
+                return;
+            }
+            
+            try {
+                askAiButton.disabled = true;
+                askAiButton.textContent = 'กำลังคิด...';
+                
+                const requestData = {
+                    prompt: prompt,
+                    portfolio: portfolioData,
+                    risk_tolerance: 'medium',
+                    goals: ['long_term_growth', 'defi_yield']
+                };
+                
+                const response = await fetch(`${BACKEND_URL}/api/get_ai_recommendation`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(requestData)
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                aiResponseContent.innerHTML = data.recommendation;
+                aiResponse.style.display = 'block';
+                aiResponse.classList.add('fade-in');
+                
+                // Clear input
+                aiPrompt.value = '';
+                
+            } catch (error) {
+                console.error('เกิดข้อผิดพลาดในการถาม AI:', error);
+                alert('เกิดข้อผิดพลาดในการติดต่อ AI กรุณาลองใหม่อีกครั้ง');
+            } finally {
+                askAiButton.disabled = false;
+                askAiButton.textContent = 'ถาม AI Assistant';
+            }
+        }
+        
+        // Utility Functions
+        function showButtonLoading() {
+            connectButtonText.textContent = 'กำลังเชื่อมต่อ...';
+            connectButton.disabled = true;
+        }
+        
+        function hideButtonLoading() {
+            connectButtonText.textContent = 'เชื่อมต่อ Wallet';
+            connectButton.disabled = false;
+        }
+        
+        function showAllLoading() {
+            const loadingHTML = `
+                <div class="loading-state">
+                    <div class="loader"></div>
+                    <div class="loading-text">กำลังวิเคราะห์ด้วย AI</div>
+                    <div class="loading-subtext">กรุณารอสักครู่...</div>
+                </div>
+            `;
+            
+            portfolioSection.innerHTML = loadingHTML;
+            marketSection.innerHTML = loadingHTML;
+            aiInsightsGrid.innerHTML = loadingHTML;
+        }
+        
+        function showAllErrors(message) {
+            const errorHTML = `
+                <div class="error-state">
+                    <div class="error-icon">⚠️</div>
+                    <div>เกิดข้อผิดพลาด: ${message}</div>
+                </div>
+            `;
+            
+            portfolioSection.innerHTML = errorHTML;
+            marketSection.innerHTML = errorHTML;
+            aiInsightsGrid.innerHTML = errorHTML;
         }
         
         function resetDashboard() {
-            nativeTokenSection.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>';
-            erc20Section.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>';
-            nftSection.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>';
-        }
-
-        function renderLoading(sectionElement, text = "กำลังดึงข้อมูลและวิเคราะห์...") {
-            sectionElement.innerHTML = `<div class="loading-state"><div class="loader"></div><p>${text}</p></div>`;
+            currentAccount = null;
+            currentChainId = null;
+            portfolioData = null;
+            
+            walletAddress.textContent = 'กรุณาเชื่อมต่อ Wallet';
+            networkBadge.textContent = 'ยังไม่เชื่อมต่อ';
+            connectButtonText.textContent = 'เชื่อมต่อ Wallet';
+            connectButton.style.background = 'var(--gradient-primary)';
+            
+            // Disable AI Assistant
+            aiPrompt.disabled = true;
+            aiPrompt.value = '';
+            askAiButton.disabled = true;
+            aiResponse.style.display = 'none';
+            
+            const initialHTML = `
+                <div class="loading-state">
+                    <div class="loader"></div>
+                    <div class="loading-text">โปรดเชื่อมต่อ Wallet</div>
+                    <div class="loading-subtext">เพื่อเริ่มการวิเคราะห์ AI</div>
+                </div>
+            `;
+            
+            portfolioSection.innerHTML = initialHTML;
+            marketSection.innerHTML = initialHTML;
+            aiInsightsGrid.innerHTML = initialHTML;
         }
         
-        function renderError(sectionElement, message) {
-            sectionElement.innerHTML = `<div class="error-state">เกิดข้อผิดพลาด: ${message}</div>`;
-        }
-
-        async function fetchFullDashboard(address, chainId) {
-            renderLoading(nativeTokenSection);
-            renderLoading(erc20Section, "ยังไม่เปิดใช้งาน");
-            renderLoading(nftSection, "ยังไม่เปิดใช้งาน");
-
-            try {
-                // ✨ ส่วนแก้ไข: ส่ง chainId ไปพร้อมกับ address ✨
-                const response = await fetch(`${BACKEND_URL}/api/get_dashboard_data?address=${address}&chainId=${chainId}`);
-                if (!response.ok) { throw new Error(`การสื่อสารกับสมองส่วนหลังล้มเหลว (สถานะ: ${response.status})`); }
-                const data = await response.json();
-
-                renderNativeToken(data.nativeToken);
-                // ในอนาคตจะเรียก renderErc20 และ renderNfts ที่นี่
-
-            } catch (error) {
-                console.error('Could not fetch full dashboard data:', error);
-                renderError(nativeTokenSection, error.message);
-                renderError(erc20Section, "เกิดข้อผิดพลาด");
-                renderError(nftSection, "เกิดข้อผิดพลาด");
-            }
-        }
-
-        function renderNativeToken(tokenData) {
-            if (tokenData && tokenData.data && tokenData.data.symbol) {
-                nativeTokenSection.innerHTML = `
-                    <ul class="token-list">
-                        <li class="token-item">
-                            <img src="${tokenData.data.icon}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪙</text></svg>'" class="token-icon">
-                            <div class="token-info"><span class="token-symbol">${tokenData.data.symbol}</span><span class="token-name">${tokenData.data.name}</span></div>
-                            <div class="token-balance"><span>${tokenData.data.balance}</span></div>
-                        </li>
-                    </ul>
-                    <div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${tokenData.analysis}</p></div>
-                `;
-            } else { renderError(nativeTokenSection, 'ไม่สามารถดึงข้อมูลโทเค็นหลักได้'); }
-        }
+        // Initialize
+        console.log('🚀 AI DeFi Analytics Pro initialized');
+        console.log('🔗 Backend URL:', BACKEND_URL);
     </script>
 </body>
 </html>
