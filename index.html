@@ -1,237 +1,133 @@
 <!DOCTYPE html>
 <html lang="th">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal DeFi Dashboard</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Personal AI Dashboard</title>
     <style>
-        /* --- ส่วน CSS ทั้งหมด (ไม่มีการเปลี่ยนแปลง) --- */
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap');
-
         body {
             font-family: 'Sarabun', sans-serif;
-            background-color: #121212;
-            color: #e0e0e0;
+            background-color: #0d1117;
+            color: #c9d1d9;
             margin: 0;
             padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
         }
-
         .container {
             width: 100%;
-            max-width: 800px;
-            background-color: #1e1e1e;
-            border-radius: 15px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
+            max-width: 900px;
+            margin: auto;
         }
-
         .header {
-            background-color: #2a2a2a;
-            padding: 20px;
             text-align: center;
-            border-bottom: 1px solid #333;
+            padding: 20px 0;
         }
-
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-            color: #ffffff;
-        }
-
+        .header h1 { margin: 0; font-size: 28px; }
         .wallet-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 20px;
-            background-color: #252525;
-            font-size: 14px;
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px; background-color: #161b22; border: 1px solid #30363d;
+            border-radius: 8px; margin-bottom: 20px;
         }
-
-        #walletAddress {
-            font-family: monospace;
-            background-color: #333;
-            padding: 5px 10px;
-            border-radius: 5px;
-        }
-
+        #walletAddress { font-family: monospace; }
         #connectButton {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+            background-color: #238636; color: white; border: none;
+            padding: 10px 18px; border-radius: 6px; cursor: pointer;
+            font-weight: 700; transition: background-color 0.2s;
         }
-
-        #connectButton:hover {
-            background-color: #0056b3;
-        }
-
-        .main-content {
-            padding: 20px;
-        }
-
+        #connectButton:hover { background-color: #2ea043; }
         .section {
-            background-color: #2a2a2a;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
+            background-color: #161b22; border: 1px solid #30363d;
+            border-radius: 8px; margin-bottom: 20px; overflow: hidden;
         }
-
-        .section h2 {
-            margin-top: 0;
-            border-bottom: 1px solid #444;
-            padding-bottom: 10px;
-            font-size: 18px;
+        .section-header {
+            padding: 15px 20px; background-color: #1c2128;
+            border-bottom: 1px solid #30363d;
         }
-
-        #tokenList {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
+        .section-header h2 { margin: 0; font-size: 20px; }
+        .section-content { padding: 20px; }
+        .loading-state, .error-state, .empty-state {
+            text-align: center; color: #8b949e; padding: 20px;
         }
-
-        #tokenList li {
-            display: flex;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #333;
+        /* Token List Styles */
+        .token-list { list-style-type: none; padding: 0; margin: 0; }
+        .token-item {
+            display: flex; align-items: center; padding: 12px 0;
+            border-bottom: 1px solid #21262d;
         }
-        #tokenList li:last-child {
-            border-bottom: none;
-        }
-
-        .token-icon {
-            width: 40px;
-            height: 40px;
-            margin-right: 15px;
-        }
-
-        .token-info {
-            flex-grow: 1;
-        }
-
-        .token-symbol {
-            font-weight: 700;
-            display: block;
-            font-size: 16px;
-        }
-
-        .token-name {
-            font-size: 12px;
-            color: #aaa;
-        }
-
-        .token-balance {
-            text-align: right;
-            font-weight: 700;
-            font-size: 16px;
-        }
-
-        /* --- 🧠 ส่วน CSS ใหม่สำหรับห้องสนทนา AI --- */
-        .ai-chat-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        #aiQueryInput {
-            width: calc(100% - 20px);
-            padding: 10px;
-            background-color: #333;
-            border: 1px solid #555;
-            border-radius: 5px;
-            color: #e0e0e0;
-            font-family: 'Sarabun', sans-serif;
-        }
-
-        #askAiButton {
-            background-color: #8a2be2; /* สีม่วงสำหรับ AI */
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            font-weight: 700;
-        }
-
-        #askAiButton:hover {
-            background-color: #6a1eae;
-        }
+        .token-item:last-child { border-bottom: none; }
+        .token-icon { width: 36px; height: 36px; margin-right: 15px; border-radius: 50%; }
+        .token-info { flex-grow: 1; }
+        .token-symbol { font-weight: 700; }
+        .token-balance { font-weight: 700; font-size: 1.1em; }
         
-        #askAiButton:disabled {
-            background-color: #555;
-            cursor: not-allowed;
+        /* NFT Grid Styles */
+        .nft-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 15px;
         }
-
-        #aiResponseOutput {
-            background-color: #1e1e1e;
-            border: 1px solid #444;
-            border-radius: 5px;
-            padding: 15px;
-            min-height: 50px;
-            white-space: pre-wrap; /* ทำให้แสดงผลขึ้นบรรทัดใหม่ได้ */
-            font-size: 14px;
-            color: #b0c4de; /* สีฟ้าอ่อนสำหรับคำตอบ */
+        .nft-card {
+            background-color: #0d1117; border-radius: 8px; overflow: hidden;
+            border: 1px solid #30363d; text-align: center;
         }
-        /* --- จบส่วน CSS ใหม่ --- */
+        .nft-image { width: 100%; height: 120px; object-fit: cover; }
+        .nft-name { padding: 8px; font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
 
+        /* AI Analysis Styles */
+        .ai-analysis {
+            margin-top: 20px; padding: 15px; background-color: rgba(35, 134, 54, 0.1);
+            border-left: 3px solid #238636; border-radius: 0 6px 6px 0;
+        }
+        .ai-analysis p { margin: 0; line-height: 1.6; }
+        .ai-title { font-weight: 700; color: #58a6ff; display: block; margin-bottom: 5px; }
     </style>
 </head>
-
 <body>
     <div class="container">
         <header class="header">
-            <h1>Personal DeFi Dashboard</h1>
+            <h1>Personal AI Dashboard</h1>
         </header>
         <div class="wallet-info">
             <span id="walletAddress">ยังไม่ได้เชื่อมต่อ</span>
             <button id="connectButton">เชื่อมต่อ Wallet</button>
         </div>
-        <main class="main-content">
+
+        <!-- ส่วนแสดงผลหลัก -->
+        <div id="dashboardContent">
+            <!-- MATIC Section -->
             <section class="section">
-                <h2>ยอดคงเหลือใน Wallet</h2>
-                <ul id="tokenList">
-                    <!-- ข้อมูลโทเค็นจะแสดงที่นี่ -->
-                </ul>
-            </section>
-            
-            <!-- --- 🧠 ส่วน HTML ใหม่สำหรับห้องสนทนา AI --- -->
-            <section class="section">
-                <h2>สนทนากับดวงจิตแห่งปัญญา (Gemini AI)</h2>
-                <div class="ai-chat-container">
-                    <input type="text" id="aiQueryInput" placeholder="พิมพ์คำถามของคุณที่นี่...">
-                    <button id="askAiButton" onclick="askGemini()">ส่งคำถาม</button>
-                    <div id="aiResponseOutput">คำตอบจาก AI จะปรากฏที่นี่...</div>
+                <div class="section-header"><h2>โทเค็นหลัก (Native Token)</h2></div>
+                <div class="section-content" id="maticSection">
+                    <div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>
                 </div>
             </section>
-            <!-- --- จบส่วน HTML ใหม่ --- -->
 
-        </main>
+            <!-- ERC-20 Section -->
+            <section class="section">
+                <div class="section-header"><h2>โทเค็น (ERC-20)</h2></div>
+                <div class="section-content" id="erc20Section">
+                    <div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>
+                </div>
+            </section>
+
+            <!-- NFT Section -->
+            <section class="section">
+                <div class="section-header"><h2>NFTs</h2></div>
+                <div class="section-content" id="nftSection">
+                    <div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>
+                </div>
+            </section>
+        </div>
     </div>
 
     <script>
-        // --- ส่วน JavaScript ทั้งหมด ---
         const connectButton = document.getElementById('connectButton');
         const walletAddressSpan = document.getElementById('walletAddress');
-        const tokenList = document.getElementById('tokenList');
-        // --- 🧠 ส่วน JavaScript ใหม่ ---
-        const aiQueryInput = document.getElementById('aiQueryInput');
-        const askAiButton = document.getElementById('askAiButton');
-        const aiResponseOutput = document.getElementById('aiResponseOutput');
-        // -----------------------
+        const maticSection = document.getElementById('maticSection');
+        const erc20Section = document.getElementById('erc20Section');
+        const nftSection = document.getElementById('nftSection');
 
-        // ที่อยู่ของ "สมองส่วนหลัง" (Replit Backend)
         const BACKEND_URL = "https://838de3bd-02e7-4ba3-8bf0-63ab0412b36f-00-39zqf2mohnweu.pike.replit.dev";
-        
         let currentAccount = null;
 
         connectButton.addEventListener('click', async () => {
@@ -239,101 +135,132 @@
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     handleAccountsChanged(accounts);
-                } catch (error) {
-                    console.error("User rejected the request:", error);
-                }
-            } else {
-                alert('โปรดติดตั้ง MetaMask!');
-            }
+                } catch (error) { console.error("User rejected request:", error); }
+            } else { alert('โปรดติดตั้ง MetaMask!'); }
         });
 
         function handleAccountsChanged(accounts) {
             if (accounts.length === 0) {
-                console.log('Please connect to MetaMask.');
+                currentAccount = null;
                 walletAddressSpan.textContent = 'ยังไม่ได้เชื่อมต่อ';
-                tokenList.innerHTML = '';
+                connectButton.textContent = 'เชื่อมต่อ Wallet';
+                resetDashboard();
             } else if (accounts[0] !== currentAccount) {
                 currentAccount = accounts[0];
                 const shortAddress = `${currentAccount.substring(0, 6)}...${currentAccount.substring(currentAccount.length - 4)}`;
                 walletAddressSpan.textContent = shortAddress;
                 connectButton.textContent = 'เชื่อมต่อแล้ว';
-                fetchWalletData(currentAccount);
+                fetchFullDashboard(currentAccount);
             }
         }
+        
+        function resetDashboard() {
+            maticSection.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>';
+            erc20Section.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>';
+            nftSection.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>';
+        }
 
-        async function fetchWalletData(address) {
-            tokenList.innerHTML = '<li>กำลังโหลดข้อมูล...</li>';
+        function renderLoading(sectionElement) {
+            sectionElement.innerHTML = '<div class="loading-state">กำลังดึงข้อมูลและวิเคราะห์...</div>';
+        }
+        
+        function renderError(sectionElement, message) {
+            sectionElement.innerHTML = `<div class="error-state">เกิดข้อผิดพลาด: ${message}</div>`;
+        }
+
+        async function fetchFullDashboard(address) {
+            renderLoading(maticSection);
+            renderLoading(erc20Section);
+            renderLoading(nftSection);
+
             try {
-                const response = await fetch(`${BACKEND_URL}/api/wallet_data?address=${address}`);
+                const response = await fetch(`${BACKEND_URL}/api/get_full_dashboard?address=${address}`);
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
                 const data = await response.json();
-                
-                tokenList.innerHTML = ''; 
-                if (data.tokens && data.tokens.length > 0) {
-                    data.tokens.forEach(token => {
-                        const li = document.createElement('li');
-                        li.innerHTML = `
-                            <img src="https://cryptologos.cc/logos/polygon-matic-logo.png" alt="${token.name || 'Token'} icon" class="token-icon">
-                            <div class="token-info">
-                                <span class="token-symbol">${token.symbol}</span>
-                                <span class="token-name">${token.name || 'Polygon'}</span>
-                            </div>
-                            <div class="token-balance">
-                                <span>${token.balance}</span>
+
+                // Render MATIC
+                if (data.matic && data.matic.data) {
+                    maticSection.innerHTML = `
+                        <ul class="token-list">
+                            <li class="token-item">
+                                <img src="${data.matic.data.icon}" class="token-icon">
+                                <div class="token-info"><span class="token-symbol">${data.matic.data.symbol}</span></div>
+                                <div class="token-balance"><span>${data.matic.data.balance}</span></div>
+                            </li>
+                        </ul>
+                        <div class="ai-analysis">
+                            <span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span>
+                            <p>${data.matic.analysis}</p>
+                        </div>
+                    `;
+                } else {
+                    renderError(maticSection, 'ไม่สามารถดึงข้อมูล MATIC ได้');
+                }
+
+                // Render ERC20
+                if (data.erc20 && data.erc20.data) {
+                    if (data.erc20.data.length > 0) {
+                        let erc20Html = '<ul class="token-list">';
+                        data.erc20.data.forEach(token => {
+                            erc20Html += `
+                                <li class="token-item">
+                                    <img src="${token.icon}" onerror="this.src='https://etherscan.io/images/main/empty-token.png'" class="token-icon">
+                                    <div class="token-info"><span class="token-symbol">${token.symbol}</span></div>
+                                    <div class="token-balance"><span>${token.balance}</span></div>
+                                </li>
+                            `;
+                        });
+                        erc20Html += '</ul>';
+                        erc20Html += `
+                            <div class="ai-analysis">
+                                <span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span>
+                                <p>${data.erc20.analysis}</p>
                             </div>
                         `;
-                        tokenList.appendChild(li);
-                    });
+                        erc20Section.innerHTML = erc20Html;
+                    } else {
+                        erc20Section.innerHTML = '<div class="empty-state">ไม่พบโทเค็น ERC-20</div>';
+                    }
                 } else {
-                    tokenList.innerHTML = '<li>ไม่พบข้อมูลโทเค็น</li>';
+                     renderError(erc20Section, 'ไม่สามารถดึงข้อมูล ERC-20 ได้');
                 }
-            } catch (error) {
-                console.error('Could not fetch wallet data:', error);
-                tokenList.innerHTML = `<li>เกิดข้อผิดพลาด: ${error.message}</li>`;
-            }
-        }
 
-        // --- 🧠 ฟังก์ชันใหม่สำหรับเรียกใช้ Gemini AI ---
-        async function askGemini() {
-            const query = aiQueryInput.value;
-            if (!query) {
-                alert("กรุณาพิมพ์คำถามก่อนครับ");
-                return;
-            }
-
-            // ปิดปุ่มและแสดงสถานะกำลังโหลด
-            askAiButton.disabled = true;
-            askAiButton.textContent = "กำลังส่งคำถาม...";
-            aiResponseOutput.textContent = "กำลังรอคำตอบจากดวงจิตแห่งปัญญา...";
-
-            try {
-                // ส่งคำถามไปยัง Backend ของเรา
-                const response = await fetch(`${BACKEND_URL}/api/ask_gemini?query=${encodeURIComponent(query)}`);
-                
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                // Render NFTs
+                if (data.nfts && data.nfts.data) {
+                     if (data.nfts.data.length > 0) {
+                        let nftHtml = '<div class="nft-grid">';
+                        data.nfts.data.forEach(nft => {
+                            nftHtml += `
+                                <div class="nft-card">
+                                    <img src="${nft.image}" onerror="this.src='https://etherscan.io/images/main/empty-token.png'" class="nft-image">
+                                    <div class="nft-name">${nft.name}</div>
+                                </div>
+                            `;
+                        });
+                        nftHtml += '</div>';
+                        nftHtml += `
+                            <div class="ai-analysis">
+                                <span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span>
+                                <p>${data.nfts.analysis}</p>
+                            </div>
+                        `;
+                        nftSection.innerHTML = nftHtml;
+                    } else {
+                        nftSection.innerHTML = '<div class="empty-state">ไม่พบ NFT</div>';
+                    }
+                } else {
+                    renderError(nftSection, 'ไม่สามารถดึงข้อมูล NFT ได้');
                 }
-                
-                const data = await response.json();
-                
-                // แสดงคำตอบที่ได้รับ
-                aiResponseOutput.textContent = data.response;
 
             } catch (error) {
-                console.error('Error asking Gemini:', error);
-                aiResponseOutput.textContent = `เกิดข้อผิดพลาด: ${error.message}`;
-            } finally {
-                // เปิดปุ่มให้ใช้งานอีกครั้ง
-                askAiButton.disabled = false;
-                askAiButton.textContent = "ส่งคำถาม";
+                console.error('Could not fetch full dashboard data:', error);
+                renderError(maticSection, error.message);
+                renderError(erc20Section, error.message);
+                renderError(nftSection, error.message);
             }
         }
-        // --- จบฟังก์ชันใหม่ ---
-
     </script>
 </body>
-
 </html>
