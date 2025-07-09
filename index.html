@@ -7,10 +7,21 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💡</text></svg>">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap');
+        :root {
+            --dark-bg: #0d1117;
+            --medium-bg: #161b22;
+            --light-bg: #1c2128;
+            --border-color: #30363d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent-blue: #58a6ff;
+            --accent-green: #238636;
+            --accent-red: #da3633;
+        }
         body {
             font-family: 'Sarabun', sans-serif;
-            background-color: #0d1117;
-            color: #c9d1d9;
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
             margin: 0;
             padding: 20px;
         }
@@ -19,69 +30,61 @@
         .header h1 { margin: 0; font-size: 28px; }
         .wallet-info {
             display: flex; justify-content: space-between; align-items: center;
-            padding: 15px; background-color: #161b22; border: 1px solid #30363d;
+            padding: 15px; background-color: var(--medium-bg); border: 1px solid var(--border-color);
             border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap;
         }
         .wallet-details { display: flex; align-items: center; gap: 10px; }
         #walletAddress { font-family: monospace; }
         #networkName {
-            background-color: #30363d; padding: 4px 8px; border-radius: 6px;
+            background-color: var(--border-color); padding: 4px 8px; border-radius: 6px;
             font-size: 12px; font-weight: 700; border: 1px solid #4d545e;
         }
         #connectButton {
-            background-color: #238636; color: white; border: none; padding: 10px 18px;
+            background-color: var(--accent-green); color: white; border: none; padding: 10px 18px;
             border-radius: 6px; cursor: pointer; font-weight: 700;
             transition: background-color 0.2s; margin-top: 10px; width: 100%;
         }
         @media (min-width: 600px) { #connectButton { width: auto; margin-top: 0; } }
-        .section { background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
-        .section-header { padding: 15px 20px; background-color: #1c2128; border-bottom: 1px solid #30363d; }
+        .section { background-color: var(--medium-bg); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
+        .section-header { padding: 15px 20px; background-color: var(--light-bg); border-bottom: 1px solid var(--border-color); }
         .section-header h2 { margin: 0; font-size: 20px; }
         .section-content { padding: 20px; }
-        .loading-state, .error-state, .empty-state { text-align: center; color: #8b949e; padding: 40px 20px; }
-        .loader { border: 4px solid #30363d; border-top: 4px solid #58a6ff; border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+        .loading-state, .error-state { text-align: center; color: var(--text-secondary); padding: 40px 20px; }
+        .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--accent-blue); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .token-list { list-style-type: none; padding: 0; margin: 0; }
-        .token-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #21262d; }
-        .token-item:last-child { border-bottom: none; }
-        .token-icon { width: 36px; height: 36px; margin-right: 15px; border-radius: 50%; background-color: #0d1117;}
+        .token-item { display: flex; align-items: center; padding: 12px 0; }
+        .token-icon { width: 36px; height: 36px; margin-right: 15px; border-radius: 50%; background-color: var(--dark-bg);}
         .token-info { flex-grow: 1; }
         .token-symbol { font-weight: 700; }
-        .token-name { font-size: 12px; color: #8b949e; }
+        .token-name { font-size: 12px; color: var(--text-secondary); }
         .token-balance { text-align: right; font-weight: 700; font-size: 1.1em; }
-        .nft-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; }
-        .nft-card { background-color: #0d1117; border-radius: 8px; overflow: hidden; border: 1px solid #30363d; text-align: center; transition: transform 0.2s; }
-        .nft-card:hover { transform: translateY(-5px); }
-        .nft-image { width: 100%; height: 120px; object-fit: cover; background-color: #21262d;}
-        .nft-name { padding: 8px; font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
-        .ai-analysis { margin-top: 20px; padding: 15px; background-color: rgba(35, 134, 54, 0.1); border-left: 3px solid #238636; border-radius: 0 6px 6px 0; }
-        .ai-analysis p { margin: 0; line-height: 1.6; }
-        .ai-title { font-weight: 700; color: #58a6ff; display: block; margin-bottom: 5px; }
-        .ai-style-badge {
-            display: inline-block; padding: 3px 10px; background-color: #30363d;
-            border: 1px solid #4d545e; border-radius: 12px; font-size: 12px;
-            font-weight: 700; margin-left: 8px; vertical-align: middle;
+        
+        /* ✨ CSS ใหม่สำหรับ AI Analysis ที่ฉลาดขึ้น ✨ */
+        .ai-analysis-container { margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px; }
+        .ai-analysis-item {
+            padding: 15px;
+            background-color: rgba(88, 166, 255, 0.1);
+            border-left: 3px solid var(--accent-blue);
+            border-radius: 0 6px 6px 0;
+            margin-bottom: 10px;
         }
-        /* ✨ CSS ใหม่สำหรับแผงสถานะระบบ ✨ */
+        .ai-analysis-item:last-child { margin-bottom: 0; }
+        .ai-title { font-weight: 700; color: var(--accent-blue); display: block; margin-bottom: 5px; font-size: 14px; }
+        .ai-content { margin: 0; line-height: 1.6; }
+        .ai-value { font-weight: 700; color: var(--text-primary); font-size: 1.2em; }
+
         .status-panel {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            padding: 10px;
-            margin-top: 20px;
-            font-size: 12px;
-            color: #8b949e;
+            display: flex; justify-content: center; gap: 20px;
+            padding: 10px; margin-top: 20px; font-size: 12px; color: var(--text-secondary);
         }
         .status-item { display: flex; align-items: center; gap: 6px; }
         .status-indicator {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background-color: #4d545e; /* สีเทา (กำลังตรวจสอบ) */
-            transition: background-color 0.3s;
+            width: 10px; height: 10px; border-radius: 50%;
+            background-color: #4d545e; transition: background-color 0.3s;
         }
-        .status-ok { background-color: #238636; } /* สีเขียว */
-        .status-error { background-color: #da3633; } /* สีแดง */
+        .status-ok { background-color: var(--accent-green); }
+        .status-error { background-color: var(--accent-red); }
     </style>
 </head>
 <body>
@@ -95,12 +98,13 @@
             <button id="connectButton">เชื่อมต่อ Wallet</button>
         </div>
         <div id="dashboardContent">
-            <!-- ส่วนแสดงผลข้อมูลเหมือนเดิม -->
-            <section class="section"><div class="section-header"><h2>โทเค็นหลัก (Native Token)</h2></div><div class="section-content" id="maticSection"><div class="loading-state">โปรดเชื่อมต่อ Wallet...</div></div></section>
-            <section class="section"><div class="section-header"><h2>โทเค็น (ERC-20)</h2></div><div class="section-content" id="erc20Section"><div class="loading-state">โปรดเชื่อมต่อ Wallet...</div></div></section>
-            <section class="section"><div class="section-header"><h2>NFTs</h2></div><div class="section-content" id="nftSection"><div class="loading-state">โปรดเชื่อมต่อ Wallet...</div></div></section>
+            <section class="section">
+                <div class="section-header"><h2>โทเค็นหลัก (Native Token)</h2></div>
+                <div class="section-content" id="mainTokenSection">
+                    <div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>
+                </div>
+            </section>
         </div>
-        <!-- ✨ แผงแสดงสถานะระบบ ✨ -->
         <div class="status-panel" id="systemStatus">
             <div class="status-item">Backend <span class="status-indicator" id="status-backend"></span></div>
             <div class="status-item">Alchemy <span class="status-indicator" id="status-alchemy"></span></div>
@@ -113,28 +117,22 @@
         const connectButton = document.getElementById('connectButton');
         const walletAddressSpan = document.getElementById('walletAddress');
         const networkNameSpan = document.getElementById('networkName');
-        const maticSection = document.getElementById('maticSection');
-        const erc20Section = document.getElementById('erc20Section');
-        const nftSection = document.getElementById('nftSection');
+        const mainTokenSection = document.getElementById('mainTokenSection');
         const BACKEND_URL = "https://838de3bd-02e7-4ba3-8bf0-63ab0412b36f-00-39zqf2mohnweu.pike.replit.dev";
         let currentAccount = null;
 
-        // --- ✨ ฟังก์ชันใหม่สำหรับตรวจสอบสถานะระบบ ---
+        // --- ฟังก์ชันสำหรับตรวจสอบสถานะระบบ ---
         async function checkSystemStatus() {
             try {
                 const response = await fetch(`${BACKEND_URL}/api/health_check`);
                 if (!response.ok) throw new Error('Health check failed');
                 const status = await response.json();
-
                 updateStatusIndicator('backend', status.backend);
                 updateStatusIndicator('alchemy', status.alchemy);
                 updateStatusIndicator('gemini', status.gemini);
-
             } catch (error) {
                 console.error("Could not check system status:", error);
-                updateStatusIndicator('backend', 'error');
-                updateStatusIndicator('alchemy', 'error');
-                updateStatusIndicator('gemini', 'error');
+                ['backend', 'alchemy', 'gemini'].forEach(s => updateStatusIndicator(s, 'error'));
             }
         }
 
@@ -142,31 +140,105 @@
             const indicator = document.getElementById(`status-${service}`);
             if (indicator) {
                 indicator.classList.remove('status-ok', 'status-error');
-                if (status === 'ok') {
-                    indicator.classList.add('status-ok');
-                } else {
-                    indicator.classList.add('status-error');
-                }
+                indicator.classList.add(status === 'ok' ? 'status-ok' : 'status-error');
             }
         }
         
         // --- Event Listeners ---
-        document.addEventListener('DOMContentLoaded', checkSystemStatus); // ตรวจสอบสถานะเมื่อโหลดหน้าเว็บ
-        connectButton.addEventListener('click', async () => { /* ... โค้ดเดิม ... */ });
-        if (typeof window.ethereum !== 'undefined') { /* ... โค้ดเดิม ... */ }
+        document.addEventListener('DOMContentLoaded', checkSystemStatus);
+        connectButton.addEventListener('click', async () => {
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    handleAccountsChanged(accounts);
+                } catch (error) { console.error("User rejected request:", error); }
+            } else { alert('โปรดติดตั้ง MetaMask!'); }
+        });
+        if (typeof window.ethereum !== 'undefined') {
+            window.ethereum.on('accountsChanged', handleAccountsChanged);
+            window.ethereum.on('chainChanged', () => window.location.reload());
+        }
         
-        // --- ส่วนที่เหลือของ JavaScript เหมือนเดิม ---
-        connectButton.addEventListener('click', async () => { if (typeof window.ethereum !== 'undefined') { try { const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' }); handleAccountsChanged(accounts); } catch (error) { console.error("User rejected request:", error); } } else { alert('โปรดติดตั้ง MetaMask!'); } });
-        if (typeof window.ethereum !== 'undefined') { window.ethereum.on('accountsChanged', handleAccountsChanged); window.ethereum.on('chainChanged', (_chainId) => window.location.reload()); }
-        function getNetworkName(chainId) { switch (chainId) { case '0x89': return 'Polygon'; case '0x1': return 'Ethereum'; case '0x38': return 'BNB Chain'; case '0xa4b1': return 'Arbitrum'; default: return 'Unknown'; } }
-        async function handleAccountsChanged(accounts) { if (accounts.length === 0) { currentAccount = null; walletAddressSpan.textContent = 'ยังไม่ได้เชื่อมต่อ'; networkNameSpan.textContent = ''; connectButton.textContent = 'เชื่อมต่อ Wallet'; resetDashboard(); } else if (accounts[0] !== currentAccount) { currentAccount = accounts[0]; const shortAddress = `${currentAccount.substring(0, 6)}...${currentAccount.substring(currentAccount.length - 4)}`; walletAddressSpan.textContent = shortAddress; connectButton.textContent = 'เชื่อมต่อแล้ว'; const chainId = await window.ethereum.request({ method: 'eth_chainId' }); networkNameSpan.textContent = getNetworkName(chainId); fetchFullDashboard(currentAccount); } }
-        function resetDashboard() { maticSection.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>'; erc20Section.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>'; nftSection.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>'; }
-        function renderLoading(sectionElement, text = "กำลังดึงข้อมูลและวิเคราะห์...") { sectionElement.innerHTML = `<div class="loading-state"><div class="loader"></div><p>${text}</p></div>`; }
-        function renderError(sectionElement, message) { sectionElement.innerHTML = `<div class="error-state">เกิดข้อผิดพลาด: ${message}</div>`; }
-        async function fetchFullDashboard(address) { renderLoading(maticSection); renderLoading(erc20Section); renderLoading(nftSection); try { const response = await fetch(`${BACKEND_URL}/api/get_full_dashboard?address=${address}`); if (!response.ok) { throw new Error(`การสื่อสารกับสมองส่วนหลังล้มเหลว (สถานะ: ${response.status})`); } const data = await response.json(); renderMatic(data.matic); renderErc20(data.erc20); renderNfts(data.nfts); } catch (error) { console.error('Could not fetch full dashboard data:', error); renderError(maticSection, error.message); renderError(erc20Section, error.message); renderError(nftSection, error.message); } }
-        function renderMatic(maticData) { if (maticData && maticData.data && maticData.data.symbol) { const analysisHtml = (maticData.analysis && typeof maticData.analysis === 'object') ? `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${maticData.analysis.summary || 'N/A'}</p></div>` : `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${maticData.analysis || 'N/A'}</p></div>`; maticSection.innerHTML = `<ul class="token-list"><li class="token-item"><img src="${maticData.data.icon}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪙</text></svg>'" class="token-icon"><div class="token-info"><span class="token-symbol">${maticData.data.symbol}</span><span class="token-name">${maticData.data.name}</span></div><div class="token-balance"><span>${maticData.data.balance}</span></div></li></ul> ${analysisHtml}`; } else { renderError(maticSection, 'ไม่สามารถดึงข้อมูล MATIC ได้'); } }
-        function renderErc20(erc20Data) { if (erc20Data && erc20Data.data) { if (erc20Data.data.length > 0) { let html = '<ul class="token-list">'; erc20Data.data.forEach(token => { html += `<li class="token-item"><img src="${token.icon}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪙</text></svg>'" class="token-icon"><div class="token-info"><span class="token-symbol">${token.symbol}</span><span class="token-name">${token.name}</span></div><div class="token-balance"><span>${token.balance}</span></div></li>`; }); html += '</ul>'; if (erc20Data.analysis && typeof erc20Data.analysis === 'object') { html += `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI: <span class="ai-style-badge">${erc20Data.analysis.style || 'N/A'}</span></span><p>${erc20Data.analysis.summary || 'ไม่สามารถสรุปได้'}</p></div>`; } else { html += `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${erc20Data.analysis}</p></div>`; } erc20Section.innerHTML = html; } else { erc20Section.innerHTML = '<div class="empty-state">ไม่พบโทเค็น ERC-20</div>'; } } else { renderError(erc20Section, 'ไม่สามารถดึงข้อมูล ERC-20 ได้'); } }
-        function renderNfts(nftData) { if (nftData && nftData.data) { if (nftData.data.length > 0) { let html = '<div class="nft-grid">'; nftData.data.forEach(nft => { html += `<div class="nft-card"><img src="${nft.image}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎨</text></svg>'" class="nft-image"><div class="nft-name">${nft.name}</div></div>`; }); html += '</div>'; if (nftData.analysis && typeof nftData.analysis === 'object') { html += `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI: <span class="ai-style-badge">${nftData.analysis.category || 'N/A'}</span></span><p>${nftData.analysis.highlight || 'ไม่สามารถสรุปได้'}</p></div>`; } else { html += `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${nftData.analysis}</p></div>`; } nftSection.innerHTML = html; } else { nftSection.innerHTML = '<div class="empty-state">ไม่พบ NFT</div>'; } } else { renderError(nftSection, 'ไม่สามารถดึงข้อมูล NFT ได้'); } }
+        // --- Core Functions ---
+        function getNetworkName(chainId) {
+            const networks = { '0x89': 'Polygon', '0x1': 'Ethereum', '0x38': 'BNB Chain', '0xa4b1': 'Arbitrum' };
+            return networks[chainId] || 'Unknown';
+        }
+
+        async function handleAccountsChanged(accounts) {
+            if (accounts.length === 0) {
+                currentAccount = null;
+                walletAddressSpan.textContent = 'ยังไม่ได้เชื่อมต่อ';
+                networkNameSpan.textContent = '';
+                connectButton.textContent = 'เชื่อมต่อ Wallet';
+                mainTokenSection.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>';
+            } else if (accounts[0] !== currentAccount) {
+                currentAccount = accounts[0];
+                walletAddressSpan.textContent = `${currentAccount.substring(0, 6)}...${currentAccount.substring(currentAccount.length - 4)}`;
+                connectButton.textContent = 'เชื่อมต่อแล้ว';
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                networkNameSpan.textContent = getNetworkName(chainId);
+                fetchFullDashboard(currentAccount);
+            }
+        }
+        
+        function renderLoading(sectionElement, text = "กำลังดึงข้อมูลและวิเคราะห์...") {
+            sectionElement.innerHTML = `<div class="loading-state"><div class="loader"></div><p>${text}</p></div>`;
+        }
+        
+        function renderError(sectionElement, message) {
+            sectionElement.innerHTML = `<div class="error-state">เกิดข้อผิดพลาด: ${message}</div>`;
+        }
+
+        async function fetchFullDashboard(address) {
+            renderLoading(mainTokenSection);
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/get_full_dashboard?address=${address}`);
+                if (!response.ok) throw new Error(`การสื่อสารกับ Backend ล้มเหลว (สถานะ: ${response.status})`);
+                const data = await response.json();
+                renderMainToken(data.matic);
+            } catch (error) {
+                console.error('Could not fetch dashboard data:', error);
+                renderError(mainTokenSection, error.message);
+            }
+        }
+
+        // --- ✨ Rendering Function (เวอร์ชัน Focus) ---
+        function renderMainToken(tokenData) {
+            if (tokenData && tokenData.data && tokenData.data.symbol) {
+                const analysis = tokenData.analysis || {};
+                const estimatedValue = parseFloat(analysis.estimated_usd || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+
+                mainTokenSection.innerHTML = `
+                    <ul class="token-list">
+                        <li class="token-item">
+                            <img src="${tokenData.data.icon}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪙</text></svg>'" class="token-icon">
+                            <div class="token-info">
+                                <span class="token-symbol">${tokenData.data.symbol}</span>
+                                <span class="token-name">${tokenData.data.name}</span>
+                            </div>
+                            <div class="token-balance"><span>${tokenData.data.balance}</span></div>
+                        </li>
+                    </ul>
+                    <div class="ai-analysis-container">
+                        <div class="ai-analysis-item">
+                            <span class="ai-title">มูลค่าโดยประมาณ</span>
+                            <p class="ai-content ai-value">${estimatedValue}</p>
+                        </div>
+                        <div class="ai-analysis-item">
+                            <span class="ai-title">🧠 บทสรุปจาก AI</span>
+                            <p class="ai-content">${analysis.summary || 'N/A'}</p>
+                        </div>
+                        <div class="ai-analysis-item">
+                            <span class="ai-title">💡 เกร็ดความรู้ (Pro Tip)</span>
+                            <p class="ai-content">${analysis.pro_tip || 'N/A'}</p>
+                        </div>
+                    </div>
+                `;
+            } else {
+                renderError(mainTokenSection, 'ไม่สามารถดึงข้อมูลโทเค็นหลักได้');
+            }
+        }
     </script>
 </body>
 </html>
