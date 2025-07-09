@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Personal AI Dashboard</title>
     <style>
-        /* CSS ทั้งหมดเหมือนเดิม ไม่มีการเปลี่ยนแปลง */
+        /* --- ส่วน CSS อัปเกรด --- */
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap');
         body { font-family: 'Sarabun', sans-serif; background-color: #0d1117; color: #c9d1d9; margin: 0; padding: 20px; }
         .container { width: 100%; max-width: 900px; margin: auto; }
@@ -19,9 +19,27 @@
         .section-header { padding: 15px 20px; background-color: #1c2128; border-bottom: 1px solid #30363d; }
         .section-header h2 { margin: 0; font-size: 20px; }
         .section-content { padding: 20px; }
-        .loading-state, .error-state { text-align: center; color: #8b949e; padding: 20px; }
+        .loading-state, .error-state, .empty-state { text-align: center; color: #8b949e; padding: 40px 20px; }
+        
+        /* --- ✨ CSS ใหม่สำหรับ Spinner --- */
+        .loader {
+            border: 4px solid #30363d;
+            border-top: 4px solid #58a6ff;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        /* --------------------------- */
+
         .token-list { list-style-type: none; padding: 0; margin: 0; }
-        .token-item { display: flex; align-items: center; padding: 12px 0; }
+        .token-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #21262d; }
+        .token-item:last-child { border-bottom: none; }
         .token-icon { width: 36px; height: 36px; margin-right: 15px; border-radius: 50%; }
         .token-info { flex-grow: 1; }
         .token-symbol { font-weight: 700; }
@@ -56,7 +74,6 @@
         const walletAddressSpan = document.getElementById('walletAddress');
         const mainSection = document.getElementById('mainSection');
 
-        // <<< ส่วนแก้ไข: เปลี่ยน URL ของ Backend ให้ตรงกับ Endpoint ใหม่
         const BACKEND_URL = "https://838de3bd-02e7-4ba3-8bf0-63ab0412b36f-00-39zqf2mohnweu.pike.replit.dev";
         let currentAccount = null;
 
@@ -84,12 +101,44 @@
             }
         }
 
+        // <<< ✨ ฟังก์ชัน fetchDashboardData ฉบับอัปเกรด ✨ >>>
         async function fetchDashboardData(address) {
-            mainSection.innerHTML = '<div class="loading-state">กำลังดึงข้อมูลและวิเคราะห์...</div>';
+            // --- สร้างข้อความสถานะการโหลดแบบไดนามิก ---
+            const loadingMessages = [
+                "กำลังส่งสัญญาณไปยัง 'สมองส่วนหลัง' (Replit)...",
+                "กำลังยื่นคำร้องต่อ 'มหาวิหารแห่งความจริง' (Alchemy)...",
+                "กำลังดึงข้อมูลจากบล็อกเชน...",
+                "ได้รับข้อมูลแล้ว! กำลังส่งไปให้ 'ดวงจิตแห่งปัญญา' (Gemini) วิเคราะห์...",
+                "AI กำลังใคร่ครวญ...",
+                "กำลังจัดทำรายงานสรุป... ใกล้เสร็จแล้วครับ!"
+            ];
+            let messageIndex = 0;
+            
+            // แสดงสถานะเริ่มต้นพร้อม Spinner
+            mainSection.innerHTML = `
+                <div class="loading-state">
+                    <div class="loader"></div>
+                    <p id="loading-text">${loadingMessages[messageIndex]}</p>
+                </div>
+            `;
+            const loadingText = document.getElementById('loading-text');
+
+            // สร้าง Interval เพื่อเปลี่ยนข้อความทุกๆ 2.5 วินาที
+            const loadingInterval = setInterval(() => {
+                messageIndex = (messageIndex + 1) % loadingMessages.length;
+                if(loadingText) {
+                    loadingText.textContent = loadingMessages[messageIndex];
+                }
+            }, 2500);
+            // ---------------------------------------------
 
             try {
-                // <<< ส่วนแก้ไข: เรียกใช้ Endpoint ใหม่
+                // เรียกใช้ Endpoint ใหม่ที่เรียบง่ายกว่า
                 const response = await fetch(`${BACKEND_URL}/api/get_matic_dashboard?address=${address}`);
+                
+                // ไม่ว่าจะสำเร็จหรือล้มเหลว ให้หยุดการเปลี่ยนข้อความ
+                clearInterval(loadingInterval);
+
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
@@ -115,6 +164,8 @@
                 }
 
             } catch (error) {
+                // หยุดการเปลี่ยนข้อความหากเกิดข้อผิดพลาด
+                clearInterval(loadingInterval);
                 console.error('Could not fetch dashboard data:', error);
                 mainSection.innerHTML = `<div class="error-state">เกิดข้อผิดพลาด: ${error.message}</div>`;
             }
