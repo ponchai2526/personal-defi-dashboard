@@ -671,6 +671,16 @@
         connectButton.addEventListener('click', connectWallet);
         askAiButton.addEventListener('click', askAI);
         
+        // เพิ่ม Enter key support สำหรับ AI prompt
+        aiPrompt.addEventListener('keydown', function(event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                if (!askAiButton.disabled) {
+                    askAI();
+                }
+            }
+        });
+        
         // MetaMask Integration
         if (typeof window.ethereum !== 'undefined') {
             window.ethereum.on('accountsChanged', handleAccountsChanged);
@@ -868,9 +878,15 @@
                 return;
             }
             
+            if (!portfolioData) {
+                alert('กรุณาเชื่อมต่อ Wallet ก่อนใช้งาน AI Assistant');
+                return;
+            }
+            
             try {
                 askAiButton.disabled = true;
-                askAiButton.textContent = 'กำลังคิด...';
+                askAiButton.textContent = 'AI กำลังคิด...';
+                aiResponse.style.display = 'none';
                 
                 const requestData = {
                     prompt: prompt,
@@ -878,6 +894,8 @@
                     risk_tolerance: 'medium',
                     goals: ['long_term_growth', 'defi_yield']
                 };
+                
+                console.log('Sending request to AI:', requestData);
                 
                 const response = await fetch(`${BACKEND_URL}/api/get_ai_recommendation`, {
                     method: 'POST',
@@ -887,22 +905,39 @@
                     body: JSON.stringify(requestData)
                 });
                 
+                console.log('Response status:', response.status);
+                
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
                 }
                 
                 const data = await response.json();
+                console.log('AI Response:', data);
                 
-                aiResponseContent.innerHTML = data.recommendation;
+                // แสดงคำตอบ
+                aiResponseContent.innerHTML = data.recommendation.replace(/\n/g, '<br>');
                 aiResponse.style.display = 'block';
                 aiResponse.classList.add('fade-in');
+                
+                // เลื่อนไปดูคำตอบ
+                aiResponse.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
                 
                 // Clear input
                 aiPrompt.value = '';
                 
             } catch (error) {
                 console.error('เกิดข้อผิดพลาดในการถาม AI:', error);
-                alert('เกิดข้อผิดพลาดในการติดต่อ AI กรุณาลองใหม่อีกครั้ง');
+                
+                // แสดง error message ในรูปแบบ user-friendly
+                aiResponseContent.innerHTML = `
+                    <strong>⚠️ เกิดข้อผิดพลาด</strong><br>
+                    ไม่สามารถติดต่อ AI Assistant ได้ในขณะนี้<br>
+                    <small>Error: ${error.message}</small><br><br>
+                    กรุณาลองใหม่อีกครั้ง หรือตรวจสอบการเชื่อมต่ออินเทอร์เน็ต
+                `;
+                aiResponse.style.display = 'block';
+                
             } finally {
                 askAiButton.disabled = false;
                 askAiButton.textContent = 'ถาม AI Assistant';
