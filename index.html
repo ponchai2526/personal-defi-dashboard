@@ -84,11 +84,70 @@
         }
         
         /* Wallet Connection */
+        /* Wallet Connection Styles */
         .wallet-section {
             display: flex;
             align-items: center;
             gap: 20px;
             flex-wrap: wrap;
+        }
+        
+        .connection-controls {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .network-selector {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: var(--text-primary);
+            font-size: 14px;
+            min-width: 160px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .network-selector:focus {
+            outline: none;
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+        
+        .network-selector:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .network-mismatch-warning {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+            color: var(--warning-color);
+            font-size: 14px;
+            display: none;
+        }
+        
+        .switch-network-button {
+            background: var(--warning-color);
+            color: var(--primary-bg);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .switch-network-button:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-lg);
         }
         
         .wallet-info {
@@ -513,6 +572,18 @@
             .wallet-section {
                 width: 100%;
                 justify-content: center;
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .connection-controls {
+                width: 100%;
+                justify-content: center;
+            }
+            
+            .network-selector {
+                min-width: auto;
+                flex: 1;
             }
             
             .connect-button {
@@ -540,9 +611,18 @@
                         <span class="network-badge" id="networkBadge">ยังไม่เชื่อมต่อ</span>
                         <span class="wallet-address" id="walletAddress">กรุณาเชื่อมต่อ Wallet</span>
                     </div>
-                    <button class="connect-button" id="connectButton">
-                        <span id="connectButtonText">เชื่อมต่อ Wallet</span>
-                    </button>
+                    <div class="connection-controls">
+                        <select class="network-selector" id="networkSelector" disabled>
+                            <option value="">เลือกเครือข่าย</option>
+                            <option value="0x1">Ethereum Mainnet</option>
+                            <option value="0x89">Polygon</option>
+                            <option value="0x38">BNB Smart Chain</option>
+                            <option value="0xa4b1">Arbitrum</option>
+                        </select>
+                        <button class="connect-button" id="connectButton">
+                            <span id="connectButtonText">เชื่อมต่อ Wallet</span>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -651,6 +731,7 @@
         const connectButtonText = document.getElementById('connectButtonText');
         const walletAddress = document.getElementById('walletAddress');
         const networkBadge = document.getElementById('networkBadge');
+        const networkSelector = document.getElementById('networkSelector');
         const portfolioSection = document.getElementById('portfolioSection');
         const marketSection = document.getElementById('marketSection');
         const aiInsightsGrid = document.getElementById('aiInsightsGrid');
@@ -670,6 +751,7 @@
         // Event Listeners
         connectButton.addEventListener('click', connectWallet);
         askAiButton.addEventListener('click', askAI);
+        networkSelector.addEventListener('change', handleNetworkSelection);
         
         // เพิ่ม Enter key support สำหรับ AI prompt
         aiPrompt.addEventListener('keydown', function(event) {
@@ -696,15 +778,141 @@
             
             try {
                 showButtonLoading();
+                
+                // ขอเชื่อมต่อ wallet ก่อน
                 const accounts = await window.ethereum.request({ 
                     method: 'eth_requestAccounts' 
                 });
-                await handleAccountsChanged(accounts);
+                
+                if (accounts.length === 0) {
+                    throw new Error('ไม่มี account ที่เชื่อมต่อ');
+                }
+                
+                // อ่านเครือข่ายปัจจุบันจาก MetaMask
+                const currentChain = await window.ethereum.request({ method: 'eth_chainId' });
+                
+                console.log('Connected account:', accounts[0]);
+                console.log('Current network:', currentChain);
+                
+                // แสดงข้อมูล wallet ก่อน
+                currentAccount = accounts[0];
+                const shortAddress = `${currentAccount.substring(0, 8)}...${currentAccount.substring(currentAccount.length - 6)}`;
+                walletAddress.textContent = shortAddress;
+                
+                // แสดงเครือข่ายปัจจุบัน
+                displayCurrentNetwork(currentChain);
+                
+                // เปิดใช้งาน network selector
+                networkSelector.disabled = false;
+                networkSelector.value = currentChain;
+                
+                // ตรวจสอบว่าเครือข่ายปัจจุบันรองรับหรือไม่
+                if (NETWORK_CONFIG[currentChain]) {
+                    // รองรับ - โหลดข้อมูลเลย
+                    currentChainId = currentChain;
+                    await loadDashboardData();
+                    showSuccessConnection();
+                } else {
+                    // ไม่รองรับ - แสดงตัวเลือก
+                    showNetworkSelectionPrompt(currentChain);
+                }
+                
             } catch (error) {
                 console.error('เกิดข้อผิดพลาดในการเชื่อมต่อ:', error);
                 hideButtonLoading();
-                alert('การเชื่อมต่อล้มเหลว กรุณาลองใหม่อีกครั้ง');
+                alert(`การเชื่อมต่อล้มเหลว: ${error.message}`);
             }
+        }
+        
+        function displayCurrentNetwork(chainId) {
+            const networkInfo = NETWORK_CONFIG[chainId];
+            if (networkInfo) {
+                networkBadge.textContent = networkInfo.name;
+                networkBadge.style.backgroundColor = networkInfo.color;
+                networkBadge.style.color = 'white';
+            } else {
+                networkBadge.textContent = `ไม่รองรับ (${chainId})`;
+                networkBadge.style.backgroundColor = '#ff6b6b';
+                networkBadge.style.color = 'white';
+            }
+        }
+        
+        function showNetworkSelectionPrompt(currentChain) {
+            // แสดง warning และปุ่มให้เปลี่ยนเครือข่าย
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'network-mismatch-warning';
+            warningDiv.innerHTML = `
+                <strong>⚠️ เครือข่ายไม่รองรับ</strong><br>
+                MetaMask ของคุณเชื่อมต่อกับเครือข่าย ${currentChain}<br>
+                กรุณาเลือกเครือข่ายที่รองรับด้านล่าง หรือเปลี่ยนใน MetaMask
+                <br>
+                <button class="switch-network-button" onclick="promptNetworkSwitch()">
+                    แนะนำเครือข่าย
+                </button>
+            `;
+            
+            // แทรกหลัง wallet-info
+            const walletInfo = document.querySelector('.wallet-info');
+            walletInfo.parentNode.insertBefore(warningDiv, walletInfo.nextSibling);
+            warningDiv.style.display = 'block';
+        }
+        
+        async function promptNetworkSwitch() {
+            const supportedNetworks = Object.keys(NETWORK_CONFIG).map(id => ({
+                id, 
+                name: NETWORK_CONFIG[id].name
+            }));
+            
+            const networkList = supportedNetworks.map(net => `• ${net.name}`).join('\n');
+            
+            if (confirm(`เครือข่ายที่รองรับ:\n${networkList}\n\nต้องการเปลี่ยนเป็น Polygon หรือไม่?`)) {
+                await switchToNetwork('0x89'); // Polygon
+            }
+        }
+        
+        async function switchToNetwork(chainId) {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: chainId }],
+                });
+            } catch (error) {
+                console.error('Error switching network:', error);
+                alert('ไม่สามารถเปลี่ยนเครือข่ายได้ กรุณาเปลี่ยนใน MetaMask เอง');
+            }
+        }
+        
+        async function handleNetworkSelection() {
+            const selectedNetwork = networkSelector.value;
+            if (!selectedNetwork || !currentAccount) return;
+            
+            try {
+                // ถ้าเลือกเครือข่ายใหม่ ให้พยายามเปลี่ยน
+                if (selectedNetwork !== currentChainId) {
+                    await switchToNetwork(selectedNetwork);
+                }
+            } catch (error) {
+                console.error('Error in network selection:', error);
+                // รีเซ็ต selector กลับไปค่าเดิม
+                networkSelector.value = currentChainId || '';
+            }
+        }
+        
+        function showSuccessConnection() {
+            connectButtonText.textContent = 'เชื่อมต่อแล้ว';
+            connectButton.style.background = 'var(--gradient-success)';
+            
+            // เปิดใช้งาน AI Assistant
+            aiPrompt.disabled = false;
+            askAiButton.disabled = false;
+            
+            // ซ่อน warning ถ้ามี
+            const warning = document.querySelector('.network-mismatch-warning');
+            if (warning) {
+                warning.style.display = 'none';
+            }
+            
+            hideButtonLoading();
         }
         
         async function handleAccountsChanged(accounts) {
@@ -715,47 +923,67 @@
             
             if (accounts[0] !== currentAccount) {
                 currentAccount = accounts[0];
-                currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
                 
+                // อ่านเครือข่ายปัจจุบัน
+                const newChainId = await window.ethereum.request({ method: 'eth_chainId' });
+                console.log('Account changed, new chain:', newChainId);
+                
+                // อัพเดท display
+                displayCurrentNetwork(newChainId);
                 updateWalletDisplay();
-                await loadDashboardData();
+                
+                // ถ้าเครือข่ายรองรับ ให้โหลดข้อมูล
+                if (NETWORK_CONFIG[newChainId]) {
+                    currentChainId = newChainId;
+                    networkSelector.value = newChainId;
+                    await loadDashboardData();
+                    showSuccessConnection();
+                } else {
+                    showNetworkSelectionPrompt(newChainId);
+                }
             }
         }
         
         async function handleChainChanged(chainId) {
-            currentChainId = chainId;
-            updateWalletDisplay();
-            await loadDashboardData();
+            console.log('Chain changed to:', chainId);
+            
+            // อัพเดท display
+            displayCurrentNetwork(chainId);
+            
+            // อัพเดท selector
+            networkSelector.value = chainId;
+            
+            // ถ้าเครือข่ายรองรับ ให้โหลดข้อมูล
+            if (NETWORK_CONFIG[chainId] && currentAccount) {
+                currentChainId = chainId;
+                await loadDashboardData();
+                showSuccessConnection();
+            } else if (currentAccount) {
+                showNetworkSelectionPrompt(chainId);
+            }
         }
         
         function updateWalletDisplay() {
             const shortAddress = `${currentAccount.substring(0, 8)}...${currentAccount.substring(currentAccount.length - 6)}`;
             walletAddress.textContent = shortAddress;
             
-            const networkInfo = NETWORK_CONFIG[currentChainId];
-            if (networkInfo) {
-                networkBadge.textContent = networkInfo.name;
-                networkBadge.style.backgroundColor = networkInfo.color;
-            }
-            
-            connectButtonText.textContent = 'เชื่อมต่อแล้ว';
-            connectButton.style.background = 'var(--gradient-success)';
-            
-            // Enable AI Assistant
-            aiPrompt.disabled = false;
-            askAiButton.disabled = false;
+            // เปิดใช้งาน network selector
+            networkSelector.disabled = false;
         }
         
         async function loadDashboardData() {
             try {
                 showAllLoading();
                 
+                console.log(`Loading data for ${currentAccount} on ${currentChainId}`);
+                
                 const response = await fetch(
                     `${BACKEND_URL}/api/get_advanced_dashboard?address=${currentAccount}&chainId=${currentChainId}`
                 );
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                    const errorText = await response.text();
+                    throw new Error(`HTTP ${response.status}: ${errorText}`);
                 }
                 
                 const data = await response.json();
@@ -765,9 +993,20 @@
                 renderMarketSection(data);
                 renderAIInsights(data);
                 
+                console.log('Dashboard data loaded successfully');
+                
             } catch (error) {
                 console.error('เกิดข้อผิดพลาดในการโหลดข้อมูล:', error);
-                showAllErrors(error.message);
+                
+                // แสดง error message ที่เฉพาะเจาะจง
+                let errorMessage = error.message;
+                if (error.message.includes('Unsupported chainId')) {
+                    errorMessage = `เครือข่าย ${currentChainId} ยังไม่รองรับ กรุณาเปลี่ยนเครือข่าย`;
+                } else if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'ไม่สามารถเชื่อมต่อ backend ได้ กรุณาตรวจสอบการเชื่อมต่อ';
+                }
+                
+                showAllErrors(errorMessage);
             }
         }
         
@@ -989,14 +1228,25 @@
             
             walletAddress.textContent = 'กรุณาเชื่อมต่อ Wallet';
             networkBadge.textContent = 'ยังไม่เชื่อมต่อ';
+            networkBadge.style.backgroundColor = '';
             connectButtonText.textContent = 'เชื่อมต่อ Wallet';
             connectButton.style.background = 'var(--gradient-primary)';
             
-            // Disable AI Assistant
+            // ปิดการใช้งาน network selector
+            networkSelector.disabled = true;
+            networkSelector.value = '';
+            
+            // ปิดการใช้งาน AI Assistant
             aiPrompt.disabled = true;
             aiPrompt.value = '';
             askAiButton.disabled = true;
             aiResponse.style.display = 'none';
+            
+            // ซ่อน warning ถ้ามี
+            const warning = document.querySelector('.network-mismatch-warning');
+            if (warning) {
+                warning.remove();
+            }
             
             const initialHTML = `
                 <div class="loading-state">
@@ -1014,6 +1264,10 @@
         // Initialize
         console.log('🚀 AI DeFi Analytics Pro initialized');
         console.log('🔗 Backend URL:', BACKEND_URL);
+        console.log('🌐 Supported Networks:', Object.keys(NETWORK_CONFIG));
+        
+        // เพิ่ม global function สำหรับ network switching
+        window.promptNetworkSwitch = promptNetworkSwitch;
     </script>
 </body>
 </html>
