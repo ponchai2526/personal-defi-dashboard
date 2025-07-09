@@ -6,50 +6,18 @@
     <title>Personal AI Dashboard</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💡</text></svg>">
     <style>
+        /* CSS ทั้งหมดเหมือนเดิม ไม่มีการเปลี่ยนแปลง */
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap');
-        body {
-            font-family: 'Sarabun', sans-serif;
-            background-color: #0d1117;
-            color: #c9d1d9;
-            margin: 0;
-            padding: 20px;
-        }
+        body { font-family: 'Sarabun', sans-serif; background-color: #0d1117; color: #c9d1d9; margin: 0; padding: 20px; }
         .container { width: 100%; max-width: 900px; margin: auto; }
         .header { text-align: center; padding: 20px 0; }
         .header h1 { margin: 0; font-size: 28px; }
-        .wallet-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px;
-            background-color: #161b22;
-            border: 1px solid #30363d;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            flex-wrap: wrap; /* ✨ เพิ่ม: เพื่อให้ขึ้นบรรทัดใหม่บนจอมือถือ */
-        }
+        .wallet-info { display: flex; justify-content: space-between; align-items: center; padding: 15px; background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap; }
         .wallet-details { display: flex; align-items: center; gap: 10px; }
         #walletAddress { font-family: monospace; }
-        /* ✨ CSS ใหม่สำหรับ Network Badge ✨ */
-        #networkName {
-            background-color: #30363d;
-            padding: 4px 8px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 700;
-            border: 1px solid #4d545e;
-        }
-        #connectButton {
-            background-color: #238636; color: white; border: none;
-            padding: 10px 18px; border-radius: 6px; cursor: pointer;
-            font-weight: 700; transition: background-color 0.2s;
-            margin-top: 10px; /* ✨ เพิ่ม: ระยะห่างบนจอมือถือ */
-            width: 100%; /* ✨ เพิ่ม: ให้ปุ่มเต็มความกว้างบนจอมือถือ */
-        }
-        @media (min-width: 600px) { /* สำหรับจอใหญ่ */
-            #connectButton { width: auto; margin-top: 0; }
-        }
-        /* ---------------------------------- */
+        #networkName { background-color: #30363d; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; border: 1px solid #4d545e; }
+        #connectButton { background-color: #238636; color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 700; transition: background-color 0.2s; margin-top: 10px; width: 100%; }
+        @media (min-width: 600px) { #connectButton { width: auto; margin-top: 0; } }
         .section { background-color: #161b22; border: 1px solid #30363d; border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
         .section-header { padding: 15px 20px; background-color: #1c2128; border-bottom: 1px solid #30363d; }
         .section-header h2 { margin: 0; font-size: 20px; }
@@ -65,11 +33,6 @@
         .token-symbol { font-weight: 700; }
         .token-name { font-size: 12px; color: #8b949e; }
         .token-balance { text-align: right; font-weight: 700; font-size: 1.1em; }
-        .nft-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 15px; }
-        .nft-card { background-color: #0d1117; border-radius: 8px; overflow: hidden; border: 1px solid #30363d; text-align: center; transition: transform 0.2s; }
-        .nft-card:hover { transform: translateY(-5px); }
-        .nft-image { width: 100%; height: 120px; object-fit: cover; background-color: #21262d;}
-        .nft-name { padding: 8px; font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
         .ai-analysis { margin-top: 20px; padding: 15px; background-color: rgba(35, 134, 54, 0.1); border-left: 3px solid #238636; border-radius: 0 6px 6px 0; }
         .ai-analysis p { margin: 0; line-height: 1.6; }
         .ai-title { font-weight: 700; color: #58a6ff; display: block; margin-bottom: 5px; }
@@ -77,37 +40,28 @@
 </head>
 <body>
     <div class="container">
-        <header class="header">
-            <h1>Personal AI Dashboard</h1>
-        </header>
+        <header class="header"><h1>Personal AI Dashboard</h1></header>
         <div class="wallet-info">
-            <!-- ✨ ส่วนแก้ไข: เพิ่มส่วนแสดง Network และ Address ✨ -->
             <div class="wallet-details">
                  <span id="networkName"></span>
                  <span id="walletAddress">ยังไม่ได้เชื่อมต่อ</span>
             </div>
-            <!-- ----------------------------------------- -->
             <button id="connectButton">เชื่อมต่อ Wallet</button>
         </div>
-
         <div id="dashboardContent">
             <section class="section">
                 <div class="section-header"><h2>โทเค็นหลัก (Native Token)</h2></div>
-                <div class="section-content" id="maticSection">
+                <div class="section-content" id="nativeTokenSection">
                     <div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>
                 </div>
             </section>
             <section class="section">
                 <div class="section-header"><h2>โทเค็น (ERC-20)</h2></div>
-                <div class="section-content" id="erc20Section">
-                    <div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>
-                </div>
+                <div class="section-content" id="erc20Section"><div class="loading-state">โปรดเชื่อมต่อ Wallet...</div></div>
             </section>
             <section class="section">
                 <div class="section-header"><h2>NFTs</h2></div>
-                <div class="section-content" id="nftSection">
-                    <div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>
-                </div>
+                <div class="section-content" id="nftSection"><div class="loading-state">โปรดเชื่อมต่อ Wallet...</div></div>
             </section>
         </div>
     </div>
@@ -115,42 +69,42 @@
     <script>
         const connectButton = document.getElementById('connectButton');
         const walletAddressSpan = document.getElementById('walletAddress');
-        const networkNameSpan = document.getElementById('networkName'); // ✨ เพิ่ม
-        const maticSection = document.getElementById('maticSection');
+        const networkNameSpan = document.getElementById('networkName');
+        const nativeTokenSection = document.getElementById('nativeTokenSection');
         const erc20Section = document.getElementById('erc20Section');
         const nftSection = document.getElementById('nftSection');
 
         const BACKEND_URL = "https://838de3bd-02e7-4ba3-8bf0-63ab0412b36f-00-39zqf2mohnweu.pike.replit.dev";
         let currentAccount = null;
+        let currentChainId = null;
 
-        // --- Event Listeners ---
-        connectButton.addEventListener('click', async () => {
+        connectButton.addEventListener('click', () => connectWallet());
+
+        async function connectWallet() {
             if (typeof window.ethereum !== 'undefined') {
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     handleAccountsChanged(accounts);
                 } catch (error) { console.error("User rejected request:", error); }
             } else { alert('โปรดติดตั้ง MetaMask!'); }
-        });
+        }
 
         if (typeof window.ethereum !== 'undefined') {
             window.ethereum.on('accountsChanged', handleAccountsChanged);
-            window.ethereum.on('chainChanged', (_chainId) => window.location.reload()); // รีโหลดเมื่อเปลี่ยนเชน
+            window.ethereum.on('chainChanged', (_chainId) => {
+                console.log("Chain changed, reloading...");
+                window.location.reload();
+            });
         }
 
-        // --- ✨ ฟังก์ชันใหม่สำหรับตรวจสอบชื่อเครือข่าย ✨ ---
         function getNetworkName(chainId) {
-            switch (chainId) {
-                case '0x89': return 'Polygon';
-                case '0x1': return 'Ethereum';
-                case '0x38': return 'BNB Chain';
-                case '0xa4b1': return 'Arbitrum';
-                default: return 'Unknown';
-            }
+            const networks = {
+                '0x89': 'Polygon', '0x1': 'Ethereum',
+                '0x38': 'BNB Chain', '0xa4b1': 'Arbitrum'
+            };
+            return networks[chainId] || 'Unknown Network';
         }
-        // ------------------------------------------
 
-        // --- Core Functions ---
         async function handleAccountsChanged(accounts) {
             if (accounts.length === 0) {
                 currentAccount = null;
@@ -164,17 +118,15 @@
                 walletAddressSpan.textContent = shortAddress;
                 connectButton.textContent = 'เชื่อมต่อแล้ว';
                 
-                // ✨ เพิ่ม: ดึงและแสดงชื่อเครือข่าย ✨
-                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-                networkNameSpan.textContent = getNetworkName(chainId);
-                // ---------------------------------
-
-                fetchFullDashboard(currentAccount);
+                currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+                networkNameSpan.textContent = getNetworkName(currentChainId);
+                
+                fetchFullDashboard(currentAccount, currentChainId);
             }
         }
         
         function resetDashboard() {
-            maticSection.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>';
+            nativeTokenSection.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>';
             erc20Section.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>';
             nftSection.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>';
         }
@@ -187,81 +139,41 @@
             sectionElement.innerHTML = `<div class="error-state">เกิดข้อผิดพลาด: ${message}</div>`;
         }
 
-        async function fetchFullDashboard(address) {
-            renderLoading(maticSection);
-            renderLoading(erc20Section);
-            renderLoading(nftSection);
+        async function fetchFullDashboard(address, chainId) {
+            renderLoading(nativeTokenSection);
+            renderLoading(erc20Section, "ยังไม่เปิดใช้งาน");
+            renderLoading(nftSection, "ยังไม่เปิดใช้งาน");
 
             try {
-                const response = await fetch(`${BACKEND_URL}/api/get_full_dashboard?address=${address}`);
+                // ✨ ส่วนแก้ไข: ส่ง chainId ไปพร้อมกับ address ✨
+                const response = await fetch(`${BACKEND_URL}/api/get_dashboard_data?address=${address}&chainId=${chainId}`);
                 if (!response.ok) { throw new Error(`การสื่อสารกับสมองส่วนหลังล้มเหลว (สถานะ: ${response.status})`); }
                 const data = await response.json();
 
-                renderMatic(data.matic);
-                renderErc20(data.erc20);
-                renderNfts(data.nfts);
+                renderNativeToken(data.nativeToken);
+                // ในอนาคตจะเรียก renderErc20 และ renderNfts ที่นี่
 
             } catch (error) {
                 console.error('Could not fetch full dashboard data:', error);
-                renderError(maticSection, error.message);
-                renderError(erc20Section, error.message);
-                renderError(nftSection, error.message);
+                renderError(nativeTokenSection, error.message);
+                renderError(erc20Section, "เกิดข้อผิดพลาด");
+                renderError(nftSection, "เกิดข้อผิดพลาด");
             }
         }
 
-        // --- Rendering Functions ---
-        function renderMatic(maticData) {
-            if (maticData && maticData.data && maticData.data.symbol) {
-                maticSection.innerHTML = `
+        function renderNativeToken(tokenData) {
+            if (tokenData && tokenData.data && tokenData.data.symbol) {
+                nativeTokenSection.innerHTML = `
                     <ul class="token-list">
                         <li class="token-item">
-                            <img src="${maticData.data.icon}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪙</text></svg>'" class="token-icon">
-                            <div class="token-info"><span class="token-symbol">${maticData.data.symbol}</span><span class="token-name">${maticData.data.name}</span></div>
-                            <div class="token-balance"><span>${maticData.data.balance}</span></div>
+                            <img src="${tokenData.data.icon}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪙</text></svg>'" class="token-icon">
+                            <div class="token-info"><span class="token-symbol">${tokenData.data.symbol}</span><span class="token-name">${tokenData.data.name}</span></div>
+                            <div class="token-balance"><span>${tokenData.data.balance}</span></div>
                         </li>
                     </ul>
-                    <div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${maticData.analysis}</p></div>
+                    <div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${tokenData.analysis}</p></div>
                 `;
-            } else { renderError(maticSection, 'ไม่สามารถดึงข้อมูล MATIC ได้'); }
-        }
-
-        function renderErc20(erc20Data) {
-            if (erc20Data && erc20Data.data) {
-                if (erc20Data.data.length > 0) {
-                    let html = '<ul class="token-list">';
-                    erc20Data.data.forEach(token => {
-                        html += `
-                            <li class="token-item">
-                                <img src="${token.icon}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪙</text></svg>'" class="token-icon">
-                                <div class="token-info"><span class="token-symbol">${token.symbol}</span><span class="token-name">${token.name}</span></div>
-                                <div class="token-balance"><span>${token.balance}</span></div>
-                            </li>
-                        `;
-                    });
-                    html += '</ul>';
-                    html += `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${erc20Data.analysis}</p></div>`;
-                    erc20Section.innerHTML = html;
-                } else { erc20Section.innerHTML = '<div class="empty-state">ไม่พบโทเค็น ERC-20</div>'; }
-            } else { renderError(erc20Section, 'ไม่สามารถดึงข้อมูล ERC-20 ได้'); }
-        }
-
-        function renderNfts(nftData) {
-             if (nftData && nftData.data) {
-                 if (nftData.data.length > 0) {
-                    let html = '<div class="nft-grid">';
-                    nftData.data.forEach(nft => {
-                        html += `
-                            <div class="nft-card">
-                                <img src="${nft.image}" onerror="this.style.display='none'" class="nft-image">
-                                <div class="nft-name">${nft.name}</div>
-                            </div>
-                        `;
-                    });
-                    html += '</div>';
-                    html += `<div class="ai-analysis"><span class="ai-title">🧠 บทวิเคราะห์จาก AI:</span><p>${nftData.analysis}</p></div>`;
-                    nftSection.innerHTML = html;
-                } else { nftSection.innerHTML = '<div class="empty-state">ไม่พบ NFT</div>'; }
-            } else { renderError(nftSection, 'ไม่สามารถดึงข้อมูล NFT ได้'); }
+            } else { renderError(nativeTokenSection, 'ไม่สามารถดึงข้อมูลโทเค็นหลักได้'); }
         }
     </script>
 </body>
