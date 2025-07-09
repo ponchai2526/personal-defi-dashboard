@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Test Dashboard - Personal AI DeFi</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .title {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        .test-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .test-title {
+            font-size: 1.5rem;
+            color: #333;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .wallet-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .network-selector {
+            padding: 12px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 1rem;
+            background: white;
+        }
+
+        .connect-button {
+            padding: 15px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .connect-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .connect-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .status-box {
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .status-box.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-box.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status-box.info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        .result-area {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+
+        .test-button {
+            padding: 12px 24px;
+            background: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+        }
+
+        .test-button:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .test-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .info-card {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .info-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .info-card p {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .title {
+                font-size: 2rem;
+            }
+            
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 class="title">🧪 Test Dashboard</h1>
+            <p class="subtitle">ทดสอบการเชื่อมต่อและฟังก์ชันการทำงาน</p>
+        </div>
+
+        <!-- สถานะการเชื่อมต่อ -->
+        <div class="test-section">
+            <h2 class="test-title">📡 Connection Status</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>🌐 Frontend</h3>
+                    <p>Vercel: <span id="frontendStatus">Loading...</span></p>
+                </div>
+                <div class="info-card">
+                    <h3>🧠 Backend</h3>
+                    <p>Replit: <span id="backendStatus">Loading...</span></p>
+                </div>
+                <div class="info-card">
+                    <h3>🔗 MetaMask</h3>
+                    <p>Status: <span id="metamaskStatus">Loading...</span></p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Wallet Connection -->
+        <div class="test-section">
+            <h2 class="test-title">🦊 Wallet Connection Test</h2>
+            <div class="wallet-section">
+                <select class="network-selector" id="networkSelector">
+                    <option value="">เลือกเครือข่าย</option>
+                    <option value="0x1">Ethereum Mainnet</option>
+                    <option value="0x89">Polygon</option>
+                    <option value="0x38">BNB Smart Chain</option>
+                    <option value="0xa4b1">Arbitrum</option>
+                </select>
+                <button class="connect-button" id="connectButton" onclick="connectWallet()">
+                    <span id="connectButtonText">เชื่อมต่อ MetaMask</span>
+                </button>
+            </div>
+            <div id="walletStatus" class="status-box info" style="display: none;">
+                <div id="walletStatusText">รอการเชื่อมต่อ...</div>
+            </div>
+        </div>
+
+        <!-- API Tests -->
+        <div class="test-section">
+            <h2 class="test-title">🔧 API Tests</h2>
+            <div>
+                <button class="test-button" onclick="testBackendHealth()">
+                    🏥 Health Check
+                </button>
+                <button class="test-button" onclick="testNativeBalance()" disabled id="nativeBalanceBtn">
+                    💰 Native Balance
+                </button>
+                <button class="test-button" onclick="testAIAnalysis()" disabled id="aiAnalysisBtn">
+                    🧠 AI Analysis
+                </button>
+                <button class="test-button" onclick="testNewFeatures()" disabled id="newFeaturesBtn">
+                    🆕 New Features
+                </button>
+            </div>
+            <div class="result-area" id="testResults">
+                <div>📝 Test Results จะแสดงที่นี่...</div>
+            </div>
+        </div>
+
+        <!-- Debug Info -->
+        <div class="test-section">
+            <h2 class="test-title">🔍 Debug Information</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>📍 URLs</h3>
+                    <p>
+                        <strong>Frontend:</strong> https://personal-defi-dashboard.vercel.app/<br>
+                        <strong>Test Page:</strong> https://personal-defi-dashboard.vercel.app/test.html<br>
+                        <strong>Backend:</strong> https://replit.com/@ponchai2526/my-python-backend-test
+                    </p>
+                </div>
+                <div class="info-card">
+                    <h3>🔑 Current State</h3>
+                    <p>
+                        <strong>Account:</strong> <span id="currentAccount">ไม่ได้เชื่อมต่อ</span><br>
+                        <strong>Network:</strong> <span id="currentNetwork">ไม่ทราบ</span><br>
+                        <strong>Balance:</strong> <span id="currentBalance">0</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===============================
+        // Configuration
+        // ===============================
+        const BACKEND_URL = "https://838de3bd-02e7-4ba3-8bf0-63ab0412b36f-00-39zqf2mohnweu.pike.replit.dev";
+        
+        // State
+        let currentAccount = null;
+        let currentChainId = null;
+        
+        // Network Config
+        const NETWORKS = {
+            '0x1': { name: 'Ethereum', symbol: 'ETH' },
+            '0x89': { name: 'Polygon', symbol: 'MATIC' },
+            '0x38': { name: 'BNB Chain', symbol: 'BNB' },
+            '0xa4b1': { name: 'Arbitrum', symbol: 'ETH' }
+        };
+
+        // ===============================
+        // Initial Status Check
+        // ===============================
+        document.addEventListener('DOMContentLoaded', function() {
+            checkInitialStatus();
+        });
+
+        function checkInitialStatus() {
+            // Frontend Status
+            document.getElementById('frontendStatus').textContent = '✅ Active (Vercel)';
+            
+            // MetaMask Status
+            if (typeof window.ethereum !== 'undefined') {
+                document.getElementById('metamaskStatus').textContent = '✅ Detected';
+            } else {
+                document.getElementById('metamaskStatus').textContent = '❌ Not Found';
+            }
+            
+            // Backend Status - Test automatically
+            testBackendHealth();
+        }
+
+        // ===============================
+        // Wallet Connection
+        // ===============================
+        async function connectWallet() {
+            if (typeof window.ethereum === 'undefined') {
+                showWalletStatus('❌ กรุณาติดตั้ง MetaMask', 'error');
+                return;
+            }
+
+            try {
+                document.getElementById('connectButtonText').textContent = '⏳ กำลังเชื่อมต่อ...';
+                
+                const accounts = await window.ethereum.request({
+                    method: 'eth_requestAccounts'
+                });
+
+                if (accounts.length === 0) {
+                    throw new Error('ไม่มี account');
+                }
+
+                currentAccount = accounts[0];
+                currentChainId = await window.ethereum.request({
+                    method: 'eth_chainId'
+                });
+
+                // Update UI
+                updateWalletInfo();
+                showWalletStatus('✅ เชื่อมต่อสำเร็จ!', 'success');
+                
+                // Enable API test buttons
+                document.getElementById('nativeBalanceBtn').disabled = false;
+                document.getElementById('aiAnalysisBtn').disabled = false;
+                document.getElementById('newFeaturesBtn').disabled = false;
+                
+                document.getElementById('connectButtonText').textContent = 'เชื่อมต่อแล้ว';
+
+            } catch (error) {
+                console.error('Connection error:', error);
+                showWalletStatus(`❌ เกิดข้อผิดพลาด: ${error.message}`, 'error');
+                document.getElementById('connectButtonText').textContent = 'เชื่อมต่อ MetaMask';
+            }
+        }
+
+        function updateWalletInfo() {
+            const network = NETWORKS[currentChainId];
+            document.getElementById('currentAccount').textContent = `${currentAccount.substring(0, 6)}...${currentAccount.substring(-4)}`;
+            document.getElementById('currentNetwork').textContent = network ? network.name : `Unknown (${currentChainId})`;
+        }
+
+        function showWalletStatus(message, type) {
+            const statusBox = document.getElementById('walletStatus');
+            const statusText = document.getElementById('walletStatusText');
+            
+            statusBox.className = `status-box ${type}`;
+            statusText.textContent = message;
+            statusBox.style.display = 'block';
+        }
+
+        // ===============================
+        // API Tests
+        // ===============================
+        function logTest(message, type = 'info') {
+            const resultsArea = document.getElementById('testResults');
+            const timestamp = new Date().toLocaleTimeString();
+            const color = type === 'error' ? '#dc3545' : type === 'success' ? '#28a745' : '#17a2b8';
+            
+            resultsArea.innerHTML += `
+                <div style="color: ${color}; margin-bottom: 5px;">
+                    [${timestamp}] ${message}
+                </div>
+            `;
+            resultsArea.scrollTop = resultsArea.scrollHeight;
+        }
+
+        async function testBackendHealth() {
+            logTest('🏥 Testing Backend Health...');
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/health`);
+                const data = await response.json();
+                
+                if (response.ok) {
+                    logTest('✅ Backend Health: OK', 'success');
+                    logTest(`📊 Response: ${JSON.stringify(data, null, 2)}`);
+                    document.getElementById('backendStatus').textContent = '✅ Online (Replit)';
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                logTest(`❌ Backend Health: ${error.message}`, 'error');
+                document.getElementById('backendStatus').textContent = '❌ Offline';
+            }
+        }
+
+        async function testNativeBalance() {
+            if (!currentAccount || !currentChainId) {
+                logTest('❌ Please connect wallet first', 'error');
+                return;
+            }
+
+            logTest('💰 Testing Native Balance...');
+            
+            try {
+                const response = await fetch(
+                    `${BACKEND_URL}/api/get_advanced_dashboard?address=${currentAccount}&chainId=${currentChainId}`
+                );
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const balance = data.native_token?.data?.balance || 0;
+                    const symbol = data.native_token?.data?.symbol || 'TOKEN';
+                    
+                    logTest(`✅ Native Balance: ${balance.toFixed(6)} ${symbol}`, 'success');
+                    document.getElementById('currentBalance').textContent = `${balance.toFixed(6)} ${symbol}`;
+                    logTest(`📊 Full Response: ${JSON.stringify(data, null, 2)}`);
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+            } catch (error) {
+                logTest(`❌ Native Balance: ${error.message}`, 'error');
+            }
+        }
+
+        async function testAIAnalysis() {
+            if (!currentAccount || !currentChainId) {
+                logTest('❌ Please connect wallet first', 'error');
+                return;
+            }
+
+            logTest('🧠 Testing AI Analysis...');
+            
+            try {
+                const response = await fetch(`${BACKEND_URL}/api/get_ai_recommendation`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        prompt: "วิเคราะห์ portfolio ของฉันหน่อย",
+                        portfolio: {
+                            wallet_address: currentAccount,
+                            chain_id: currentChainId
+                        }
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    logTest('✅ AI Analysis: OK', 'success');
+                    logTest(`🧠 AI Response: ${data.recommendation}`, 'success');
+                } else {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || `HTTP ${response.status}`);
+                }
+            } catch (error) {
+                logTest(`❌ AI Analysis: ${error.message}`, 'error');
+            }
+        }
+
+        async function testNewFeatures() {
+            logTest('🆕 Testing New Features...');
+            
+            // Test 1: ERC-20 Token Balances
+            logTest('📝 Test 1: ERC-20 Token Balances (Future)');
+            logTest('ℹ️ This feature will be implemented in Phase 1');
+            
+            // Test 2: NFT Collections
+            logTest('📝 Test 2: NFT Collections (Future)');
+            logTest('ℹ️ This feature will be implemented in Phase 2');
+            
+            // Test 3: Enhanced AI
+            logTest('📝 Test 3: Enhanced AI Analysis (Future)');
+            logTest('ℹ️ This feature will be implemented in Phase 3');
+            
+            logTest('✅ New Features: Ready for Implementation', 'success');
+        }
+
+        // ===============================
+        // MetaMask Event Listeners
+        // ===============================
+        if (typeof window.ethereum !== 'undefined') {
+            window.ethereum.on('accountsChanged', function(accounts) {
+                if (accounts.length === 0) {
+                    location.reload();
+                } else {
+                    currentAccount = accounts[0];
+                    updateWalletInfo();
+                    logTest(`🔄 Account changed: ${currentAccount.substring(0, 10)}...`);
+                }
+            });
+
+            window.ethereum.on('chainChanged', function(chainId) {
+                currentChainId = chainId;
+                updateWalletInfo();
+                logTest(`🔄 Network changed: ${NETWORKS[chainId]?.name || chainId}`);
+            });
+        }
+
+        // ===============================
+        // Initialize
+        // ===============================
+        logTest('🚀 Test Dashboard initialized');
+        logTest('💡 Click buttons above to test different features');
+    </script>
+</body>
+</html>
