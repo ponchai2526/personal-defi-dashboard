@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-   <meta charset="UTF-8">
-   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <meta charset="UTF-8" />
+   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
    <title>Personal AI Dashboard</title>
    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💡</text></svg>">
    <style>
@@ -186,607 +186,204 @@
    <div class="container">
        <header class="header">
            <h1>Personal AI Dashboard</h1>
-           <div class="auto-refresh-indicator" id="autoRefreshIndicator" style="display: none;">
+           <div class="auto-refresh-indicator" title="Auto Refresh Active">
                <div class="refresh-dot"></div>
-               <span>Auto-refresh: <span id="refreshCountdown">30</span>s</span>
+               <div>อัปเดตอัตโนมัติ</div>
            </div>
        </header>
        
-       <!-- 🆕 Features Panel -->
-       <div class="features-panel">
-           <div class="feature-badge" id="cacheFeature">
-               <span class="feature-icon">🔄</span>
-               <span>Cache System</span>
-           </div>
-           <div class="feature-badge" id="autoRefreshFeature">
-               <span class="feature-icon">🔁</span>
-               <span>Auto-refresh</span>
-           </div>
-           <div class="feature-badge" id="priceHistoryFeature">
-               <span class="feature-icon">📊</span>
-               <span>Price History</span>
-           </div>
-           <div class="feature-badge" id="multiTokenFeature">
-               <span class="feature-icon">🪙</span>
-               <span>Multi-token</span>
-           </div>
-       </div>
-       
-       <div class="wallet-info">
+       <section class="wallet-info">
            <div class="wallet-details">
-               <span id="networkName"></span>
-               <span id="walletAddress">ยังไม่ได้เชื่อมต่อ</span>
+               <div>Wallet: <span id="walletAddress">-</span></div>
+               <div id="networkName">-</div>
            </div>
            <button id="connectButton">เชื่อมต่อ Wallet</button>
-       </div>
-       
-       <div id="dashboardContent">
-           <!-- Native Token Section -->
-           <section class="section">
-               <div class="section-header">
-                   <h2>โทเค็นหลัก (Native Token)</h2>
-                   <span class="cache-indicator" id="cacheIndicator" style="display: none;">จาก Cache</span>
-               </div>
-               <div class="section-content" id="mainTokenSection">
-                   <div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>
-               </div>
-           </section>
-           
-           <!-- 🆕 ERC-20 Tokens Section -->
-           <section class="section" id="erc20Section" style="display: none;">
-               <div class="section-header">
-                   <h2>ERC-20 Tokens</h2>
-               </div>
-               <div class="section-content" id="erc20TokensContent">
-                   <div class="loading-state">กำลังดึงข้อมูล tokens...</div>
-               </div>
-           </section>
-       </div>
-       
-       <div class="status-panel" id="systemStatus">
-           <div class="status-item">Backend: <span id="status-Backend"></span></div>
-           <div class="status-item">Alchemy: <span id="status-Alchemy"></span></div>
-           <div class="status-item">Gemini AI: <span id="status-GeminiAI"></span></div>
-           <div class="status-item">Cache: <span id="status-CacheSystem"></span></div>
-           <div class="status-item">Netlify: <span id="status-Netlify"></span></div>
-           <div class="status-item">Browser: <span id="status-Browser"></span></div>
-       </div>
-       
-       <div class="debug-log-container" id="debugLog" style="display: none;">
-           <div class="debug-log-header">
-               บันทึกการทำงาน (Debug Log)
-               <button class="clear-log-btn" onclick="clearDebugLog()">Clear</button>
+       </section>
+
+       <section class="section">
+           <div class="section-header">
+               <h2>Tokens</h2>
+               <span class="cache-indicator" id="tokensCacheIndicator">สดใหม่</span>
            </div>
-           <div class="debug-log-content" id="debugLogContent"></div>
+           <div class="section-content">
+               <ul class="token-list" id="tokenList">
+                   <!-- token items will be inserted here -->
+               </ul>
+           </div>
+       </section>
+
+       <section class="section">
+           <div class="section-header">
+               <h2>ราคาและกราฟ</h2>
+           </div>
+           <div class="section-content">
+               <div class="chart-container" id="priceChartContainer">
+                   <div class="chart-loading" id="chartLoading">กำลังโหลดกราฟ...</div>
+                   <canvas id="priceChart" class="price-chart"></canvas>
+               </div>
+           </div>
+       </section>
+
+       <section class="ai-analysis-container" id="aiAnalysis">
+           <!-- AI analysis items will be inserted here dynamically -->
+       </section>
+
+       <section class="features-panel" id="featuresPanel">
+           <div class="feature-badge active"><span class="feature-icon">⚡</span> ฟีเจอร์ AI</div>
+           <div class="feature-badge"><span class="feature-icon">🔒</span> ความปลอดภัย</div>
+           <div class="feature-badge"><span class="feature-icon">📈</span> การวิเคราะห์เชิงลึก</div>
+       </section>
+
+       <div class="status-panel" id="statusPanel">
+           <div class="status-item">สถานะเซิร์ฟเวอร์: <span id="serverStatus">ออนไลน์</span></div>
+           <div class="status-item">เวลาที่อัปเดตล่าสุด: <span id="lastUpdateTime">-</span></div>
+       </div>
+
+       <div class="debug-log-container">
+           <div class="debug-log-header">
+               <span>บันทึกระบบ (Debug Log)</span>
+               <button class="clear-log-btn" id="clearLogBtn">ล้างบันทึก</button>
+           </div>
+           <div class="debug-log-content" id="debugLogContent">
+               <!-- Log entries appear here -->
+           </div>
        </div>
    </div>
 
-   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
    <script>
-       // Global variables
+       // ตัวอย่างสคริปต์เชื่อมต่อ Wallet และอัพเดตข้อมูล (พื้นฐาน)
+       const walletAddressEl = document.getElementById('walletAddress');
+       const networkNameEl = document.getElementById('networkName');
        const connectButton = document.getElementById('connectButton');
-       const walletAddressSpan = document.getElementById('walletAddress');
-       const networkNameSpan = document.getElementById('networkName');
-       const mainTokenSection = document.getElementById('mainTokenSection');
-       const erc20Section = document.getElementById('erc20Section');
-       const erc20TokensContent = document.getElementById('erc20TokensContent');
-       const debugLogContainer = document.getElementById('debugLog');
+       const tokenListEl = document.getElementById('tokenList');
+       const tokensCacheIndicator = document.getElementById('tokensCacheIndicator');
        const debugLogContent = document.getElementById('debugLogContent');
-       const autoRefreshIndicator = document.getElementById('autoRefreshIndicator');
-       const refreshCountdown = document.getElementById('refreshCountdown');
-       const cacheIndicator = document.getElementById('cacheIndicator');
-       
-       const BACKEND_URL = "https://838de3bd-02e7-4ba3-8bf0-63ab0412b36f-00-39zqf2mohnweu.pike.replit.dev";
-       let currentAccount = null;
-       let autoRefreshInterval = null;
-       let countdownInterval = null;
-       let priceChart = null;
-       let refreshTimeLeft = 30;
+       const clearLogBtn = document.getElementById('clearLogBtn');
+       const lastUpdateTimeEl = document.getElementById('lastUpdateTime');
+       const serverStatusEl = document.getElementById('serverStatus');
+       const aiAnalysisEl = document.getElementById('aiAnalysis');
+       const chartLoadingEl = document.getElementById('chartLoading');
+       const priceChartCanvas = document.getElementById('priceChart');
+       let priceChartCtx = priceChartCanvas.getContext('2d');
 
-       // Debug logging functions
-       function clearDebugLog() { 
-           debugLogContent.innerHTML = ''; 
-           debugLogContainer.style.display = 'none'; 
-       }
-       
-       function logDebug(message, type = 'info') { 
-           debugLogContainer.style.display = 'block'; 
-           const entry = document.createElement('div'); 
-           entry.className = `log-entry log-${type}`; 
-           entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`; 
-           debugLogContent.appendChild(entry); 
-           debugLogContent.scrollTop = debugLogContent.scrollHeight; 
+       function log(message, type='info') {
+           const entry = document.createElement('div');
+           entry.className = 'log-entry log-' + type;
+           entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+           debugLogContent.appendChild(entry);
+           debugLogContent.scrollTop = debugLogContent.scrollHeight;
        }
 
-       // 🔁 Auto-refresh functions
-       function startAutoRefresh() {
-           logDebug('🔁 [Auto-refresh] เริ่มระบบ auto-refresh (ทุก 30 วินาที)', 'info');
-           autoRefreshIndicator.style.display = 'flex';
-           document.getElementById('autoRefreshFeature').classList.add('active');
-           
-           // Countdown timer
-           refreshTimeLeft = 30;
-           countdownInterval = setInterval(() => {
-               refreshTimeLeft--;
-               refreshCountdown.textContent = refreshTimeLeft;
-               if (refreshTimeLeft <= 0) {
-                   refreshTimeLeft = 30;
-               }
-           }, 1000);
-           
-           // Auto refresh interval
-           autoRefreshInterval = setInterval(() => {
-               if (currentAccount) {
-                   logDebug('🔁 [Auto-refresh] กำลัง refresh ข้อมูล...', 'info');
-                   fetchFullDashboard(currentAccount);
-               }
-           }, 30000); // 30 seconds
-       }
+       clearLogBtn.onclick = () => {
+           debugLogContent.innerHTML = '';
+           log('ล้างบันทึกเรียบร้อย', 'success');
+       };
 
-       function stopAutoRefresh() {
-           if (autoRefreshInterval) {
-               clearInterval(autoRefreshInterval);
-               clearInterval(countdownInterval);
-               autoRefreshInterval = null;
-               countdownInterval = null;
-               autoRefreshIndicator.style.display = 'none';
-               document.getElementById('autoRefreshFeature').classList.remove('active');
-               logDebug('🔁 [Auto-refresh] หยุดระบบ auto-refresh', 'warning');
-           }
-       }
-
-       // 📊 Price chart functions
-       async function loadPriceHistory(token) {
+       connectButton.onclick = async () => {
+           // ตัวอย่างสมมติเชื่อมต่อ wallet (จริง ๆ ใช้ Web3, ethers, etc.)
            try {
-               logDebug(`📊 [Price History] กำลังดึงประวัติราคา ${token}...`);
-               const response = await fetch(`${BACKEND_URL}/api/price_history/${token}`);
-               const data = await response.json();
-               
-               if (data.success && data.history) {
-                   logDebug(`📊 [Price History] ได้รับข้อมูล ${data.history.length} รายการ`, 'success');
-                   renderPriceChart(data.history);
-                   document.getElementById('priceHistoryFeature').classList.add('active');
-               } else {
-                   logDebug('📊 [Price History] ไม่มีข้อมูลประวัติราคา', 'warning');
-               }
-           } catch (error) {
-               logDebug(`📊 [Price History] Error: ${error.message}`, 'error');
-           }
-       }
-
-       function renderPriceChart(history) {
-           const chartHtml = `
-               <div class="chart-container">
-                   <canvas id="priceChart" class="price-chart"></canvas>
-               </div>
-           `;
-           
-           // Add chart to main token section
-           const existingChart = document.querySelector('.chart-container');
-           if (existingChart) {
-               existingChart.remove();
-           }
-           
-           mainTokenSection.insertAdjacentHTML('beforeend', chartHtml);
-           
-           const ctx = document.getElementById('priceChart').getContext('2d');
-           const labels = history.map(item => {
-               const date = new Date(item.timestamp);
-               return date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
-           });
-           const prices = history.map(item => item.price);
-           
-           if (priceChart) {
-               priceChart.destroy();
-           }
-           
-           priceChart = new Chart(ctx, {
-               type: 'line',
-               data: {
-                   labels: labels,
-                   datasets: [{
-                       label: 'ราคา MATIC (USD)',
-                       data: prices,
-                       borderColor: '#58a6ff',
-                       backgroundColor: 'rgba(88, 166, 255, 0.1)',
-                       borderWidth: 2,
-                       tension: 0.4,
-                       pointRadius: 0,
-                       pointHoverRadius: 4
-                   }]
-               },
-               options: {
-                   responsive: true,
-                   maintainAspectRatio: false,
-                   plugins: {
-                       legend: {
-                           display: false
-                       },
-                       tooltip: {
-                           mode: 'index',
-                           intersect: false,
-                           backgroundColor: '#1c2128',
-                           titleColor: '#c9d1d9',
-                           bodyColor: '#8b949e',
-                           borderColor: '#30363d',
-                           borderWidth: 1,
-                           padding: 10,
-                           displayColors: false,
-                           callbacks: {
-                               label: function(context) {
-                                   return `$${context.parsed.y.toFixed(4)}`;
-                               }
-                           }
-                       }
-                   },
-                   scales: {
-                       x: {
-                           grid: {
-                               color: '#30363d',
-                               drawBorder: false
-                           },
-                           ticks: {
-                               color: '#8b949e',
-                               maxTicksLimit: 6
-                           }
-                       },
-                       y: {
-                           grid: {
-                               color: '#30363d',
-                               drawBorder: false
-                           },
-                           ticks: {
-                               color: '#8b949e',
-                               callback: function(value) {
-                                   return '$' + value.toFixed(2);
-                               }
-                           }
-                       }
-                   },
-                   interaction: {
-                       mode: 'nearest',
-                       axis: 'x',
-                       intersect: false
-                   }
-               }
-           });
-       }
-
-       // Main dashboard fetch function
-       async function fetchFullDashboard(address) {
-           clearDebugLog();
-           logDebug('🚀 เริ่มกระบวนการ...');
-           renderLoading(mainTokenSection);
-
-           try {
-               logDebug('1. [Frontend] กำลังส่งคำขอไปยัง Backend...');
-               const response = await fetch(`${BACKEND_URL}/api/get_full_dashboard?address=${address}`);
-               logDebug(`2. [Frontend] ได้รับการตอบกลับจาก Backend (สถานะ: ${response.status})`);
-
-               const data = await response.json();
-
-               if (response.status === 429 && data.reason === 'QUOTA_EXCEEDED') {
-                   logDebug(`❌ ${data.details}`, 'error');
-                   renderQuotaError(data);
-                   return;
-               }
-
-               if (!response.ok) {
-                   const errorMessage = `Backend ล้มเหลวที่ขั้นตอน: "${data.failed_at}". รายละเอียด: ${data.details}`;
-                   throw new Error(errorMessage);
-               }
-
-               // Log backend processes
-               logDebug('3. [Backend] ดึงข้อมูลจาก Alchemy สำเร็จ');
-               
-               // 🔄 Cache info
-               if (data.cache_info && data.cache_info.price_cached) {
-                   logDebug(`4. [Backend] ใช้ราคาจาก Cache (อายุ: ${data.cache_info.cache_age}s)`, 'info');
-                   cacheIndicator.style.display = 'inline-block';
-                   cacheIndicator.classList.add('cached');
-                   document.getElementById('cacheFeature').classList.add('active');
-               } else {
-                   logDebug('4. [Backend] ดึงราคาใหม่จาก CoinGecko', 'info');
-                   cacheIndicator.style.display = 'none';
-               }
-               
-               // 🪙 Multi-token info
-               if (data.erc20_tokens && data.erc20_tokens.length > 0) {
-                   logDebug(`5. [Backend] พบ ${data.erc20_tokens.length} ERC-20 tokens`, 'success');
-                   document.getElementById('multiTokenFeature').classList.add('active');
-                   renderERC20Tokens(data.erc20_tokens);
-               } else {
-                   logDebug('5. [Backend] ไม่พบ ERC-20 tokens', 'warning');
-                   erc20Section.style.display = 'none';
-               }
-               
-               logDebug('6. [Backend] วิเคราะห์ข้อมูลโดย Gemini AI สำเร็จ');
-               logDebug('7. [Frontend] กำลังแสดงผลข้อมูล...');
-
-               // Render main token
-               renderMainToken(data.matic);
-               
-               // 📊 Load price history
-               loadPriceHistory('matic');
-               
-               // Update feature badges
-               if (data.features) {
-                   updateFeatureBadges(data.features);
-               }
-               
-               logDebug('✅ กระบวนการเสร็จสมบูรณ์!', 'success');
-
-               // Start auto-refresh if not already started
-               if (!autoRefreshInterval && currentAccount) {
-                   startAutoRefresh();
-               }
-
-           } catch (error) {
-               console.error('Could not fetch dashboard data:', error);
-               renderError(mainTokenSection, `เกิดข้อผิดพลาด`);
-               logDebug(`❌ ${error.message}`, 'error');
-           }
-       }
-
-       function updateFeatureBadges(features) {
-           if (features.cache_enabled) {
-               document.getElementById('cacheFeature').classList.add('active');
-           }
-           if (features.auto_refresh_enabled) {
-               document.getElementById('autoRefreshFeature').classList.add('active');
-           }
-           if (features.price_history_enabled) {
-               document.getElementById('priceHistoryFeature').classList.add('active');
-           }
-           if (features.multi_token_enabled) {
-               document.getElementById('multiTokenFeature').classList.add('active');
-           }
-       }
-
-       // 🪙 Render ERC-20 tokens
-       function renderERC20Tokens(tokens) {
-           if (!tokens || tokens.length === 0) {
-               erc20Section.style.display = 'none';
-               return;
-           }
-           
-           erc20Section.style.display = 'block';
-           
-           // For now, show basic token info
-           // In real implementation, you would fetch token metadata
-           const tokenListHtml = `
-               <ul class="token-list">
-                   ${tokens.map((token, index) => `
-                       <li class="token-item">
-                           <img src="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪙</text></svg>" class="token-icon">
-                           <div class="token-info">
-                               <span class="token-symbol">Token ${index + 1}</span>
-                               <span class="token-name">${token.contractAddress.substring(0, 10)}...</span>
-                           </div>
-                           <div class="token-balance">
-                               <span>Balance: ${token.balance.substring(0, 10)}...</span>
-                               <div class="token-value">Loading price...</div>
-                           </div>
-                       </li>
-                   `).join('')}
-               </ul>
-           `;
-           
-           erc20TokensContent.innerHTML = tokenListHtml;
-           logDebug(`🪙 [Multi-token] แสดง ${tokens.length} tokens`, 'success');
-       }
-
-       function renderQuotaError(errorData) {
-           mainTokenSection.innerHTML = `
-               <div class="ai-analysis-container">
-                   <div class="ai-analysis-item quota-error">
-                       <span class="ai-title">พลังปัญญาถูกใช้งานเต็มพิกัดแล้ว 🔋</span>
-                       <p class="ai-content">
-                           โควต้าการใช้งาน AI สำหรับวันนี้เต็มแล้วครับ
-                           ระบบจะกลับมาพร้อมใช้งานอีกครั้งในวันพรุ่งนี้
-                           ขออภัยในความไม่สะดวกครับ
-                       </p>
-                   </div>
-               </div>
-           `;
-       }
-
-       async function checkSystemStatus() {
-           try {
-               const response = await fetch(`${BACKEND_URL}/api/health_check`);
-               if (!response.ok) throw new Error('Health check failed');
-               const status = await response.json();
-               
-               // Update main status indicators
-               for (const service in status) {
-                   if (status.hasOwnProperty(service) && typeof status[service] === 'string') {
-                       updateStatusIndicator(service, status[service]);
-                   }
-               }
-               
-               // Log feature status
-               if (status.Features) {
-                   logDebug('🔧 [System] Features status:', 'info');
-                   for (const feature in status.Features) {
-                       logDebug(`   - ${feature}: ${status.Features[feature]}`, 'info');
-                   }
-               }
-           } catch (error) {
-               console.error("Could not check system status:", error);
-               const services = ["Backend", "Alchemy", "Gemini AI", "CacheSystem", "Netlify", "Browser"];
-               services.forEach(service => updateStatusIndicator(service, 'ไม่เชื่อมต่อ'));
-           }
-       }
-
-       function updateStatusIndicator(service, status) {
-           const indicator = document.getElementById(`status-${service.replace(' ', '')}`);
-           if (indicator) {
-               indicator.textContent = status;
-               if (status === "เชื่อมต่อแล้ว" || status === "ทำงานปกติ") {
-                   indicator.style.color = 'var(--accent-green)';
-               } else {
-                   indicator.style.color = 'var(--accent-red)';
-               }
-           }
-       }
-
-       // Initialize on DOM load
-       document.addEventListener('DOMContentLoaded', () => {
-           checkSystemStatus();
-           // Check system status every 60 seconds
-           setInterval(checkSystemStatus, 60000);
-       });
-
-       // Connect wallet button
-       connectButton.addEventListener('click', async () => {
-           if (typeof window.ethereum !== 'undefined') {
-               try {
-                   const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                   handleAccountsChanged(accounts);
-               } catch (error) {
-                   console.error("User rejected request:", error);
-                   logDebug('❌ ผู้ใช้ปฏิเสธการเชื่อมต่อ wallet', 'error');
-               }
-           } else {
-               alert('โปรดติดตั้ง MetaMask!');
-               logDebug('❌ ไม่พบ MetaMask ในเบราว์เซอร์', 'error');
-           }
-       });
-
-       // MetaMask event listeners
-       if (typeof window.ethereum !== 'undefined') {
-           window.ethereum.on('accountsChanged', handleAccountsChanged);
-           window.ethereum.on('chainChanged', () => {
-               logDebug('🔄 เครือข่ายมีการเปลี่ยนแปลง กำลัง reload หน้า...', 'warning');
-               window.location.reload();
-           });
-       }
-
-       function getNetworkName(chainId) {
-           const networks = { 
-               '0x89': 'Polygon', 
-               '0x1': 'Ethereum', 
-               '0x38': 'BNB Chain', 
-               '0xa4b1': 'Arbitrum' 
-           };
-           return networks[chainId] || 'Unknown';
-       }
-
-       async function handleAccountsChanged(accounts) {
-           if (accounts.length === 0) {
-               // Disconnected
-               currentAccount = null;
-               walletAddressSpan.textContent = 'ยังไม่ได้เชื่อมต่อ';
-               networkNameSpan.textContent = '';
-               connectButton.textContent = 'เชื่อมต่อ Wallet';
-               mainTokenSection.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>';
-               erc20Section.style.display = 'none';
-               clearDebugLog();
-               stopAutoRefresh();
-           } else if (accounts[0] !== currentAccount) {
-               // Account changed
-               currentAccount = accounts[0];
-               walletAddressSpan.textContent = `${currentAccount.substring(0, 6)}...${currentAccount.substring(currentAccount.length - 4)}`;
+               // สมมติได้ข้อมูล wallet
+               const walletAddress = '0x1234...abcd';
+               const networkName = 'Ethereum Mainnet';
+               walletAddressEl.textContent = walletAddress;
+               networkNameEl.textContent = networkName;
+               log(`เชื่อมต่อ Wallet: ${walletAddress}`, 'success');
+               connectButton.disabled = true;
                connectButton.textContent = 'เชื่อมต่อแล้ว';
-               const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-               networkNameSpan.textContent = getNetworkName(chainId);
-               
-               logDebug(`🔗 เชื่อมต่อ wallet: ${currentAccount}`, 'success');
-               logDebug(`🌐 เครือข่าย: ${getNetworkName(chainId)}`, 'info');
-               
-               // Stop existing auto-refresh before starting new one
-               stopAutoRefresh();
-               
-               // Fetch dashboard data
-               fetchFullDashboard(currentAccount);
-           }
-       }
-
-       function renderLoading(sectionElement, text = "กำลังดึงข้อมูลและวิเคราะห์...") {
-           sectionElement.innerHTML = `<div class="loading-state"><div class="loader"></div><p>${text}</p></div>`;
-       }
-
-       function renderError(sectionElement, message) {
-           sectionElement.innerHTML = `<div class="error-state">${message}</div>`;
-       }
-
-       function renderMainToken(tokenData) {
-           if (tokenData && tokenData.data && tokenData.data.symbol) {
-               const analysis = tokenData.analysis || {};
-               const estimatedValue = parseFloat(analysis.estimated_usd || 0).toLocaleString('en-US', { 
-                   style: 'currency', 
-                   currency: 'USD' 
-               });
-               
-               let aiAnalysisHtml = `
-                   <div class="ai-analysis-container">
-                       <div class="ai-analysis-item">
-                           <span class="ai-title">มูลค่าโดยประมาณ</span>
-                           <p class="ai-content ai-value">${estimatedValue}</p>
-                       </div>
-                       <div class="ai-analysis-item">
-                           <span class="ai-title">🧠 บทสรุปจาก AI</span>
-                           <p class="ai-content">${analysis.summary || 'N/A'}</p>
-                       </div>
-                       <div class="ai-analysis-item">
-                           <span class="ai-title">💡 เกร็ดความรู้ (Pro Tip)</span>
-                           <p class="ai-content">${analysis.pro_tip || 'N/A'}</p>
-                       </div>
-               `;
-               
-               // Add portfolio health if available
-               if (analysis.portfolio_health) {
-                   aiAnalysisHtml += `
-                       <div class="ai-analysis-item portfolio-health">
-                           <span class="ai-title">📈 สุขภาพ Portfolio</span>
-                           <p class="ai-content">${analysis.portfolio_health}</p>
-                       </div>
-                   `;
-               }
-               
-               aiAnalysisHtml += '</div>';
-               
-               mainTokenSection.innerHTML = `
-                   <ul class="token-list">
-                       <li class="token-item">
-                           <img src="${tokenData.data.icon}" 
-                                onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪙</text></svg>'" 
-                                class="token-icon">
-                           <div class="token-info">
-                               <span class="token-symbol">${tokenData.data.symbol}</span>
-                               <span class="token-name">${tokenData.data.name}</span>
-                           </div>
-                           <div class="token-balance">
-                               <span>${tokenData.data.balance}</span>
-                           </div>
-                       </li>
-                   </ul>
-                   ${aiAnalysisHtml}
-               `;
-               
-               logDebug('✅ แสดงข้อมูล Native Token เรียบร้อย', 'success');
-           } else {
-               renderError(mainTokenSection, 'ไม่สามารถดึงข้อมูลโทเค็นหลักได้');
-               logDebug('❌ ข้อมูล token ไม่ถูกต้อง', 'error');
-           }
-       }
-
-       // Auto-refresh config check
-       async function checkAutoRefreshConfig() {
-           try {
-               const response = await fetch(`${BACKEND_URL}/api/auto_refresh_config`);
-               const config = await response.json();
-               
-               if (config.enabled) {
-                   logDebug(`🔁 [Config] Auto-refresh enabled (interval: ${config.interval}s)`, 'info');
-               }
+               loadTokens();
            } catch (error) {
-               logDebug('🔁 [Config] ไม่สามารถดึง auto-refresh config', 'warning');
+               log('เชื่อมต่อ Wallet ล้มเหลว: ' + error.message, 'error');
            }
+       };
+
+       function loadTokens() {
+           tokensCacheIndicator.textContent = 'กำลังโหลด...';
+           tokensCacheIndicator.classList.remove('cached');
+           // ตัวอย่างข้อมูล token
+           const tokens = [
+               { symbol: 'ETH', name: 'Ethereum', balance: 1.234, valueUsd: 4000 },
+               { symbol: 'USDT', name: 'Tether', balance: 1500, valueUsd: 1500 },
+               { symbol: 'BTC', name: 'Bitcoin', balance: 0.05, valueUsd: 2700 }
+           ];
+           tokenListEl.innerHTML = '';
+           tokens.forEach(token => {
+               const li = document.createElement('li');
+               li.className = 'token-item';
+               li.innerHTML = `
+                   <div class="token-icon" title="${token.name}">${token.symbol[0]}</div>
+                   <div class="token-info">
+                       <div class="token-symbol">${token.symbol}</div>
+                       <div class="token-name">${token.name}</div>
+                   </div>
+                   <div>
+                       <div class="token-balance">${token.balance}</div>
+                       <div class="token-value">$${token.valueUsd.toFixed(2)}</div>
+                   </div>
+               `;
+               tokenListEl.appendChild(li);
+           });
+           tokensCacheIndicator.textContent = 'สดใหม่';
+           tokensCacheIndicator.classList.add('cached');
+           log('โหลดข้อมูล Token สำเร็จ', 'success');
+           updateLastUpdateTime();
+           loadPriceChart();
+           loadAIAnalysis();
        }
 
-       // Initial config check
-       checkAutoRefreshConfig();
+       function updateLastUpdateTime() {
+           const now = new Date();
+           lastUpdateTimeEl.textContent = now.toLocaleTimeString();
+       }
+
+       function loadPriceChart() {
+           // ตัวอย่างกราฟง่าย ๆ ด้วย Canvas API (จริง ๆ ใช้ Chart.js หรืออื่น ๆ)
+           chartLoadingEl.style.display = 'none';
+           priceChartCanvas.style.display = 'block';
+
+           // ตัวอย่างวาดกราฟเส้นง่าย ๆ
+           const ctx = priceChartCtx;
+           const w = priceChartCanvas.width = priceChartCanvas.clientWidth;
+           const h = priceChartCanvas.height = priceChartCanvas.clientHeight;
+
+           ctx.clearRect(0, 0, w, h);
+           ctx.strokeStyle = '#58a6ff';
+           ctx.lineWidth = 2;
+           ctx.beginPath();
+           const points = [2000, 2500, 2300, 2700, 3000, 3200, 3100];
+           const max = Math.max(...points);
+           const min = Math.min(...points);
+           points.forEach((p, i) => {
+               const x = (i / (points.length - 1)) * w;
+               const y = h - ((p - min) / (max - min)) * h;
+               if (i === 0) ctx.moveTo(x, y);
+               else ctx.lineTo(x, y);
+           });
+           ctx.stroke();
+       }
+
+       function loadAIAnalysis() {
+           aiAnalysisEl.innerHTML = '';
+           // ตัวอย่างข้อมูล AI วิเคราะห์
+           const aiData = [
+               { title: 'ภาพรวมพอร์ตโฟลิโอ', content: 'พอร์ตโฟลิโอของคุณมีสุขภาพดี 🎉', type: 'portfolio-health' },
+               { title: 'ข้อจำกัดการใช้งาน', content: 'คุณใกล้ถึงโควต้าการใช้งาน AI แล้ว โปรดตรวจสอบ', type: 'quota-error' },
+               { title: 'คำแนะนำ AI', content: 'แนะนำเพิ่มการลงทุนในเหรียญ ETH และ BTC เพื่อกระจายความเสี่ยง', type: '' }
+           ];
+           aiData.forEach(item => {
+               const div = document.createElement('div');
+               div.className = 'ai-analysis-item ' + (item.type || '');
+               div.innerHTML = `<span class="ai-title">${item.title}</span><p class="ai-content">${item.content}</p>`;
+               aiAnalysisEl.appendChild(div);
+           });
+       }
+
+       // Auto refresh ทุก 60 วินาที
+       setInterval(() => {
+           if (!connectButton.disabled) return; // ถ้ายังไม่เชื่อมต่อ wallet ไม่รีเฟรช
+           log('อัปเดตข้อมูลอัตโนมัติ...');
+           loadTokens();
+           serverStatusEl.textContent = 'ออนไลน์';
+       }, 60000);
    </script>
 </body>
 </html>
