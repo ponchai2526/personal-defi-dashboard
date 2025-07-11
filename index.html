@@ -41,8 +41,13 @@
         .quota-error .ai-title { color: var(--accent-orange); } /* ✨ สีใหม่สำหรับข้อผิดพลาดโควต้า */
         .ai-content { margin: 0; line-height: 1.6; }
         .ai-value { font-weight: 700; color: var(--text-primary); font-size: 1.2em; }
-        .status-panel { display: flex; justify-content: center; gap: 20px; padding: 10px; margin-top: 20px; font-size: 12px; color: var(--text-secondary); }
-        .status-item { display: flex; align-items: center; gap: 6px; }
+        .status-panel { display: flex; justify-content: space-between; flex-wrap: wrap; padding: 10px; margin-top: 20px; font-size: 12px; color: var(--text-secondary); }
+        .status-item { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; width: 50%; justify-content: flex-start; }
+        @media (min-width: 600px) {
+            .status-item {
+                width: auto;
+            }
+        }
         .debug-log-container { margin-top: 20px; background-color: var(--medium-bg); border: 1px solid var(--border-color); border-radius: 8px; font-family: monospace; font-size: 12px; }
         .debug-log-header { padding: 10px 15px; background-color: var(--light-bg); border-bottom: 1px solid var(--border-color); font-weight: 700; }
         .debug-log-content { padding: 15px; height: 150px; overflow-y: auto; background-color: var(--dark-bg); color: var(--text-secondary); }
@@ -69,7 +74,6 @@
     </div>
 
     <script>
-        // --- ตัวแปรและค่าคงที่ (เหมือนเดิม) ---
         const connectButton = document.getElementById('connectButton');
         const walletAddressSpan = document.getElementById('walletAddress');
         const networkNameSpan = document.getElementById('networkName');
@@ -79,11 +83,9 @@
         const BACKEND_URL = "https://838de3bd-02e7-4ba3-8bf0-63ab0412b36f-00-39zqf2mohnweu.pike.replit.dev";
         let currentAccount = null;
 
-        // --- ฟังก์ชันจัดการ Debug Log (เหมือนเดิม) ---
         function clearDebugLog() { debugLogContent.innerHTML = ''; debugLogContainer.style.display = 'none'; }
         function logDebug(message, type = 'info') { debugLogContainer.style.display = 'block'; const entry = document.createElement('div'); entry.className = `log-entry log-${type}`; entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`; debugLogContent.appendChild(entry); debugLogContent.scrollTop = debugLogContent.scrollHeight; }
 
-        // --- ✨ fetchFullDashboard (เวอร์ชันจัดการ Quota Error) ---
         async function fetchFullDashboard(address) {
             clearDebugLog();
             logDebug('🚀 เริ่มกระบวนการ...');
@@ -96,16 +98,13 @@
 
                 const data = await response.json();
 
-                // ตรวจสอบว่า Backend ส่งข้อความ Error กลับมาหรือไม่
                 if (response.status === 429 && data.reason === 'QUOTA_EXCEEDED') {
-                    // จัดการข้อผิดพลาดเรื่องโควต้าโดยเฉพาะ
                     logDebug(`❌ ${data.details}`, 'error');
                     renderQuotaError(data);
-                    return; // หยุดการทำงานของฟังก์ชัน
+                    return;
                 }
 
                 if (!response.ok) {
-                    // จัดการข้อผิดพลาดทั่วไปจาก Backend
                     const errorMessage = `Backend ล้มเหลวที่ขั้นตอน: "${data.failed_at}". รายละเอียด: ${data.details}`;
                     throw new Error(errorMessage);
                 }
@@ -124,7 +123,6 @@
             }
         }
 
-        // --- ✨ ฟังก์ชันใหม่สำหรับแสดงผล Quota Error ---
         function renderQuotaError(errorData) {
             mainTokenSection.innerHTML = `
                 <div class="ai-analysis-container">
@@ -140,7 +138,6 @@
             `;
         }
 
-        // --- ส่วนที่เหลือของ JavaScript ทั้งหมดเหมือนเดิม ---
         async function checkSystemStatus() {
             try {
                 const response = await fetch(`${BACKEND_URL}/api/health_check`);
