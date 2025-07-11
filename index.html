@@ -1,225 +1,792 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal AI Dashboard</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💡</text></svg>">
-    <style>
-        /* ... CSS ทั้งหมดเหมือนเดิม ไม่มีการเปลี่ยนแปลง ... */
-        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap');
-        :root { --dark-bg: #0d1117; --medium-bg: #161b22; --light-bg: #1c2128; --border-color: #30363d; --text-primary: #c9d1d9; --text-secondary: #8b949e; --accent-blue: #58a6ff; --accent-green: #238636; --accent-red: #da3633; --accent-orange: #f0883e; }
-        body { font-family: 'Sarabun', sans-serif; background-color: var(--dark-bg); color: var(--text-primary); margin: 0; padding: 20px; }
-        .container { width: 100%; max-width: 900px; margin: auto; }
-        .header { text-align: center; padding: 20px 0; }
-        .header h1 { margin: 0; font-size: 28px; }
-        .wallet-info { display: flex; justify-content: space-between; align-items: center; padding: 15px; background-color: var(--medium-bg); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap; }
-        .wallet-details { display: flex; align-items: center; gap: 10px; }
-        #walletAddress { font-family: monospace; }
-        #networkName { background-color: var(--border-color); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; border: 1px solid #4d545e; }
-        #connectButton { background-color: var(--accent-green); color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 700; transition: background-color 0.2s; margin-top: 10px; width: 100%; }
-        @media (min-width: 600px) { #connectButton { width: auto; margin-top: 0; } }
-        .section { background-color: var(--medium-bg); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
-        .section-header { padding: 15px 20px; background-color: var(--light-bg); border-bottom: 1px solid var(--border-color); }
-        .section-header h2 { margin: 0; font-size: 20px; }
-        .section-content { padding: 20px; }
-        .loading-state, .error-state { text-align: center; color: var(--text-secondary); padding: 40px 20px; }
-        .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--accent-blue); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        .token-list { list-style-type: none; padding: 0; margin: 0; }
-        .token-item { display: flex; align-items: center; padding: 12px 0; }
-        .token-icon { width: 36px; height: 36px; margin-right: 15px; border-radius: 50%; background-color: var(--dark-bg);}
-        .token-info { flex-grow: 1; }
-        .token-symbol { font-weight: 700; }
-        .token-name { font-size: 12px; color: var(--text-secondary); }
-        .token-balance { text-align: right; font-weight: 700; font-size: 1.1em; }
-        .ai-analysis-container { margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px; }
-        .ai-analysis-item { padding: 15px; background-color: rgba(88, 166, 255, 0.1); border-left: 3px solid var(--accent-blue); border-radius: 0 6px 6px 0; margin-bottom: 10px; }
-        .ai-analysis-item.quota-error { background-color: rgba(240, 136, 62, 0.1); border-left-color: var(--accent-orange); } /* ✨ สีใหม่สำหรับข้อผิดพลาดโควต้า */
-        .ai-analysis-item:last-child { margin-bottom: 0; }
-        .ai-title { font-weight: 700; color: var(--accent-blue); display: block; margin-bottom: 5px; font-size: 14px; }
-        .quota-error .ai-title { color: var(--accent-orange); } /* ✨ สีใหม่สำหรับข้อผิดพลาดโควต้า */
-        .ai-content { margin: 0; line-height: 1.6; }
-        .ai-value { font-weight: 700; color: var(--text-primary); font-size: 1.2em; }
-        .status-panel { display: flex; justify-content: space-between; flex-wrap: wrap; padding: 10px; margin-top: 20px; font-size: 12px; color: var(--text-secondary); }
-        .status-item { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; width: 50%; justify-content: flex-start; }
-        @media (min-width: 600px) {
-            .status-item {
-                width: auto;
-            }
-        }
-        .debug-log-container { margin-top: 20px; background-color: var(--medium-bg); border: 1px solid var(--border-color); border-radius: 8px; font-family: monospace; font-size: 12px; }
-        .debug-log-header { padding: 10px 15px; background-color: var(--light-bg); border-bottom: 1px solid var(--border-color); font-weight: 700; }
-        .debug-log-content { padding: 15px; height: 150px; overflow-y: auto; background-color: var(--dark-bg); color: var(--text-secondary); }
-        .log-entry { margin-bottom: 5px; word-break: break-all; }
-        .log-success { color: #3fb950; }
-        .log-error { color: #f85149; }
-        .log-info { color: #a371f7; }
-    </style>
+   <meta charset="UTF-8">
+   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+   <title>Personal AI Dashboard</title>
+   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💡</text></svg>">
+   <style>
+       @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;700&display=swap');
+       :root { 
+           --dark-bg: #0d1117; 
+           --medium-bg: #161b22; 
+           --light-bg: #1c2128; 
+           --border-color: #30363d; 
+           --text-primary: #c9d1d9; 
+           --text-secondary: #8b949e; 
+           --accent-blue: #58a6ff; 
+           --accent-green: #238636; 
+           --accent-red: #da3633; 
+           --accent-orange: #f0883e;
+           --accent-purple: #a371f7;
+       }
+       body { font-family: 'Sarabun', sans-serif; background-color: var(--dark-bg); color: var(--text-primary); margin: 0; padding: 20px; }
+       .container { width: 100%; max-width: 900px; margin: auto; }
+       .header { text-align: center; padding: 20px 0; position: relative; }
+       .header h1 { margin: 0; font-size: 28px; }
+       
+       /* 🔁 Auto-refresh indicator */
+       .auto-refresh-indicator {
+           position: absolute;
+           top: 20px;
+           right: 0;
+           display: flex;
+           align-items: center;
+           gap: 8px;
+           font-size: 12px;
+           color: var(--text-secondary);
+           background-color: var(--medium-bg);
+           padding: 6px 12px;
+           border-radius: 6px;
+           border: 1px solid var(--border-color);
+       }
+       .refresh-dot {
+           width: 8px;
+           height: 8px;
+           background-color: var(--accent-green);
+           border-radius: 50%;
+           animation: pulse 2s infinite;
+       }
+       @keyframes pulse {
+           0% { opacity: 1; }
+           50% { opacity: 0.5; }
+           100% { opacity: 1; }
+       }
+       
+       .wallet-info { display: flex; justify-content: space-between; align-items: center; padding: 15px; background-color: var(--medium-bg); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+       .wallet-details { display: flex; align-items: center; gap: 10px; }
+       #walletAddress { font-family: monospace; }
+       #networkName { background-color: var(--border-color); padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 700; border: 1px solid #4d545e; }
+       #connectButton { background-color: var(--accent-green); color: white; border: none; padding: 10px 18px; border-radius: 6px; cursor: pointer; font-weight: 700; transition: background-color 0.2s; margin-top: 10px; width: 100%; }
+       #connectButton:hover { background-color: #2ea043; }
+       @media (min-width: 600px) { #connectButton { width: auto; margin-top: 0; } }
+       
+       .section { background-color: var(--medium-bg); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 20px; overflow: hidden; }
+       .section-header { padding: 15px 20px; background-color: var(--light-bg); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
+       .section-header h2 { margin: 0; font-size: 20px; }
+       .section-content { padding: 20px; }
+       
+       /* 🔄 Cache indicator */
+       .cache-indicator {
+           font-size: 11px;
+           padding: 3px 8px;
+           border-radius: 4px;
+           background-color: rgba(88, 166, 255, 0.2);
+           color: var(--accent-blue);
+           border: 1px solid rgba(88, 166, 255, 0.3);
+       }
+       .cache-indicator.cached {
+           background-color: rgba(35, 134, 54, 0.2);
+           color: var(--accent-green);
+           border-color: rgba(35, 134, 54, 0.3);
+       }
+       
+       .loading-state, .error-state { text-align: center; color: var(--text-secondary); padding: 40px 20px; }
+       .loader { border: 4px solid var(--border-color); border-top: 4px solid var(--accent-blue); border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite; margin: 0 auto 15px auto; }
+       @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+       
+       .token-list { list-style-type: none; padding: 0; margin: 0; }
+       .token-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border-color); }
+       .token-item:last-child { border-bottom: none; }
+       .token-icon { width: 36px; height: 36px; margin-right: 15px; border-radius: 50%; background-color: var(--dark-bg);}
+       .token-info { flex-grow: 1; }
+       .token-symbol { font-weight: 700; }
+       .token-name { font-size: 12px; color: var(--text-secondary); }
+       .token-balance { text-align: right; font-weight: 700; font-size: 1.1em; }
+       .token-value { font-size: 12px; color: var(--text-secondary); text-align: right; }
+       
+       /* 📊 Chart container */
+       .chart-container {
+           margin-top: 20px;
+           background-color: var(--dark-bg);
+           border: 1px solid var(--border-color);
+           border-radius: 6px;
+           padding: 15px;
+           height: 200px;
+           position: relative;
+       }
+       .chart-loading {
+           position: absolute;
+           top: 50%;
+           left: 50%;
+           transform: translate(-50%, -50%);
+           color: var(--text-secondary);
+       }
+       .price-chart {
+           width: 100%;
+           height: 100%;
+       }
+       
+       .ai-analysis-container { margin-top: 20px; border-top: 1px solid var(--border-color); padding-top: 20px; }
+       .ai-analysis-item { padding: 15px; background-color: rgba(88, 166, 255, 0.1); border-left: 3px solid var(--accent-blue); border-radius: 0 6px 6px 0; margin-bottom: 10px; }
+       .ai-analysis-item.quota-error { background-color: rgba(240, 136, 62, 0.1); border-left-color: var(--accent-orange); }
+       .ai-analysis-item.portfolio-health { background-color: rgba(163, 113, 247, 0.1); border-left-color: var(--accent-purple); }
+       .ai-analysis-item:last-child { margin-bottom: 0; }
+       .ai-title { font-weight: 700; color: var(--accent-blue); display: block; margin-bottom: 5px; font-size: 14px; }
+       .quota-error .ai-title { color: var(--accent-orange); }
+       .portfolio-health .ai-title { color: var(--accent-purple); }
+       .ai-content { margin: 0; line-height: 1.6; }
+       .ai-value { font-weight: 700; color: var(--text-primary); font-size: 1.2em; }
+       
+       /* 🆕 Features panel */
+       .features-panel {
+           display: flex;
+           gap: 10px;
+           padding: 10px;
+           background-color: var(--light-bg);
+           border: 1px solid var(--border-color);
+           border-radius: 6px;
+           margin-bottom: 20px;
+           flex-wrap: wrap;
+           font-size: 12px;
+       }
+       .feature-badge {
+           display: flex;
+           align-items: center;
+           gap: 5px;
+           padding: 4px 10px;
+           background-color: var(--medium-bg);
+           border: 1px solid var(--border-color);
+           border-radius: 4px;
+           color: var(--text-secondary);
+       }
+       .feature-badge.active {
+           border-color: var(--accent-green);
+           color: var(--accent-green);
+       }
+       .feature-icon {
+           font-size: 14px;
+       }
+       
+       .status-panel { display: flex; justify-content: space-between; flex-wrap: wrap; padding: 10px; margin-top: 20px; font-size: 12px; color: var(--text-secondary); }
+       .status-item { display: flex; align-items: center; gap: 6px; margin-bottom: 5px; width: 50%; justify-content: flex-start; }
+       @media (min-width: 600px) { .status-item { width: auto; } }
+       
+       .debug-log-container { margin-top: 20px; background-color: var(--medium-bg); border: 1px solid var(--border-color); border-radius: 8px; font-family: monospace; font-size: 12px; }
+       .debug-log-header { padding: 10px 15px; background-color: var(--light-bg); border-bottom: 1px solid var(--border-color); font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+       .debug-log-content { padding: 15px; height: 200px; overflow-y: auto; background-color: var(--dark-bg); color: var(--text-secondary); }
+       .log-entry { margin-bottom: 5px; word-break: break-all; }
+       .log-success { color: #3fb950; }
+       .log-error { color: #f85149; }
+       .log-info { color: #a371f7; }
+       .log-warning { color: #f0883e; }
+       .clear-log-btn {
+           font-size: 11px;
+           background-color: var(--accent-red);
+           color: white;
+           border: none;
+           padding: 4px 10px;
+           border-radius: 4px;
+           cursor: pointer;
+       }
+       .clear-log-btn:hover { background-color: #f85149; }
+   </style>
 </head>
 <body>
-    <div class="container">
-        <header class="header"><h1>Personal AI Dashboard</h1></header>
-        <div class="wallet-info"><div class="wallet-details"><span id="networkName"></span><span id="walletAddress">ยังไม่ได้เชื่อมต่อ</span></div><button id="connectButton">เชื่อมต่อ Wallet</button></div>
-        <div id="dashboardContent"><section class="section"><div class="section-header"><h2>โทเค็นหลัก (Native Token)</h2></div><div class="section-content" id="mainTokenSection"><div class="loading-state">โปรดเชื่อมต่อ Wallet...</div></div></section></div>
-        <div class="status-panel" id="systemStatus">
-            <div class="status-item">Backend: <span id="status-Backend"></span></div>
-            <div class="status-item">Alchemy: <span id="status-Alchemy"></span></div>
-            <div class="status-item">Gemini AI: <span id="status-GeminiAI"></span></div>
-            <div class="status-item">GitHub: <span id="status-GitHub"></span></div>
-            <div class="status-item">Netlify: <span id="status-Netlify"></span></div>
-            <div class="status-item">Browser: <span id="status-Browser"></span></div>
-        </div>
-        <div class="debug-log-container" id="debugLog" style="display: none;"><div class="debug-log-header">บันทึกการทำงาน (Debug Log)</div><div class="debug-log-content" id="debugLogContent"></div></div>
-    </div>
+   <div class="container">
+       <header class="header">
+           <h1>Personal AI Dashboard</h1>
+           <div class="auto-refresh-indicator" id="autoRefreshIndicator" style="display: none;">
+               <div class="refresh-dot"></div>
+               <span>Auto-refresh: <span id="refreshCountdown">30</span>s</span>
+           </div>
+       </header>
+       
+       <!-- 🆕 Features Panel -->
+       <div class="features-panel">
+           <div class="feature-badge" id="cacheFeature">
+               <span class="feature-icon">🔄</span>
+               <span>Cache System</span>
+           </div>
+           <div class="feature-badge" id="autoRefreshFeature">
+               <span class="feature-icon">🔁</span>
+               <span>Auto-refresh</span>
+           </div>
+           <div class="feature-badge" id="priceHistoryFeature">
+               <span class="feature-icon">📊</span>
+               <span>Price History</span>
+           </div>
+           <div class="feature-badge" id="multiTokenFeature">
+               <span class="feature-icon">🪙</span>
+               <span>Multi-token</span>
+           </div>
+       </div>
+       
+       <div class="wallet-info">
+           <div class="wallet-details">
+               <span id="networkName"></span>
+               <span id="walletAddress">ยังไม่ได้เชื่อมต่อ</span>
+           </div>
+           <button id="connectButton">เชื่อมต่อ Wallet</button>
+       </div>
+       
+       <div id="dashboardContent">
+           <!-- Native Token Section -->
+           <section class="section">
+               <div class="section-header">
+                   <h2>โทเค็นหลัก (Native Token)</h2>
+                   <span class="cache-indicator" id="cacheIndicator" style="display: none;">จาก Cache</span>
+               </div>
+               <div class="section-content" id="mainTokenSection">
+                   <div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>
+               </div>
+           </section>
+           
+           <!-- 🆕 ERC-20 Tokens Section -->
+           <section class="section" id="erc20Section" style="display: none;">
+               <div class="section-header">
+                   <h2>ERC-20 Tokens</h2>
+               </div>
+               <div class="section-content" id="erc20TokensContent">
+                   <div class="loading-state">กำลังดึงข้อมูล tokens...</div>
+               </div>
+           </section>
+       </div>
+       
+       <div class="status-panel" id="systemStatus">
+           <div class="status-item">Backend: <span id="status-Backend"></span></div>
+           <div class="status-item">Alchemy: <span id="status-Alchemy"></span></div>
+           <div class="status-item">Gemini AI: <span id="status-GeminiAI"></span></div>
+           <div class="status-item">Cache: <span id="status-CacheSystem"></span></div>
+           <div class="status-item">Netlify: <span id="status-Netlify"></span></div>
+           <div class="status-item">Browser: <span id="status-Browser"></span></div>
+       </div>
+       
+       <div class="debug-log-container" id="debugLog" style="display: none;">
+           <div class="debug-log-header">
+               บันทึกการทำงาน (Debug Log)
+               <button class="clear-log-btn" onclick="clearDebugLog()">Clear</button>
+           </div>
+           <div class="debug-log-content" id="debugLogContent"></div>
+       </div>
+   </div>
 
-    <script>
-        const connectButton = document.getElementById('connectButton');
-        const walletAddressSpan = document.getElementById('walletAddress');
-        const networkNameSpan = document.getElementById('networkName');
-        const mainTokenSection = document.getElementById('mainTokenSection');
-        const debugLogContainer = document.getElementById('debugLog');
-        const debugLogContent = document.getElementById('debugLogContent');
-        const BACKEND_URL = "https://838de3bd-02e7-4ba3-8bf0-63ab0412b36f-00-39zqf2mohnweu.pike.replit.dev";
-        let currentAccount = null;
+   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   <script>
+       // Global variables
+       const connectButton = document.getElementById('connectButton');
+       const walletAddressSpan = document.getElementById('walletAddress');
+       const networkNameSpan = document.getElementById('networkName');
+       const mainTokenSection = document.getElementById('mainTokenSection');
+       const erc20Section = document.getElementById('erc20Section');
+       const erc20TokensContent = document.getElementById('erc20TokensContent');
+       const debugLogContainer = document.getElementById('debugLog');
+       const debugLogContent = document.getElementById('debugLogContent');
+       const autoRefreshIndicator = document.getElementById('autoRefreshIndicator');
+       const refreshCountdown = document.getElementById('refreshCountdown');
+       const cacheIndicator = document.getElementById('cacheIndicator');
+       
+       const BACKEND_URL = "https://838de3bd-02e7-4ba3-8bf0-63ab0412b36f-00-39zqf2mohnweu.pike.replit.dev";
+       let currentAccount = null;
+       let autoRefreshInterval = null;
+       let countdownInterval = null;
+       let priceChart = null;
+       let refreshTimeLeft = 30;
 
-        function clearDebugLog() { debugLogContent.innerHTML = ''; debugLogContainer.style.display = 'none'; }
-        function logDebug(message, type = 'info') { debugLogContainer.style.display = 'block'; const entry = document.createElement('div'); entry.className = `log-entry log-${type}`; entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`; debugLogContent.appendChild(entry); debugLogContent.scrollTop = debugLogContent.scrollHeight; }
+       // Debug logging functions
+       function clearDebugLog() { 
+           debugLogContent.innerHTML = ''; 
+           debugLogContainer.style.display = 'none'; 
+       }
+       
+       function logDebug(message, type = 'info') { 
+           debugLogContainer.style.display = 'block'; 
+           const entry = document.createElement('div'); 
+           entry.className = `log-entry log-${type}`; 
+           entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`; 
+           debugLogContent.appendChild(entry); 
+           debugLogContent.scrollTop = debugLogContent.scrollHeight; 
+       }
 
-        async function fetchFullDashboard(address) {
-            clearDebugLog();
-            logDebug('🚀 เริ่มกระบวนการ...');
-            renderLoading(mainTokenSection);
+       // 🔁 Auto-refresh functions
+       function startAutoRefresh() {
+           logDebug('🔁 [Auto-refresh] เริ่มระบบ auto-refresh (ทุก 30 วินาที)', 'info');
+           autoRefreshIndicator.style.display = 'flex';
+           document.getElementById('autoRefreshFeature').classList.add('active');
+           
+           // Countdown timer
+           refreshTimeLeft = 30;
+           countdownInterval = setInterval(() => {
+               refreshTimeLeft--;
+               refreshCountdown.textContent = refreshTimeLeft;
+               if (refreshTimeLeft <= 0) {
+                   refreshTimeLeft = 30;
+               }
+           }, 1000);
+           
+           // Auto refresh interval
+           autoRefreshInterval = setInterval(() => {
+               if (currentAccount) {
+                   logDebug('🔁 [Auto-refresh] กำลัง refresh ข้อมูล...', 'info');
+                   fetchFullDashboard(currentAccount);
+               }
+           }, 30000); // 30 seconds
+       }
 
-            try {
-                logDebug('1. [Frontend] กำลังส่งคำขอไปยัง Backend...');
-                const response = await fetch(`${BACKEND_URL}/api/get_full_dashboard?address=${address}`);
-                logDebug(`2. [Frontend] ได้รับการตอบกลับจาก Backend (สถานะ: ${response.status})`);
+       function stopAutoRefresh() {
+           if (autoRefreshInterval) {
+               clearInterval(autoRefreshInterval);
+               clearInterval(countdownInterval);
+               autoRefreshInterval = null;
+               countdownInterval = null;
+               autoRefreshIndicator.style.display = 'none';
+               document.getElementById('autoRefreshFeature').classList.remove('active');
+               logDebug('🔁 [Auto-refresh] หยุดระบบ auto-refresh', 'warning');
+           }
+       }
 
-                const data = await response.json();
+       // 📊 Price chart functions
+       async function loadPriceHistory(token) {
+           try {
+               logDebug(`📊 [Price History] กำลังดึงประวัติราคา ${token}...`);
+               const response = await fetch(`${BACKEND_URL}/api/price_history/${token}`);
+               const data = await response.json();
+               
+               if (data.success && data.history) {
+                   logDebug(`📊 [Price History] ได้รับข้อมูล ${data.history.length} รายการ`, 'success');
+                   renderPriceChart(data.history);
+                   document.getElementById('priceHistoryFeature').classList.add('active');
+               } else {
+                   logDebug('📊 [Price History] ไม่มีข้อมูลประวัติราคา', 'warning');
+               }
+           } catch (error) {
+               logDebug(`📊 [Price History] Error: ${error.message}`, 'error');
+           }
+       }
 
-                if (response.status === 429 && data.reason === 'QUOTA_EXCEEDED') {
-                    logDebug(`❌ ${data.details}`, 'error');
-                    renderQuotaError(data);
-                    return;
-                }
+       function renderPriceChart(history) {
+           const chartHtml = `
+               <div class="chart-container">
+                   <canvas id="priceChart" class="price-chart"></canvas>
+               </div>
+           `;
+           
+           // Add chart to main token section
+           const existingChart = document.querySelector('.chart-container');
+           if (existingChart) {
+               existingChart.remove();
+           }
+           
+           mainTokenSection.insertAdjacentHTML('beforeend', chartHtml);
+           
+           const ctx = document.getElementById('priceChart').getContext('2d');
+           const labels = history.map(item => {
+               const date = new Date(item.timestamp);
+               return date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+           });
+           const prices = history.map(item => item.price);
+           
+           if (priceChart) {
+               priceChart.destroy();
+           }
+           
+           priceChart = new Chart(ctx, {
+               type: 'line',
+               data: {
+                   labels: labels,
+                   datasets: [{
+                       label: 'ราคา MATIC (USD)',
+                       data: prices,
+                       borderColor: '#58a6ff',
+                       backgroundColor: 'rgba(88, 166, 255, 0.1)',
+                       borderWidth: 2,
+                       tension: 0.4,
+                       pointRadius: 0,
+                       pointHoverRadius: 4
+                   }]
+               },
+               options: {
+                   responsive: true,
+                   maintainAspectRatio: false,
+                   plugins: {
+                       legend: {
+                           display: false
+                       },
+                       tooltip: {
+                           mode: 'index',
+                           intersect: false,
+                           backgroundColor: '#1c2128',
+                           titleColor: '#c9d1d9',
+                           bodyColor: '#8b949e',
+                           borderColor: '#30363d',
+                           borderWidth: 1,
+                           padding: 10,
+                           displayColors: false,
+                           callbacks: {
+                               label: function(context) {
+                                   return `$${context.parsed.y.toFixed(4)}`;
+                               }
+                           }
+                       }
+                   },
+                   scales: {
+                       x: {
+                           grid: {
+                               color: '#30363d',
+                               drawBorder: false
+                           },
+                           ticks: {
+                               color: '#8b949e',
+                               maxTicksLimit: 6
+                           }
+                       },
+                       y: {
+                           grid: {
+                               color: '#30363d',
+                               drawBorder: false
+                           },
+                           ticks: {
+                               color: '#8b949e',
+                               callback: function(value) {
+                                   return '$' + value.toFixed(2);
+                               }
+                           }
+                       }
+                   },
+                   interaction: {
+                       mode: 'nearest',
+                       axis: 'x',
+                       intersect: false
+                   }
+               }
+           });
+       }
 
-                if (!response.ok) {
-                    const errorMessage = `Backend ล้มเหลวที่ขั้นตอน: "${data.failed_at}". รายละเอียด: ${data.details}`;
-                    throw new Error(errorMessage);
-                }
+       // Main dashboard fetch function
+       async function fetchFullDashboard(address) {
+           clearDebugLog();
+           logDebug('🚀 เริ่มกระบวนการ...');
+           renderLoading(mainTokenSection);
 
-                logDebug('3. [Backend] ดึงข้อมูลจาก Alchemy สำเร็จ');
-                logDebug('4. [Backend] วิเคราะห์ข้อมูลโดย Gemini AI สำเร็จ');
-                logDebug('5. [Frontend] กำลังแสดงผลข้อมูล...');
+           try {
+               logDebug('1. [Frontend] กำลังส่งคำขอไปยัง Backend...');
+               const response = await fetch(`${BACKEND_URL}/api/get_full_dashboard?address=${address}`);
+               logDebug(`2. [Frontend] ได้รับการตอบกลับจาก Backend (สถานะ: ${response.status})`);
 
-                renderMainToken(data.matic);
-                logDebug('✅ กระบวนการเสร็จสมบูรณ์!', 'success');
+               const data = await response.json();
 
-            } catch (error) {
-                console.error('Could not fetch dashboard data:', error);
-                renderError(mainTokenSection, `เกิดข้อผิดพลาด`);
-                logDebug(`❌ ${error.message}`, 'error');
-            }
-        }
+               if (response.status === 429 && data.reason === 'QUOTA_EXCEEDED') {
+                   logDebug(`❌ ${data.details}`, 'error');
+                   renderQuotaError(data);
+                   return;
+               }
 
-        function renderQuotaError(errorData) {
-            mainTokenSection.innerHTML = `
-                <div class="ai-analysis-container">
-                    <div class="ai-analysis-item quota-error">
-                        <span class="ai-title">พลังปัญญาถูกใช้งานเต็มพิกัดแล้ว 🔋</span>
-                        <p class="ai-content">
-                            โควต้าการใช้งาน AI สำหรับวันนี้เต็มแล้วครับ
-                            ระบบจะกลับมาพร้อมใช้งานอีกครั้งในวันพรุ่งนี้
-                            ขออภัยในความไม่สะดวกครับ
-                        </p>
-                    </div>
-                </div>
-            `;
-        }
+               if (!response.ok) {
+                   const errorMessage = `Backend ล้มเหลวที่ขั้นตอน: "${data.failed_at}". รายละเอียด: ${data.details}`;
+                   throw new Error(errorMessage);
+               }
 
-        async function checkSystemStatus() {
-            try {
-                const response = await fetch(`${BACKEND_URL}/api/health_check`);
-                if (!response.ok) throw new Error('Health check failed');
-                const status = await response.json();
-                for (const service in status) {
-                    if (status.hasOwnProperty(service)) {
-                        updateStatusIndicator(service, status[service]);
-                    }
-                }
-            } catch (error) {
-                console.error("Could not check system status:", error);
-                const services = ["Backend", "Alchemy", "Gemini AI", "GitHub", "Netlify", "Browser"];
-                services.forEach(service => updateStatusIndicator(service, 'ไม่เชื่อมต่อ'));
-            }
-        }
+               // Log backend processes
+               logDebug('3. [Backend] ดึงข้อมูลจาก Alchemy สำเร็จ');
+               
+               // 🔄 Cache info
+               if (data.cache_info && data.cache_info.price_cached) {
+                   logDebug(`4. [Backend] ใช้ราคาจาก Cache (อายุ: ${data.cache_info.cache_age}s)`, 'info');
+                   cacheIndicator.style.display = 'inline-block';
+                   cacheIndicator.classList.add('cached');
+                   document.getElementById('cacheFeature').classList.add('active');
+               } else {
+                   logDebug('4. [Backend] ดึงราคาใหม่จาก CoinGecko', 'info');
+                   cacheIndicator.style.display = 'none';
+               }
+               
+               // 🪙 Multi-token info
+               if (data.erc20_tokens && data.erc20_tokens.length > 0) {
+                   logDebug(`5. [Backend] พบ ${data.erc20_tokens.length} ERC-20 tokens`, 'success');
+                   document.getElementById('multiTokenFeature').classList.add('active');
+                   renderERC20Tokens(data.erc20_tokens);
+               } else {
+                   logDebug('5. [Backend] ไม่พบ ERC-20 tokens', 'warning');
+                   erc20Section.style.display = 'none';
+               }
+               
+               logDebug('6. [Backend] วิเคราะห์ข้อมูลโดย Gemini AI สำเร็จ');
+               logDebug('7. [Frontend] กำลังแสดงผลข้อมูล...');
 
-        function updateStatusIndicator(service, status) {
-            const indicator = document.getElementById(`status-${service.replace(' ', '')}`);
-            if (indicator) {
-                indicator.textContent = status;
-                if (status === "เชื่อมต่อแล้ว") {
-                    indicator.style.color = 'var(--accent-green)';
-                } else {
-                    indicator.style.color = 'var(--accent-red)';
-                }
-            }
-        }
+               // Render main token
+               renderMainToken(data.matic);
+               
+               // 📊 Load price history
+               loadPriceHistory('matic');
+               
+               // Update feature badges
+               if (data.features) {
+                   updateFeatureBadges(data.features);
+               }
+               
+               logDebug('✅ กระบวนการเสร็จสมบูรณ์!', 'success');
 
-        document.addEventListener('DOMContentLoaded', checkSystemStatus);
-        connectButton.addEventListener('click', async () => {
-            if (typeof window.ethereum !== 'undefined') {
-                try {
-                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    handleAccountsChanged(accounts);
-                } catch (error) {
-                    console.error("User rejected request:", error);
-                }
-            } else {
-                alert('โปรดติดตั้ง MetaMask!');
-            }
-        });
-        if (typeof window.ethereum !== 'undefined') {
-            window.ethereum.on('accountsChanged', handleAccountsChanged);
-            window.ethereum.on('chainChanged', () => window.location.reload());
-        }
-        function getNetworkName(chainId) {
-            const networks = { '0x89': 'Polygon', '0x1': 'Ethereum', '0x38': 'BNB Chain', '0xa4b1': 'Arbitrum' };
-            return networks[chainId] || 'Unknown';
-        }
-        async function handleAccountsChanged(accounts) {
-            if (accounts.length === 0) {
-                currentAccount = null;
-                walletAddressSpan.textContent = 'ยังไม่ได้เชื่อมต่อ';
-                networkNameSpan.textContent = '';
-                connectButton.textContent = 'เชื่อมต่อ Wallet';
-                mainTokenSection.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>';
-                clearDebugLog();
-            } else if (accounts[0] !== currentAccount) {
-                currentAccount = accounts[0];
-                walletAddressSpan.textContent = `${currentAccount.substring(0, 6)}...${currentAccount.substring(currentAccount.length - 4)}`;
-                connectButton.textContent = 'เชื่อมต่อแล้ว';
-                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-                networkNameSpan.textContent = getNetworkName(chainId);
-                fetchFullDashboard(currentAccount);
-            }
-        }
-        function renderLoading(sectionElement, text = "กำลังดึงข้อมูลและวิเคราะห์...") {
-            sectionElement.innerHTML = `<div class="loading-state"><div class="loader"></div><p>${text}</p></div>`;
-        }
-        function renderError(sectionElement, message) {
-            sectionElement.innerHTML = `<div class="error-state">${message}</div>`;
-        }
-        function renderMainToken(tokenData) {
-            if (tokenData && tokenData.data && tokenData.data.symbol) {
-                const analysis = tokenData.analysis || {};
-                const estimatedValue = parseFloat(analysis.estimated_usd || 0).toLocaleString('en-US', { style: 'currency', currency: 'USD' });
-                mainTokenSection.innerHTML = `<ul class="token-list"><li class="token-item"><img src="${tokenData.data.icon}" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪙</text></svg>'" class="token-icon"><div class="token-info"><span class="token-symbol">${tokenData.data.symbol}</span><span class="token-name">${tokenData.data.name}</span></div><div class="token-balance"><span>${tokenData.data.balance}</span></div></li></ul><div class="ai-analysis-container"><div class="ai-analysis-item"><span class="ai-title">มูลค่าโดยประมาณ</span><p class="ai-content ai-value">${estimatedValue}</p></div><div class="ai-analysis-item"><span class="ai-title">🧠 บทสรุปจาก AI</span><p class="ai-content">${analysis.summary || 'N/A'}</p></div><div class="ai-analysis-item"><span class="ai-title">💡 เกร็ดความรู้ (Pro Tip)</span><p class="ai-content">${analysis.pro_tip || 'N/A'}</p></div></div>`;
-            } else {
-                renderError(mainTokenSection, 'ไม่สามารถดึงข้อมูลโทเค็นหลักได้');
-            }
-        }
-    </script>
+               // Start auto-refresh if not already started
+               if (!autoRefreshInterval && currentAccount) {
+                   startAutoRefresh();
+               }
+
+           } catch (error) {
+               console.error('Could not fetch dashboard data:', error);
+               renderError(mainTokenSection, `เกิดข้อผิดพลาด`);
+               logDebug(`❌ ${error.message}`, 'error');
+           }
+       }
+
+       function updateFeatureBadges(features) {
+           if (features.cache_enabled) {
+               document.getElementById('cacheFeature').classList.add('active');
+           }
+           if (features.auto_refresh_enabled) {
+               document.getElementById('autoRefreshFeature').classList.add('active');
+           }
+           if (features.price_history_enabled) {
+               document.getElementById('priceHistoryFeature').classList.add('active');
+           }
+           if (features.multi_token_enabled) {
+               document.getElementById('multiTokenFeature').classList.add('active');
+           }
+       }
+
+       // 🪙 Render ERC-20 tokens
+       function renderERC20Tokens(tokens) {
+           if (!tokens || tokens.length === 0) {
+               erc20Section.style.display = 'none';
+               return;
+           }
+           
+           erc20Section.style.display = 'block';
+           
+           // For now, show basic token info
+           // In real implementation, you would fetch token metadata
+           const tokenListHtml = `
+               <ul class="token-list">
+                   ${tokens.map((token, index) => `
+                       <li class="token-item">
+                           <img src="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪙</text></svg>" class="token-icon">
+                           <div class="token-info">
+                               <span class="token-symbol">Token ${index + 1}</span>
+                               <span class="token-name">${token.contractAddress.substring(0, 10)}...</span>
+                           </div>
+                           <div class="token-balance">
+                               <span>Balance: ${token.balance.substring(0, 10)}...</span>
+                               <div class="token-value">Loading price...</div>
+                           </div>
+                       </li>
+                   `).join('')}
+               </ul>
+           `;
+           
+           erc20TokensContent.innerHTML = tokenListHtml;
+           logDebug(`🪙 [Multi-token] แสดง ${tokens.length} tokens`, 'success');
+       }
+
+       function renderQuotaError(errorData) {
+           mainTokenSection.innerHTML = `
+               <div class="ai-analysis-container">
+                   <div class="ai-analysis-item quota-error">
+                       <span class="ai-title">พลังปัญญาถูกใช้งานเต็มพิกัดแล้ว 🔋</span>
+                       <p class="ai-content">
+                           โควต้าการใช้งาน AI สำหรับวันนี้เต็มแล้วครับ
+                           ระบบจะกลับมาพร้อมใช้งานอีกครั้งในวันพรุ่งนี้
+                           ขออภัยในความไม่สะดวกครับ
+                       </p>
+                   </div>
+               </div>
+           `;
+       }
+
+       async function checkSystemStatus() {
+           try {
+               const response = await fetch(`${BACKEND_URL}/api/health_check`);
+               if (!response.ok) throw new Error('Health check failed');
+               const status = await response.json();
+               
+               // Update main status indicators
+               for (const service in status) {
+                   if (status.hasOwnProperty(service) && typeof status[service] === 'string') {
+                       updateStatusIndicator(service, status[service]);
+                   }
+               }
+               
+               // Log feature status
+               if (status.Features) {
+                   logDebug('🔧 [System] Features status:', 'info');
+                   for (const feature in status.Features) {
+                       logDebug(`   - ${feature}: ${status.Features[feature]}`, 'info');
+                   }
+               }
+           } catch (error) {
+               console.error("Could not check system status:", error);
+               const services = ["Backend", "Alchemy", "Gemini AI", "CacheSystem", "Netlify", "Browser"];
+               services.forEach(service => updateStatusIndicator(service, 'ไม่เชื่อมต่อ'));
+           }
+       }
+
+       function updateStatusIndicator(service, status) {
+           const indicator = document.getElementById(`status-${service.replace(' ', '')}`);
+           if (indicator) {
+               indicator.textContent = status;
+               if (status === "เชื่อมต่อแล้ว" || status === "ทำงานปกติ") {
+                   indicator.style.color = 'var(--accent-green)';
+               } else {
+                   indicator.style.color = 'var(--accent-red)';
+               }
+           }
+       }
+
+       // Initialize on DOM load
+       document.addEventListener('DOMContentLoaded', () => {
+           checkSystemStatus();
+           // Check system status every 60 seconds
+           setInterval(checkSystemStatus, 60000);
+       });
+
+       // Connect wallet button
+       connectButton.addEventListener('click', async () => {
+           if (typeof window.ethereum !== 'undefined') {
+               try {
+                   const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                   handleAccountsChanged(accounts);
+               } catch (error) {
+                   console.error("User rejected request:", error);
+                   logDebug('❌ ผู้ใช้ปฏิเสธการเชื่อมต่อ wallet', 'error');
+               }
+           } else {
+               alert('โปรดติดตั้ง MetaMask!');
+               logDebug('❌ ไม่พบ MetaMask ในเบราว์เซอร์', 'error');
+           }
+       });
+
+       // MetaMask event listeners
+       if (typeof window.ethereum !== 'undefined') {
+           window.ethereum.on('accountsChanged', handleAccountsChanged);
+           window.ethereum.on('chainChanged', () => {
+               logDebug('🔄 เครือข่ายมีการเปลี่ยนแปลง กำลัง reload หน้า...', 'warning');
+               window.location.reload();
+           });
+       }
+
+       function getNetworkName(chainId) {
+           const networks = { 
+               '0x89': 'Polygon', 
+               '0x1': 'Ethereum', 
+               '0x38': 'BNB Chain', 
+               '0xa4b1': 'Arbitrum' 
+           };
+           return networks[chainId] || 'Unknown';
+       }
+
+       async function handleAccountsChanged(accounts) {
+           if (accounts.length === 0) {
+               // Disconnected
+               currentAccount = null;
+               walletAddressSpan.textContent = 'ยังไม่ได้เชื่อมต่อ';
+               networkNameSpan.textContent = '';
+               connectButton.textContent = 'เชื่อมต่อ Wallet';
+               mainTokenSection.innerHTML = '<div class="loading-state">โปรดเชื่อมต่อ Wallet...</div>';
+               erc20Section.style.display = 'none';
+               clearDebugLog();
+               stopAutoRefresh();
+           } else if (accounts[0] !== currentAccount) {
+               // Account changed
+               currentAccount = accounts[0];
+               walletAddressSpan.textContent = `${currentAccount.substring(0, 6)}...${currentAccount.substring(currentAccount.length - 4)}`;
+               connectButton.textContent = 'เชื่อมต่อแล้ว';
+               const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+               networkNameSpan.textContent = getNetworkName(chainId);
+               
+               logDebug(`🔗 เชื่อมต่อ wallet: ${currentAccount}`, 'success');
+               logDebug(`🌐 เครือข่าย: ${getNetworkName(chainId)}`, 'info');
+               
+               // Stop existing auto-refresh before starting new one
+               stopAutoRefresh();
+               
+               // Fetch dashboard data
+               fetchFullDashboard(currentAccount);
+           }
+       }
+
+       function renderLoading(sectionElement, text = "กำลังดึงข้อมูลและวิเคราะห์...") {
+           sectionElement.innerHTML = `<div class="loading-state"><div class="loader"></div><p>${text}</p></div>`;
+       }
+
+       function renderError(sectionElement, message) {
+           sectionElement.innerHTML = `<div class="error-state">${message}</div>`;
+       }
+
+       function renderMainToken(tokenData) {
+           if (tokenData && tokenData.data && tokenData.data.symbol) {
+               const analysis = tokenData.analysis || {};
+               const estimatedValue = parseFloat(analysis.estimated_usd || 0).toLocaleString('en-US', { 
+                   style: 'currency', 
+                   currency: 'USD' 
+               });
+               
+               let aiAnalysisHtml = `
+                   <div class="ai-analysis-container">
+                       <div class="ai-analysis-item">
+                           <span class="ai-title">มูลค่าโดยประมาณ</span>
+                           <p class="ai-content ai-value">${estimatedValue}</p>
+                       </div>
+                       <div class="ai-analysis-item">
+                           <span class="ai-title">🧠 บทสรุปจาก AI</span>
+                           <p class="ai-content">${analysis.summary || 'N/A'}</p>
+                       </div>
+                       <div class="ai-analysis-item">
+                           <span class="ai-title">💡 เกร็ดความรู้ (Pro Tip)</span>
+                           <p class="ai-content">${analysis.pro_tip || 'N/A'}</p>
+                       </div>
+               `;
+               
+               // Add portfolio health if available
+               if (analysis.portfolio_health) {
+                   aiAnalysisHtml += `
+                       <div class="ai-analysis-item portfolio-health">
+                           <span class="ai-title">📈 สุขภาพ Portfolio</span>
+                           <p class="ai-content">${analysis.portfolio_health}</p>
+                       </div>
+                   `;
+               }
+               
+               aiAnalysisHtml += '</div>';
+               
+               mainTokenSection.innerHTML = `
+                   <ul class="token-list">
+                       <li class="token-item">
+                           <img src="${tokenData.data.icon}" 
+                                onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🪙</text></svg>'" 
+                                class="token-icon">
+                           <div class="token-info">
+                               <span class="token-symbol">${tokenData.data.symbol}</span>
+                               <span class="token-name">${tokenData.data.name}</span>
+                           </div>
+                           <div class="token-balance">
+                               <span>${tokenData.data.balance}</span>
+                           </div>
+                       </li>
+                   </ul>
+                   ${aiAnalysisHtml}
+               `;
+               
+               logDebug('✅ แสดงข้อมูล Native Token เรียบร้อย', 'success');
+           } else {
+               renderError(mainTokenSection, 'ไม่สามารถดึงข้อมูลโทเค็นหลักได้');
+               logDebug('❌ ข้อมูล token ไม่ถูกต้อง', 'error');
+           }
+       }
+
+       // Auto-refresh config check
+       async function checkAutoRefreshConfig() {
+           try {
+               const response = await fetch(`${BACKEND_URL}/api/auto_refresh_config`);
+               const config = await response.json();
+               
+               if (config.enabled) {
+                   logDebug(`🔁 [Config] Auto-refresh enabled (interval: ${config.interval}s)`, 'info');
+               }
+           } catch (error) {
+               logDebug('🔁 [Config] ไม่สามารถดึง auto-refresh config', 'warning');
+           }
+       }
+
+       // Initial config check
+       checkAutoRefreshConfig();
+   </script>
 </body>
 </html>
